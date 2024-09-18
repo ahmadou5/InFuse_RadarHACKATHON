@@ -30,7 +30,7 @@ export default function AuthContextProvider({children}:ReactChildrenProps) {
   ) //? user state
   useEffect(() => {
     setIsLoggedIn(false)
-
+    CookiesService.remove(COOKIE_USER_DATA_KEY)
     if (!user && isLoggedIn) logout()
     else fetchProfile()
   }, [])
