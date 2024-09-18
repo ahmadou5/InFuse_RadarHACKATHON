@@ -66,6 +66,7 @@ export default function AuthContextProvider({children}:ReactChildrenProps) {
             console.log('user', getUser.data);
             handleSetUser(getUser.data);
             router.replace('/')
+            return;
         }
 
         console.log('User not found');
