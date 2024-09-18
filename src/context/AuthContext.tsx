@@ -62,21 +62,15 @@ export default function AuthContextProvider({children}:ReactChildrenProps) {
     
         const getUser = await UserService.GetUserByID(tgData.user.id);
         
-        if (getUser.success) {
-            console.log('user', getUser.data);
-            handleSetUser(getUser.data);
-            router.replace('/')
-            return;
-        }
-
-        console.log('User not found');
+        if (!getUser.success) {
+          console.log('User not found');
           router.replace('/create')
-          return;
-        
-        
-        
-        
-    
+          return;  
+        }
+        console.log('user dey', getUser.data);
+        handleSetUser(getUser.data);
+        router.replace('/')
+        return;
       } catch (error) {
         console.error('Error fetching user data:', error);
       }

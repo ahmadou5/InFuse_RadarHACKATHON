@@ -51,7 +51,7 @@ export function useTelegramMock(): void {
           buttonColor: '#5288c1',
           buttonTextColor: '#ffffff',
           destructiveTextColor: '#ec3942',
-          headerBgColor: '#17212b',
+          headerBgColor: '#ffffff',
           hintColor: '#708499',
           linkColor: '#6ab3f3',
           secondaryBgColor: '#232e3c',
