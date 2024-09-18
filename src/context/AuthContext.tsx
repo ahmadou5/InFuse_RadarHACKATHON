@@ -11,7 +11,7 @@ import { createContext, useContext , useState, useEffect } from "react"
 const initialAuthState: AuthContextProps = { 
     isLoggedIn: false,
     user: null,
-    setUser:(user: any) => null ,
+    setUser:( user:UserInterface ) => console.log(user)
 }
 
 export const AuthContext = createContext<AuthContextProps>(initialAuthState)
@@ -26,14 +26,14 @@ export default function AuthContextProvider({children}:ReactChildrenProps) {
 
   const [isLoggedIn, setIsLoggedIn] = useState(false) //? isLoggedIn state
   const [user, setUser] = useState<UserInterface | null>(
-    CookiesService.get<any>(COOKIE_USER_DATA_KEY)
+    null
   ) //? user state
   useEffect(() => {
     setIsLoggedIn(false)
 
     if (!user && isLoggedIn) logout()
     else fetchProfile()
-  }, [])
+  }, [user])
 
  
 
@@ -47,7 +47,7 @@ export default function AuthContextProvider({children}:ReactChildrenProps) {
   }
 
   // ? function to set user to cookie and state
-  const handleSetUser = (passedUser: any) => {
+  const handleSetUser = (passedUser: UserInterface) => {
     const newUser = { ...user, ...passedUser }
     CookiesService.setter(COOKIE_USER_DATA_KEY, newUser)
     setUser(newUser)
