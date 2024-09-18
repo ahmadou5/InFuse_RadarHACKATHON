@@ -70,7 +70,7 @@ export default function AuthContextProvider({children}:ReactChildrenProps) {
         if (!getUser.success) {
             console.log('user', getUser.data);
             handleSetUser(getUser.data);
-            router.replace('/fff')
+            router.replace('/')
           }
         
     
