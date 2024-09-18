@@ -33,7 +33,7 @@ export default function AuthContextProvider({children}:ReactChildrenProps) {
 
     if (!user && isLoggedIn) logout()
     else fetchProfile()
-  }, [user])
+  }, [])
 
  
 
