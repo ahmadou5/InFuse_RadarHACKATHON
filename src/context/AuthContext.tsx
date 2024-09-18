@@ -10,7 +10,7 @@ import { createContext, useContext , useState, useEffect } from "react"
 
 const initialAuthState: AuthContextProps = { 
     isLoggedIn: false,
-    user: null,
+    user: undefined,
     setUser:( user:UserInterface ) => console.log(user)
 }
 
@@ -25,8 +25,8 @@ export default function AuthContextProvider({children}:ReactChildrenProps) {
   const tgData = useInitData()
 
   const [isLoggedIn, setIsLoggedIn] = useState(false) //? isLoggedIn state
-  const [user, setUser] = useState<UserInterface | null>(
-    null
+  const [user, setUser] = useState<UserInterface | undefined>(
+    CookiesService.get(COOKIE_USER_DATA_KEY)
   ) //? user state
   useEffect(() => {
     setIsLoggedIn(false)
@@ -42,7 +42,7 @@ export default function AuthContextProvider({children}:ReactChildrenProps) {
     // CookiesService.remover(COOKIE_TOKEN_KEY)
     CookiesService.remove(COOKIE_USER_DATA_KEY)
     setIsLoggedIn(false)
-    setUser(null)
+    setUser(undefined)
     router.replace('/')
   }
 

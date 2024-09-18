@@ -1,3 +1,4 @@
+import { UserInterface } from '@/interfaces';
 import Cookie from 'js-cookie';
 
 export default class CookiesService {
@@ -15,14 +16,14 @@ export default class CookiesService {
     }
   }
 
-  static get<T>(key: string): T | undefined {
+  static get(key: string): UserInterface | undefined {
     try {
       if (typeof window === 'undefined') return undefined;
       
       const value = Cookie.get(key);
       if (!value) return undefined;
       
-      return JSON.parse(value) as T;
+      return JSON.parse(value);
     } catch (err) {
       console.error('Error getting cookie:', err);
       return undefined;
