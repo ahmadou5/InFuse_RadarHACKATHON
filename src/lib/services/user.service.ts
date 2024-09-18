@@ -19,7 +19,7 @@ export class UserService {
     }
 
    }
-   static async GetUserByID(telegramID:string) { 
+   static async GetUserByID(telegramID:number) { 
     try {
         const { data:user, error} = await supabaseClient
         .from('SolWallet')

@@ -1,15 +1,14 @@
 import {
     clusterApiUrl,
     Connection,
-    LAMPORTS_PER_SOL,
+    //LAMPORTS_PER_SOL,
     PublicKey,
     SystemProgram,
     Transaction,
   } from '@solana/web3.js'
 
-
-  console.log(clusterApiUrl,Connection,LAMPORTS_PER_SOL,PublicKey,SystemProgram,Transaction)
-
+import { TransactionDetails } from '@/interfaces/models.interface'
+ 
   export const SendNativeSol = async (
     connection: Connection,
     {
@@ -82,3 +81,64 @@ import {
   ) => {
     console.log(seedPhrase)
   }
+
+
+  export const GetUserTransaction = async (
+    connection: Connection,
+    address: PublicKey
+  ) => {
+    try {
+      const pubKey = new PublicKey(address);
+      const signatures = await connection.getSignaturesForAddress(pubKey, {
+        limit: 20,
+        
+      });
+
+      const txDetails: TransactionDetails[] = await Promise.all(
+        signatures.map(async (sig) => {
+          const tx = await connection.getParsedTransaction(sig.signature, {
+            maxSupportedTransactionVersion: 0,
+          });
+          if (!tx)
+            throw new Error(`Failed to fetch transaction ${sig.signature}`);
+
+          let direction: "sent" | "received" = "received";
+          let amount = 0;
+
+          // Determine if the transaction is sent or received
+          tx.transaction.message.accountKeys.forEach((account, index) => {
+            if (account.pubkey === address) {
+              if (tx.meta && tx.meta.postBalances && tx.meta.preBalances) {
+                if (tx.meta.postBalances[index] < tx.meta.preBalances[index]) {
+                  direction = "sent";
+                  amount =
+                    (tx.meta.preBalances[index] - tx.meta.postBalances[index]) /
+                    1e9;
+                } else if (
+                  tx.meta.postBalances[index] > tx.meta.preBalances[index]
+                ) {
+                  amount =
+                    (tx.meta.postBalances[index] - tx.meta.preBalances[index]) /
+                    1e9;
+                }
+              }
+            }
+          });
+
+          return {
+            signature: sig.signature,
+            blockTime: tx.blockTime
+              ? new Date(tx.blockTime * 1000).toLocaleString()
+              : "Unknown",
+            fee: tx.meta?.fee ? tx.meta.fee / 1e9 : 0,
+            direction,
+            amount,
+          };
+        })
+      );
+      return txDetails;
+    } catch (error: unknown) {
+      if (error instanceof Error)
+      throw new Error(`Failed to fetch transaction ${error.message}`);
+    }
+  };
