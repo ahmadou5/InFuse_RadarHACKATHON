@@ -49,7 +49,7 @@ export default function AuthContextProvider({children}:ReactChildrenProps) {
   // ? function to set user to cookie and state
   const handleSetUser = (passedUser: UserInterface) => {
     const newUser = { ...user, ...passedUser }
-    CookiesService.setter(COOKIE_USER_DATA_KEY, newUser)
+    //CookiesService.setter(COOKIE_USER_DATA_KEY, newUser)
     setUser(newUser)
   }
 
@@ -69,6 +69,7 @@ export default function AuthContextProvider({children}:ReactChildrenProps) {
         }
         console.log('user dey', getUser.data);
         handleSetUser(getUser.data);
+        CookiesService.remove(COOKIE_USER_DATA_KEY)
         router.replace('/')
         return;
       } catch (error) {
