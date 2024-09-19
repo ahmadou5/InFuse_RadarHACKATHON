@@ -27,6 +27,22 @@ export class UserService {
     pin: number
    }) {
       try {
+        const checkUser = await supabaseClient
+        .from('walletUsers')
+        .select('*')
+        .eq('id', payload.user_id)
+        .eq('email', payload.email)
+        .eq('username', payload.username)
+        .eq('pin', payload.pin)
+      if (checkUser.error)
+        return apiResponse(
+          false,
+          'user details',
+          checkUser?.error?.message || 'something went wrong'
+        )
+      if (checkUser.data[0])
+        return apiResponse(false, 'You already Register that', undefined)
+
         const { data:user, error } = await supabaseClient
         .from('walletUsers')
         .insert([{id:payload.user_id, email:payload.email, username:payload.username,pin:payload.pin}])

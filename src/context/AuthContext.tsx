@@ -1,17 +1,19 @@
 'use client'
 
-import { AuthContextProps, ReactChildrenProps,UserInterface, } from "@/interfaces"
-import {  useInitData } from "@telegram-apps/sdk-react"
+import { AuthContextProps, ReactChildrenProps, UserInterface } from "@/interfaces"
+import { useInitData } from "@telegram-apps/sdk-react"
 import CookiesService from "@/lib/cookie.lib"
 import { UserService } from "@/lib/services/user.service"
 import { COOKIE_USER_DATA_KEY } from "@/lib/constant/app.constant"
 import { useRouter } from "next/navigation"
-import { createContext, useContext , useState, useEffect } from "react"
+import { createContext, useContext, useState, useEffect } from "react"
 
 const initialAuthState: AuthContextProps = { 
     isLoggedIn: false,
     user: undefined,
-    setUser:( user:UserInterface ) => console.log(user)
+    setUser: (user: UserInterface) => console.log(user),
+    logout: () => {},
+    isUserLoading: true,
 }
 
 export const AuthContext = createContext<AuthContextProps>(initialAuthState)
@@ -20,71 +22,81 @@ export const useAuth = () => {
     return useContext(AuthContext)
 }
 
-export default function AuthContextProvider({children}:ReactChildrenProps) {
+export default function AuthContextProvider({children}: ReactChildrenProps) {
   const router = useRouter()
   const tgData = useInitData()
 
-  const [isLoggedIn, setIsLoggedIn] = useState(false) //? isLoggedIn state
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [user, setUser] = useState<UserInterface | undefined>(
     CookiesService.get(COOKIE_USER_DATA_KEY)
-  ) //? user state
+  )
+  const [isUserLoading, setIsUserLoading] = useState(true)
+
   useEffect(() => {
-    setIsLoggedIn(false)
-    CookiesService.remove(COOKIE_USER_DATA_KEY)
-    if (!user && isLoggedIn) logout()
-    else fetchProfile()
-  }, [])
+    const initAuth = async () => {
+      setIsUserLoading(true)
+      const savedUser = CookiesService.get(COOKIE_USER_DATA_KEY)
+      if (savedUser) {
+        setUser(savedUser)
+        setIsLoggedIn(true)
+      } else {
+        await fetchProfile()
+      }
+      setIsUserLoading(false)
+    }
 
- 
+    initAuth()
+  }, [tgData])
 
-  //? function to log a user out
   const logout = () => {
-    // CookiesService.remover(COOKIE_TOKEN_KEY)
     CookiesService.remove(COOKIE_USER_DATA_KEY)
     setIsLoggedIn(false)
     setUser(undefined)
-    router.replace('/')
+    router.replace('/create')
   }
 
-  // ? function to set user to cookie and state
   const handleSetUser = (passedUser: UserInterface) => {
     const newUser = { ...user, ...passedUser }
-    //CookiesService.setter(COOKIE_USER_DATA_KEY, newUser)
+    CookiesService.setter(COOKIE_USER_DATA_KEY, newUser)
     setUser(newUser)
+    setIsLoggedIn(true)
   }
 
   const fetchProfile = async () => {
     try {
-        if (tgData?.user?.id === undefined) {
-          console.log('User ID is undefined');
-          return;
-        }
-    
-        const getUser = await UserService.GetUserByID(tgData.user.id);
-        
-        if (!getUser.success) {
-          console.log('User not found');
-          router.replace('/create')
-          return;  
-        }
-        console.log('user dey', getUser.data);
-        handleSetUser(getUser.data);
-        CookiesService.remove(COOKIE_USER_DATA_KEY)
-        router.replace('/')
-        return;
-      } catch (error) {
-        console.error('Error fetching user data:', error);
+      if (tgData?.user?.id === undefined) {
+        console.log('User ID is undefined')
+        return
       }
-    }
 
-    const AuthContextValue:AuthContextProps = {
-       isLoggedIn,
-       user,
-       setUser,
+      const getUser = await UserService.GetUserByID(tgData.user.id)
+      
+      if (!getUser.success) {
+        console.log('User not found')
+        router.replace('/create')
+        return
+      }
+
+      console.log('user found', getUser.data)
+      handleSetUser(getUser.data)
+      router.replace('/')
+    } catch (error) {
+      console.error('Error fetching user data:', error)
+      logout()
     }
-    return(
+  }
+
+  const AuthContextValue: AuthContextProps = {
+    isLoggedIn,
+    user,
+    setUser: handleSetUser,
+    logout,
+    isUserLoading,
+  }
+
+  return (
     <AuthContext.Provider value={AuthContextValue}>
-       {children}
+      {children}
     </AuthContext.Provider>
-    )
+  )
 }

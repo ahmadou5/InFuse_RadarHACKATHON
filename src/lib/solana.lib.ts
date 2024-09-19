@@ -2,12 +2,14 @@ import {
     clusterApiUrl,
     Connection,
     //LAMPORTS_PER_SOL,
+    Keypair,
     PublicKey,
     SystemProgram,
     Transaction,
   } from '@solana/web3.js'
-
+import { GenerateSeed } from './helper.lib'
 import { TransactionDetails } from '@/interfaces/models.interface'
+import bs58 from 'bs58'
  
   export const SendNativeSol = async (
     connection: Connection,
@@ -65,14 +67,19 @@ import { TransactionDetails } from '@/interfaces/models.interface'
   }
 
 
-  export const createSolanaWallet = async ({
-    phrase,
-    somethingElse
-  }:{
-    phrase: string;
-    somethingElse: string
-  }) => {
-    console.log(phrase,somethingElse)
+  export const createSolanaWallet = async () => {
+    try {
+      const { mnemonic, seedArray } = await GenerateSeed()
+      const account = await Keypair.fromSeed(seedArray);
+      //console.log(account)
+      const publicKey = account.publicKey.toString();
+      const privateKey = account.secretKey;
+      const secret = bs58.encode(privateKey)
+      return { publicKey, secret, mnemonic }
+    } catch (error) {
+      if(error instanceof Error)
+        console.log('Account Creation Error' , error.message)
+    }
   }
   
 
