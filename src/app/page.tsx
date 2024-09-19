@@ -9,10 +9,7 @@ import { useEffect } from "react";
 export default function Home() {
   
   useEffect(() => {
-    setTimeout(() => {
-      setIsLoading(false)
-      console.log('Function triggered after 20 seconds!');
-    }, 20000);
+    
   },[])
   //const data = useInitData();
   return (
