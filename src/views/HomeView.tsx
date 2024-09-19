@@ -1,3 +1,4 @@
+'use client'
 import { TransactionService } from "@/lib/services/transaction.service"
 import { UserService } from "@/lib/services/user.service"
 import { useInitData } from "@telegram-apps/sdk-react"
