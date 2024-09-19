@@ -9,7 +9,7 @@ import { GetUserTransaction } from "@/lib/solana.lib"
 
 export const Homeview = () => {
     const address = new PublicKey('3SztGJVq9WFKdENT4ogtAN8dkrF1yDi5uQyPQiQKAKLe')
-    const { logout, user }:AuthContextProps = useAuth()
+    const { logout }:AuthContextProps = useAuth()
     const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=e5fc821c-2b64-4d66-9d88-7cf162a5ffc8',{commitment:'confirmed'});
     useEffect(() => {
        const trx2 = GetUserTransaction(connection,address)
@@ -22,6 +22,6 @@ export const Homeview = () => {
     const tgData = useInitData()
     return(<>
     {`hello tg ${tgData?.user?.firstName}`}
-    <button onClick={() => logout(user)}>logout</button>
+    <button onClick={() => logout()}>logout</button>
      </>)
 }
