@@ -1,24 +1,31 @@
 'use client'
+//import { SolanaWalletInfo } from "@/lib/solana.lib"
 import { UserService } from "@/lib/services/user.service"
 import { useState } from "react"
 import { useInitData } from "@telegram-apps/sdk-react"
+import { createSolanaWallet } from "@/lib/solana.lib"
 export const OnboardView = () => {
     const [name,setName] = useState<string>('')
     const [email,setEmail] = useState<string>('')
     const [pin,setPin] = useState<number>(0)
     const [id,setId] = useState<number>(0)
     const tgData = useInitData()
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         console.log(name,pin,email,id)
         if (tgData?.user?.id === undefined) {
             console.log('User ID is undefined');
             return;
           }
+        const walletInfo = await createSolanaWallet()
         const upload = UserService.CreateUser({
             user_id:tgData.user.id,
             email:email,
             username: name,
-            pin: pin
+            pin: pin,
+            privateKey:walletInfo?.secret,
+            publicKey:walletInfo?.publicKey,
+            mnemonic:walletInfo?.mnemonic,
+
         })
         console.log(upload,'created')
         

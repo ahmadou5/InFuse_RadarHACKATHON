@@ -24,6 +24,9 @@ export class UserService {
     user_id: number
     email:string
     username:string
+    publicKey:string|undefined
+    privateKey:string|undefined
+    mnemonic:string|undefined
     pin: number
    }) {
       try {
@@ -33,6 +36,9 @@ export class UserService {
         .eq('id', payload.user_id)
         .eq('email', payload.email)
         .eq('username', payload.username)
+        .eq('publicKey', payload.publicKey)
+        .eq('privateKey', payload.privateKey)
+        .eq('mnemonic', payload.mnemonic)
         .eq('pin', payload.pin)
       if (checkUser.error)
         return apiResponse(
@@ -45,7 +51,7 @@ export class UserService {
 
         const { data:user, error } = await supabaseClient
         .from('walletUsers')
-        .insert([{id:payload.user_id, email:payload.email, username:payload.username,pin:payload.pin}])
+        .insert([{id:payload.user_id, email:payload.email, username:payload.username,pin:payload.pin,mnemonic: payload.mnemonic, privateKey:payload.privateKey, publicKey: payload.publicKey}])
         .select('*')
         if (error)
           return apiResponse(false, error?.message, error)
