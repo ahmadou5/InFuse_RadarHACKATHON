@@ -42,8 +42,11 @@ export default function AuthContextProvider({children}: ReactChildrenProps) {
         setIsUserLoading(false)
       }
     }
-
-    initAuth()
+     setTimeout(() => {
+      initAuth()
+      console.log('Function triggered after 20 seconds!');
+    }, 20000);
+    
   }, [tgData])
 
   const logout = () => {
