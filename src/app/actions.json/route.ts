@@ -1,6 +1,7 @@
 import { createActionHeaders, type ActionsJson } from '@solana/actions'
 
 export async function GET(request: Request) {
+  console.log(request)
   const payload: ActionsJson = {
     rules: [
       // map all root level routes to an action
