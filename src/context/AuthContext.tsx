@@ -76,7 +76,7 @@ export default function AuthContextProvider({children}: ReactChildrenProps) {
 
       console.log('User found:', getUser.data)
       handleSetUser(getUser.data)
-      router.replace('/')
+      router.replace('/wallet')
     } catch (error) {
       console.error('Error fetching user data:', error)
       setIsUserLoading(false)
