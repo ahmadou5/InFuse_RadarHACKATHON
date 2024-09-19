@@ -6,7 +6,7 @@ import {
 } from '@/lib/blink.lib'
 import { BlinkService } from '@/lib/services/blink.service'
 import { SendNativeSol } from '@/lib/solana.lib'
-import { getSplTokenAddress, sendSPLToken } from '@/lib/spl.lib'
+//import { getSplTokenAddress, sendSPLToken } from '@/lib/spl.lib'
 import {
   ActionPostRequest,
   ActionPostResponse,
@@ -34,7 +34,7 @@ export const GET = async (req: Request) => {
   const blink = await BlinkService.getOneBlink(blink_id)
   console.log('blink', blink)
 
-  if (!blink.data) {
+  if (!blink?.data) {
     return blinkError('Blink Not Found')
   }
 
@@ -65,7 +65,7 @@ export const POST = async (req: Request) => {
   const requestUrl = new URL(req.url)
   const { amount, toPubkey, blink_id, token } = validatedQueryParams(requestUrl)
 
-  console.log('amount', amount, 'toPubkey', toPubkey.toBase58(), 'token', token)
+  console.log('amount', amount, 'toPubkey', toPubkey.toBase58(), 'token', token, 'id',blink_id)
 
   try {
     const body: ActionPostRequest = await req.json()
@@ -84,25 +84,12 @@ export const POST = async (req: Request) => {
     const connection = new Connection(clusterApiUrl('mainnet-beta'))
     let transaction: Transaction = new Transaction()
 
-    if (token === 'sol') {
-      transaction = await SendNativeSol(connection, {
+    transaction = await SendNativeSol(connection, {
         amount,
         toPubkey,
         fromPubkey: account,
       })
-    } else {
-      // await jupSwap({ amount, userPubKey: account })
-
-      transaction = await sendSPLToken(connection, {
-        amount,
-        toPubKey: toPubkey,
-        fromPubKey: account,
-        mintAddress: new PublicKey(getSplTokenAddress(token)!),
-      })
-
-      // const signedTransaction = await signTr
-    }
-
+    
     const payload: ActionPostResponse = await createPostResponse({
       fields: {
         transaction: transaction,
@@ -115,8 +102,8 @@ export const POST = async (req: Request) => {
     return Response.json(payload, {
       headers,
     })
-  } catch (error: any) {
-    console.log(error)
+  } catch (error: unknown) {
+    if (error instanceof Error)
     // return blinkError(error.message || 'unknown error occurred')
     return Response.json({
       error: error.message || 'An unknown error occurred',
@@ -125,6 +112,7 @@ export const POST = async (req: Request) => {
 }
 
 export const OPTIONS = (req: Request) => {
+  console.log(req)
   return Response.json(null, {
     headers,
   })
