@@ -3,10 +3,13 @@ import { UserService } from "@/lib/services/user.service"
 import { useInitData } from "@telegram-apps/sdk-react"
 import { useEffect } from "react"
 import { Connection, PublicKey  } from "@solana/web3.js"
+import { useAuth } from "@/context/AuthContext"
+import { AuthContextProps } from "@/interfaces"
 import { GetUserTransaction } from "@/lib/solana.lib"
 
 export const Homeview = () => {
     const address = new PublicKey('3SztGJVq9WFKdENT4ogtAN8dkrF1yDi5uQyPQiQKAKLe')
+    const { logout, user }:AuthContextProps = useAuth()
     const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=e5fc821c-2b64-4d66-9d88-7cf162a5ffc8',{commitment:'confirmed'});
     useEffect(() => {
        const trx2 = GetUserTransaction(connection,address)
@@ -17,5 +20,8 @@ export const Homeview = () => {
        console.log(trx2,'here')
     },[])
     const tgData = useInitData()
-    return(<>{`hello tg ${tgData?.user?.firstName}`} </>)
+    return(<>
+    {`hello tg ${tgData?.user?.firstName}`}
+    <button onClick={() => logout(user)}>logout</button>
+     </>)
 }
