@@ -1,17 +1,19 @@
 import { MdKeyboardArrowDown } from "react-icons/md";
 interface token {
-    name: string;
-    imageUrl:string;
-    about:string;
-    role: string;
+   id: number
   }
   [];
   
   
   interface TeamList extends Array<token> {}
 export const WalletView = ( ) => {
-    const token1:TeamList =[]
+    const token1:TeamList =[
+        {
+            id:3
+        }
+    ]
     return(
+        <div className="w-[100%] py-2 px-1 h-auto bg-red-400/0">
         <>
         <div className="bg-gothic-950/0 mt-0.5 flex  mb-2 flex-col items-center justify-center w-[100%] h-auto">
           <div className="mt-0.5 mb-4 w-full flex">
@@ -87,7 +89,7 @@ export const WalletView = ( ) => {
           {
             token1 && token1.map((token,i) => (
               <>
-              <div className="bg-white/10 w-[90%] mb-0.5 flex items-center justify-center rounded-3xl h-[70px]">
+              <div key={i} className="bg-white/10 w-[90%] mb-0.5 flex items-center justify-center rounded-3xl h-[70px]">
             <div className="bg-gothic-600/85 w-12 flex items-center justify-center h-12 ml-[23px] mr-[10px] rounded-full">
               <img
                 src={"./assets/5426.png"}
@@ -119,8 +121,8 @@ export const WalletView = ( ) => {
               </p>
             </div>
         </div>
-        
-      </>
+        </>
+      </div>
 
     )
 }

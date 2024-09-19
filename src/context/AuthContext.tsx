@@ -35,7 +35,11 @@ export default function AuthContextProvider({children}: ReactChildrenProps) {
       setIsUserLoading(true)
       const savedUser = CookiesService.get(COOKIE_USER_DATA_KEY)
       if (savedUser) {
-        handleSetUser(savedUser)
+        setTimeout(() => {
+          handleSetUser(savedUser)
+          router.replace('/wallet')
+          console.log('Function triggered after  25 seconds!');
+        }, 5000);
       } else if (tgData?.user?.id) {
         await fetchProfile(tgData.user.id)
       } else {
@@ -44,8 +48,8 @@ export default function AuthContextProvider({children}: ReactChildrenProps) {
     }
      setTimeout(() => {
       initAuth()
-      console.log('Function triggered after 20 seconds!');
-    }, 20000);
+      console.log('Function triggered after 5 seconds!');
+    }, 5000);
     
   }, [tgData])
 
