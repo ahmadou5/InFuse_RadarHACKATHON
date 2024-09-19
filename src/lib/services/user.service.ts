@@ -64,8 +64,9 @@ export class UserService {
         .from('walletUsers')
         .select('*')
         .eq('id',telegramID)
-        if (error)
+        if (error) {
           return apiResponse(false, error?.message, error)
+        } else 
         return apiResponse(true, 'details', user![0] )
     } catch (error: unknown) {
         if (error instanceof Error) {
