@@ -37,12 +37,7 @@ export default function AuthContextProvider({children}: ReactChildrenProps) {
       if (savedUser) {
         handleSetUser(savedUser)
       } else if (tgData?.user?.id) {
-        setTimeout(() => {
-          if(tgData.user?.id)
-            fetchProfile(tgData.user.id)
-            console.log('Function triggered after 20 seconds!');
-        }, 20000);
-        
+        await fetchProfile(tgData.user.id)
       } else {
         setIsUserLoading(false)
       }
