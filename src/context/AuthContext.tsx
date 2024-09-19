@@ -2,7 +2,9 @@
 
 import { AuthContextProps, ReactChildrenProps, UserInterface } from "@/interfaces"
 import { useInitData } from "@telegram-apps/sdk-react"
+import CookiesService from "@/lib/cookie.lib"
 import { UserService } from "@/lib/services/user.service"
+import { COOKIE_USER_DATA_KEY } from "@/lib/constant/app.constant"
 import { useRouter } from "next/navigation"
 import { createContext, useContext, useState, useEffect } from "react"
 
@@ -31,7 +33,10 @@ export default function AuthContextProvider({children}: ReactChildrenProps) {
   useEffect(() => {
     const initAuth = async () => {
       setIsUserLoading(true)
-      if (tgData?.user?.id) {
+      const savedUser = CookiesService.get(COOKIE_USER_DATA_KEY)
+      if (savedUser) {
+        handleSetUser(savedUser)
+      } else if (tgData?.user?.id) {
         await fetchProfile(tgData.user.id)
       } else {
         setIsUserLoading(false)
@@ -42,12 +47,14 @@ export default function AuthContextProvider({children}: ReactChildrenProps) {
   }, [tgData])
 
   const logout = () => {
+    CookiesService.remove(COOKIE_USER_DATA_KEY)
     setIsLoggedIn(false)
     setUser(undefined)
     router.replace('/create')
   }
 
   const handleSetUser = (userData: UserInterface) => {
+    CookiesService.setter(COOKIE_USER_DATA_KEY, userData)
     setUser(userData)
     setIsLoggedIn(true)
     setIsUserLoading(false)
