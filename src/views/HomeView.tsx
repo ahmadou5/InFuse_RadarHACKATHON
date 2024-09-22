@@ -21,8 +21,8 @@ export const Homeview = () => {
        console.log(trx2,'here')
     },[])
     const tgData = useInitData()
-    return(<>
+    return(<div>
     {`hello tg ${tgData?.user?.firstName}`}
     <button onClick={() => logout()}>logout</button>
-     </>)
+     </div>)
 }
