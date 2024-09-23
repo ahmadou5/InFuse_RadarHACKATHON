@@ -16,7 +16,7 @@ export const TokenView = ({slug}:Params) => {
     return(
     <div>
       <Chart tokenId="solana" />
-      <Activities />
+      <Activities slug={slug} />
       <TokenDetails tokenId="solana" tokenSymbol="SOL" />
       <Transactions />
      {slug}

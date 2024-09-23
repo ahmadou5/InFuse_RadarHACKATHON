@@ -36,7 +36,7 @@ export const WalletView = () => {
     <div className="w-[100%]">
       <div className="bg-gothic-950/0 mt-0.5 flex  mb-2 flex-col items-center justify-center w-[100%] h-auto">
         <div className="mt-0.5 mb-4 w-full flex">
-          <div onClick={() => router.push('/settings') } className="w-[50px] h-[50px] p-2 mr-1.5 ml-auto flex items-center justify-center rounded-full">
+          <div onClick={() => router.replace('/settings') } className="w-[50px] h-[50px] p-2 mr-1.5 ml-auto flex items-center justify-center rounded-full">
             <img
               src="https://solana-wallet-orcin.vercel.app/assets/setting.svg"
               className="text-white"
@@ -112,7 +112,7 @@ export const WalletView = () => {
           token1.map((token, i) => (
             <>
               <div
-                onClick={() => router.push(`/token/${token.id}`)}
+                onClick={() => router.replace(`/token/${token.id}`)}
                 key={i}
                 className="bg-white/10 w-[90%] mb-1.5 flex items-center justify-center rounded-xl h-[70px]"
               >

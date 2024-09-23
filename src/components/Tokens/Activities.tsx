@@ -1,9 +1,13 @@
-export const Activities = () => {
+import { Params } from "next/dist/shared/lib/router/utils/route-matcher"
+import { useRouter } from "next/navigation"
+export const Activities = ({slug}: Params) => {
+
+    const router = useRouter()
     return(
     <>
      
         <div className="bg-gothic-300/0 w-[90%] ml-auto mr-auto mt-5 mb-5 flex items-center justify-center rounded-3xl h-[100px]">
-          <div className="text-xl bg-white/10  border-[#448cff]/25 flex flex-col items-center justify-center rounded-3xl h-16 w-16 ml-auto mr-auto  text-white/60">
+          <div onClick={() => router.replace(`/token/${slug}/send`)} className="text-xl bg-white/10  border-[#448cff]/25 flex flex-col items-center justify-center rounded-3xl h-16 w-16 ml-auto mr-auto  text-white/60">
             <img
               src="https://solana-wallet-orcin.vercel.app/assets/send.svg"
               className="mt-1"

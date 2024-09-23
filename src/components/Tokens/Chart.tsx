@@ -34,7 +34,7 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload }) => {
 const fetchTokenData = async (tokenId: string, timeframe: string) => {
   const baseUrl = 'https://api.coingecko.com/api/v3';
   const days = timeframe === '1H' ? 1 : timeframe === '1D' ? 1 : timeframe === '1W' ? 7 : timeframe === '1M' ? 30 : 365;
-  const url = `${baseUrl}/coins/${tokenId}/market_chart?vs_currency=sgd&days=${days}`;
+  const url = `${baseUrl}/coins/${tokenId}/market_chart?vs_currency=usd&days=${days}`;
 
   try {
     const response = await fetch(url);

@@ -1,10 +1,22 @@
+import { SendView } from "@/views/SendView"
 import { TokenView } from "@/views/TokenView"
-import { Params } from 'next/dist/shared/lib/router/utils/route-matcher'
 
+export default function token ({params} : { params: {
+    slug: string[]
+}}) {
 
-export default function Page({ params }:{ params: Params}) {
-    return ( 
-    <div className="min-h-screen">
-      <TokenView slug={params.slug}/>
-   </div>)  
-  }
+    if(params.slug.length === 2) {
+        return(
+        <div className="min-h-screen">
+            <SendView />
+        </div>
+    )
+    } else if (params.slug.length === 1) {
+        return(
+        <div className="min-h-screen">
+            <TokenView />
+        </div>
+    )
+    } 
+    return(<div>Ahmada</div>) 
+}
