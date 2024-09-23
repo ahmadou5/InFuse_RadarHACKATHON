@@ -112,6 +112,7 @@ export const WalletView = () => {
           token1.map((token, i) => (
             <>
               <div
+                onClick={() => router.push(`/token/${token.id}`)}
                 key={i}
                 className="bg-white/10 w-[90%] mb-1.5 flex items-center justify-center rounded-xl h-[70px]"
               >
