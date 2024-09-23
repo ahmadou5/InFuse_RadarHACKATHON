@@ -1,10 +1,35 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { LineChart, Line, XAxis, YAxis, ResponsiveContainer } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip, TooltipProps } from 'recharts';
 import { ArrowUpRight, ArrowDownRight } from 'lucide-react';
 
 interface ChartProps {
   tokenId: string;
 }
+
+interface ChartDataPoint {
+  date: Date;
+  price: number;
+}
+
+interface CustomTooltipProps extends TooltipProps<number, string> {
+  active?: boolean;
+  payload?: Array<{
+    value: number;
+    dataKey: string;
+    payload: ChartDataPoint;
+  }>;
+}
+const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload }) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="bg-white/10 backdrop-blur-md p-2 rounded shadow-md">
+        <p className="text-white">SOL {payload[0].value.toFixed(2)}</p>
+        <p className="text-white text-xs">{new Date(payload[0].payload.date).toLocaleString()}</p>
+      </div>
+    );
+  }
+  return null;
+};
 
 const fetchTokenData = async (tokenId: string, timeframe: string) => {
   const baseUrl = 'https://api.coingecko.com/api/v3';
@@ -61,6 +86,7 @@ const Chart = ({ tokenId = "bitcoin" }: ChartProps) => {
         <LineChart data={chartData}>
           <XAxis dataKey="date" hide />
           <YAxis hide domain={['auto', 'auto']} />
+          <Tooltip content={<CustomTooltip />} />
           <Line 
             type="monotone" 
             dataKey="price" 
