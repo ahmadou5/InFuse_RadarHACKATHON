@@ -1,8 +1,8 @@
 'use client'
-import { Params } from "next/dist/shared/lib/router/utils/route-matcher";
+//import { Params } from "next/dist/shared/lib/router/utils/route-matcher";
 import { useState } from "react"
 
-export const SendView = ({slug}: Params) => {
+export const SendView = ({slug}: {slug:string}) => {
     const [receiveAddress, setReceiveAddress] = useState<string>('');
     const [isAddressChecked,setIsAddressChecked] = useState<boolean>(false)
 
@@ -149,7 +149,7 @@ export const SendView = ({slug}: Params) => {
          {
            receiveAddress?.length > 42 &&
            <>
-           <img src="./assets/good.svg" />
+           <img src="https://solana-wallet-orcin.vercel.app/assets/good.svg" />
            </> 
           
          }

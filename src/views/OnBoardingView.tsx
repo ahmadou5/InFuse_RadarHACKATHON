@@ -5,6 +5,7 @@ import { useState } from "react"
 import { useInitData } from "@telegram-apps/sdk-react"
 import { createSolanaWallet } from "@/lib/solana.lib"
 export const OnboardView = () => {
+    const [isNew,setIsNew] = useState<boolean>(false)
     const [name,setName] = useState<string>('')
     const [email,setEmail] = useState<string>('')
     const [pin,setPin] = useState<number>(0)
@@ -31,16 +32,35 @@ export const OnboardView = () => {
         
     }
     return(
-    <div className="">
-       <div className="w-[70%] py-12 px-12 flex p-10 items-center justify-center h-[100px] bg-black">
+    <div className="w-[100%]">
+        {
+                isNew ? 
+                <>
+<div className="w-[70%] py-12 px-12 flex p-10 items-center justify-center h-[100px] bg-black">
             <input onChange={(e:React.ChangeEvent<HTMLInputElement>) => setName(e.target?.value)} placeholder="username" className="mt-6 ml-auto mr-auto" type="text" />
             <input onChange={(e:React.ChangeEvent<HTMLInputElement>) => setEmail(e.target?.value)} placeholder="mail"  className="mt-6 ml-auto mr-auto" type="text" />
             <input onChange={(e:React.ChangeEvent<HTMLInputElement>) => setId(e.target?.valueAsNumber)} placeholder="id"  className="mt-6 ml-auto mr-auto"  type="number" />
             <input onChange={(e:React.ChangeEvent<HTMLInputElement>) => setPin(e.target?.valueAsNumber)} placeholder="pin" className="mt-6 ml-auto mr-auto"  type="number" />
        </div>
-       <button onClick={() => handleSubmit()}>
+       <button onClick={() => { 
+        setIsNew(true)
+        handleSubmit()
+        }}>
         submit
        </button>
+                </>
+                 : 
+                <div className="w-[100%] flex flex-col items-center justify-center h-[100%]">
+                  <div>
+                    <p>
+                        Welcome to InFuse Wallet
+                    </p>
+                  </div>
+                  <div>
+                    <p></p>
+                  </div>
+                </div>
+        }
     </div>
     )
 }
