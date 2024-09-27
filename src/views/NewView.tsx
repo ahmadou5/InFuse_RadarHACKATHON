@@ -87,46 +87,40 @@ export const NewView = () => {
   
   return (
     <div className="w-[100%]">
-      <div className="w-[100%] flex flex-col p-5 h-[100%]">
-        <div className="mt-[50px] mb-[20px] w-[100%] flex flex-col ">
-          <div className="flex items-center justify-center">
-            <p className="text-xl">Create New Wallet</p>
+    
+        {
+          isNew ? 
+          <div className="max-h-screen w-[100%] py-10">
+        <div className=" mb-[100px] w-[100%] flex flex-col ">
+          <div className="flex items-center mb-20 justify-center">
+            <div className="w-[150px] flex items-center justify-center h-8 bg-white/15 rounded-3xl">
+            <p className="text-[18px]">InFuse Wallet</p>
+            </div>
+            
           </div>
         </div>
-        {/**  
-                  <div className="w-[98%] mt-7 h-auto py-1 px-2 bg-opacity-25 bg-white/15 rounded-lg">
-                    <div className="w-[100%] py-1 h-[100%] ">
-                      <input onChange={(e) => setEmail(e.target.value)} placeholder="Enter Your Email" className="bg-red-600/0 w-[100%] h-10"/>
-                    </div>
-                  </div>
-                  <div className="w-[98%] mt-5 h-auto py-1 px-2 bg-opacity-25 bg-white/15 rounded-lg">
-                    <div className="w-[100%] py-1 h-[100%] ">
-                      <input onChange={(e) => setPin(e.target.valueAsNumber)} type="number" maxLength={2} placeholder="Choose 4 Digit Pin" className="bg-red-600/0 w-[100%] h-10"/>
-                    </div>
-                  </div>**/}
+       
         <div className="w-[100%] flex items-center justify-center h-[210px]">
           <div className="flex bg-black15 rounded-lg bg-opacity-30">
             <img
               src="https://solana-wallet-orcin.vercel.app/assets/show.png"
-              className="h-[190px] outline-none w-[190px]"
+              className="h-[290px] outline-none w-[290px]"
             />
           </div>
         </div>
-        {
-          isNew ? 
-          <>
-          <div className="mt-24 w-[100%] flex flex-col items-center justify-center">
-          <div onClick={() => handleSubmit2()} className="w-[99%] flex items-center justify-center h-14 rounded-lg bg-blue-800/80">
+          <div className="mt-24 w-[90%] ml-auto mr-auto flex items-center justify-center">
+          <div onClick={() => handleSubmit2()} className="w-[99%] ml-auto mr-auto flex items-center justify-center h-12 rounded-2xl bg-blue-800/80">
             <p className="ml-auto mr-auto"> Create New</p>
           </div>
-        </div>
-          </>
+           </div>
+          </div>
            : 
-           <div className="max-w-md mx-auto mt-10 p-6 bg-white/5 bg-opacity-20 rounded-lg shadow-md">
+           <div className="w-[100%] max-h-screen py-12">
+          <div className="max-w-md mx-auto w-[93%] mt-[230px] py-3 px-4 bg-white/5 bg-opacity-20 rounded-lg shadow-md">
            <form onSubmit={handleSubmit} className="space-y-6">
              <div>
                <label htmlFor="email" className="block text-sm ml-3 font-medium text-white/75">
-                 Gmail
+                 Email
                </label>
                <input
                  type="email"
@@ -134,7 +128,7 @@ export const NewView = () => {
                  name="email"
                  value={formData.email}
                  onChange={handleInputChange}
-                 placeholder="Enter your Gmail address"
+                 placeholder="Enter your Email address"
                  className="mt-1 block w-full px-3 py-2 bg-inherit  rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                />
                {errors.email && (
@@ -170,12 +164,14 @@ export const NewView = () => {
                type="submit"
                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
              >
-               Submit
+              Continue
              </button>
            </form>
          </div>
+           </div>
+           
         }   
       </div>
-    </div>
+ 
   );
 };
