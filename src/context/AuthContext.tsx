@@ -33,7 +33,7 @@ export default function AuthContextProvider({children}: ReactChildrenProps) {
   useEffect(() => {
     const initAuth = async () => {
       setIsUserLoading(true)
-      const savedUser = CookiesService.get(COOKIE_USER_DATA_KEY)
+      const savedUser = false
       if (savedUser) {
         setTimeout(() => {
           handleSetUser(savedUser)
