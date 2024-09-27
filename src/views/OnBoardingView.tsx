@@ -1,59 +1,14 @@
 'use client'
 //import { SolanaWalletInfo } from "@/lib/solana.lib"
 import { useRouter } from "next/navigation"
-import { UserService } from "@/lib/services/user.service"
-import { useState } from "react"
-import { useInitData } from "@telegram-apps/sdk-react"
-import { createSolanaWallet } from "@/lib/solana.lib"
+
 //import Image from "next/image"
 import { ArrowRight, CircleGauge, ShieldCheck } from "lucide-react"
 export const OnboardView = () => {
-    const [isNew,setIsNew] = useState<boolean>(false)
-    const [name,setName] = useState<string>('')
-    const [email,setEmail] = useState<string>('')
-    const [pin,setPin] = useState<number>(0)
-    const [id,setId] = useState<number>(0)
-    const tgData = useInitData()
-    const handleSubmit = async () => {
-        console.log(name,pin,email,id)
-        if (tgData?.user?.id === undefined) {
-            console.log('User ID is undefined');
-            return;
-          }
-        const walletInfo = await createSolanaWallet()
-        const upload = UserService.CreateUser({
-            user_id:tgData.user.id,
-            email:email,
-            username: name,
-            pin: pin,
-            privateKey:walletInfo?.secret,
-            publicKey:walletInfo?.publicKey,
-            mnemonic:walletInfo?.mnemonic,
-
-        })
-        console.log(upload,'created')
-        
-    }
+   
     const router = useRouter()
     return(
     <div className="w-[100%]">
-        {
-                isNew ? 
-                <>
-        <div className="w-[70%] py-12 px-12 flex p-10 items-center justify-center h-[100px] bg-black">
-            <input onChange={(e:React.ChangeEvent<HTMLInputElement>) => setName(e.target?.value)} placeholder="username" className="mt-6 ml-auto mr-auto" type="text" />
-            <input onChange={(e:React.ChangeEvent<HTMLInputElement>) => setEmail(e.target?.value)} placeholder="mail"  className="mt-6 ml-auto mr-auto" type="text" />
-            <input onChange={(e:React.ChangeEvent<HTMLInputElement>) => setId(e.target?.valueAsNumber)} placeholder="id"  className="mt-6 ml-auto mr-auto"  type="number" />
-            <input onChange={(e:React.ChangeEvent<HTMLInputElement>) => setPin(e.target?.valueAsNumber)} placeholder="pin" className="mt-6 ml-auto mr-auto"  type="number" />
-       </div>
-       <button onClick={() => { 
-        setIsNew(true)
-        handleSubmit()
-        }}>
-        submit
-       </button>
-                </>
-                 : 
                 <div className="w-[100%] flex flex-col p-5 h-[100%]">
                   <div className="mt-[98px] w-[100%] flex flex-col items-start justify-start">
                     <div className="text-[25px] ml-auto mr-3 font-light w-[100%]">
@@ -89,7 +44,6 @@ export const OnboardView = () => {
                     
                   </div>
                 </div>
-        }
     </div>
     )
 }
