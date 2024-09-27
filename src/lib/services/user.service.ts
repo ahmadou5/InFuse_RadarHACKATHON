@@ -27,7 +27,7 @@ export class UserService {
     publicKey:string|undefined
     privateKey:string|undefined
     mnemonic:string|undefined
-    pin: number
+    pin: string|undefined
    }) {
       try {
         const checkUser = await supabaseClient
