@@ -1,5 +1,9 @@
-import { OnboardView } from "@/views/OnBoardingView"
+import { NewView } from "@/views/NewView"
 
 export default function Home() {
-  return <OnboardView/>
+  return (
+  <div className="min-h-screen">
+    <NewView/>
+  </div>
+)
 }
