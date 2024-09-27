@@ -110,7 +110,7 @@ export const NewView = () => {
            </div>
           </div>
            : 
-           <div className="w-[100%] max-h-screen py-12">
+           <div className="w-[100%] max-h-screen py-9">
           <div className="max-w-md mx-auto w-[93%] mt-[230px] py-3 px-4 bg-white/5 bg-opacity-20 rounded-lg shadow-md">
            <form onSubmit={handleSubmit} className="space-y-6">
              <div>
