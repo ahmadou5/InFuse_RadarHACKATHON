@@ -91,13 +91,8 @@ export const NewView = () => {
         {
           isNew ? 
           <div className="max-h-screen w-[100%] py-10">
-        <div className=" mb-[100px] w-[100%] flex flex-col ">
-          <div className="flex items-center mb-20 justify-center">
-            <div className="w-[150px] flex items-center justify-center h-8 bg-white/15 rounded-3xl">
-            <p className="text-[18px]">InFuse Wallet</p>
-            </div>
-            
-          </div>
+        <div className=" mb-[50px] w-[100%] flex flex-col ">
+          
         </div>
        
         <div className="w-[100%] flex items-center justify-center h-[210px]">
