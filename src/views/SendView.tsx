@@ -1,17 +1,37 @@
 'use client'
-//import { Params } from "next/dist/shared/lib/router/utils/route-matcher";
+import { ArrowLeft } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useState } from "react"
+import {  initQRScanner } from "@telegram-apps/sdk-react";
 
 export const SendView = ({slug}: {slug:string}) => {
     const [receiveAddress, setReceiveAddress] = useState<string>('');
     const [isAddressChecked,setIsAddressChecked] = useState<boolean>(false)
-
+    const router = useRouter()
+    const scanner = initQRScanner()
+    const scan = () => {
+      try {
+        scanner.open('Scan QR code').then((content) => {
+          console.log(content);
+          // Output: 'some-data=22l&app=93...'
+        });
+        console.log(scanner.isOpened); // true
+      } catch (error) {
+        console.log(error)
+      }
+    }
     return(
+    
     <>
     {
       isAddressChecked ? 
       <>
       <div className="mt-8 px-2 py-3 bg-red-600/0 h-[85%] flex flex-col rounded-xl w-[99%] ml-auto mr-auto">
+             <div className=" bg-slate-50/0 mb-[50px] w-[100%] flex flex-col ">
+             <div onClick={() => router.back()} className="bg-white/5 flex items-center justify-center w-14 rounded-xl ml-2 h-8">
+             <ArrowLeft  className="font-bold text-xl"/>
+             </div>
+            </div>
             <div className="w-[100%] h-12 bg-slate-50/0 rounded-xl py-3 px-6">
               <p className="text-[19px] text-white font-light">{`to: ${
                 receiveAddress}`}</p>
@@ -140,9 +160,17 @@ export const SendView = ({slug}: {slug:string}) => {
           </div>
       </>
        : 
-       <div className="mt-3 px-1 py-3 bg-red-600/0 h-[85%] flex flex-col rounded-xl w-[100%] ml-auto mr-auto">
-       <div className="w-[100%] bg-white/0 px-2 flex flex-col border mt-5 border-[#448cff]/0 justify-center items-center rounded-xl h-[370px]">
-     <div className="w-[100%] py-2 px-0 h-[40%] bg-black/0">
+       <div className="mt-3 px-0.5 py-1.5 bg-red-600/0 h-[85%] flex flex-col rounded-xl w-[100%] ml-auto mr-auto">
+       <div className="w-[100%] bg-white/0 px-2 flex flex-col border border-[#448cff]/0 justify-center items-center rounded-xl h-[370px]">
+     <div className="w-[100%] py-0 px-0 h-[40%] bg-black/0">
+     <div className=" bg-slate-50/0 mb-[50px] w-[100%] flex  ">
+             <div onClick={() => router.back()} className="bg-white/5 flex items-center justify-center w-14 rounded-xl ml-2 h-8">
+             <ArrowLeft  className="font-bold text-xl"/>
+             </div>
+             <div className="ml-auto mr-[45%]">
+               <p className="font-light">Send</p>
+             </div>
+            </div>
        <div className="flex">
        <p className="mb-3 mt-2 mr-auto text-[16px] ml-3">Receiver`s Address{slug}</p>
        <div className="mr-4 mt-2">
@@ -159,11 +187,14 @@ export const SendView = ({slug}: {slug:string}) => {
          
          <div className="w-[99%] py-1.5 flex items-center justify-center bg-slate-50/0">
            <input
-             className={`w-[90%] h-[90%] ml-auto mr-auto text-[18px] bg-transparent outline-none`}
+             className={`w-[80%] h-[90%] ml-auto mr-auto text-[18px] bg-transparent outline-none`}
              onChange={(e) => setReceiveAddress(e.target.value)}
              type="text"
              placeholder="Address"
            />
+           <div onClick={() => scan()} className="bg-red-700">
+            <img src="./assets/scanner.svg" className="h-5 mr-1 w-5" />
+           </div>
          </div>
        </div>
        <div>

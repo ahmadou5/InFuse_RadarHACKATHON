@@ -118,7 +118,7 @@ export const NewView = () => {
         <div className="w-[100%] flex items-center justify-center h-[210px]">
           <div className="flex bg-black15 rounded-lg bg-opacity-30">
           
-            <img src={"https://solana-wallet-orcin.vercel.app./assets/show.png"} alt="Omo" />
+            <img src={"./assets/show.png"} alt="Omo" />
           </div>
         </div>
           <div className="mt-24 w-[90%] ml-auto mr-auto flex items-center justify-center">
