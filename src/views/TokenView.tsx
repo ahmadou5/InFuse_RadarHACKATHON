@@ -15,7 +15,7 @@ import { Transactions } from "@/components/Tokens/Transactions";
 export const TokenView = ({slug}:{slug:string}) => {
     return(
     <div>
-      <Chart tokenId="solana" />
+      <Chart tokenId={slug} />
       <Activities slug={slug} />
       <TokenDetails tokenId="solana" tokenSymbol="SOL" />
       <Transactions />

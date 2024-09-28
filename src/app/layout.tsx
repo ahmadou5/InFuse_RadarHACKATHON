@@ -35,7 +35,7 @@ export default function RootLayout({
       >
          <TelegramProvider>
         <AuthContextProvider>
-        {children}
+          {children}
         </AuthContextProvider>
         </TelegramProvider>
       </body>

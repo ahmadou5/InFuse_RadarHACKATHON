@@ -5,7 +5,7 @@ import { UserService } from "@/lib/services/user.service";
 import React, { useState, ChangeEvent } from 'react';
 import {  ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
+//import Image from "next/image";
 
 // Define 
 interface FormData {
@@ -118,13 +118,13 @@ export const NewView = () => {
         <div className="w-[100%] flex items-center justify-center h-[210px]">
           <div className="flex bg-black15 rounded-lg bg-opacity-30">
           
-            <Image src={"https://solana-wallet-orcin.vercel.app/assets/show.png"} height={29} width={29} alt="Omo" />
+            <img src={"https://solana-wallet-orcin.vercel.app./assets/show.png"} alt="Omo" />
           </div>
         </div>
           <div className="mt-24 w-[90%] ml-auto mr-auto flex items-center justify-center">
             {
               created ? 
-            <div onClick={() => router.refresh()} className="w-[99%] ml-auto mr-auto flex items-center justify-center h-12 rounded-2xl bg-white/80">
+            <div onClick={() => router.push('/wallet')} className="w-[99%] ml-auto mr-auto flex items-center justify-center h-12 rounded-2xl bg-white/80">
               <p className="ml-auto mr-auto text-black"> Continue</p>
             </div>
               :
@@ -142,7 +142,10 @@ export const NewView = () => {
              <ArrowLeft  className="font-bold text-xl"/>
              </div>
             </div>
-          <div className="max-w-md mx-auto w-[93%] mt-[250px] py-3 px-4 bg-white/5 bg-opacity-20 rounded-lg shadow-md">
+          <div>
+
+          </div>
+          <div className="max-w-md mx-auto w-[93%] mt-[200px] py-3 px-4 bg-white/5 bg-opacity-20 rounded-lg shadow-md">
            <form  className="space-y-6">
              <div>
                <label htmlFor="email" className="block text-sm ml-3 font-medium text-white/75">
@@ -174,6 +177,7 @@ export const NewView = () => {
                  placeholder="Create 4-digit PIN"
                  pattern="[0-9]*"
                  inputMode="numeric"
+                 security='yes'
                  maxLength={4}
                  className="mt-1 block w-full px-3 py-2 bg-inherit rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                />

@@ -5,7 +5,11 @@ import { useRouter } from "next/navigation";
 //import { MdKeyboardArrowDown } from "react-icons/md";
 import { Menu } from "@/components/Menu/Menu";
 interface token {
-  id: number;
+  name: string;
+  ticker: string;
+  id: string;
+  getId: string;
+  imgUrl: string;
 }
 [];
 
@@ -16,22 +20,11 @@ export const WalletView = () => {
   const router = useRouter()
   const token1: TeamList = [
     {
-      id: 3,
-    },
-    {
-      id: 3,
-    },
-    {
-      id: 3,
-    },
-    {
-      id: 3,
-    },
-    {
-      id: 3,
-    },
-    {
-      id: 3,
+      name: 'Bonk',
+      ticker: 'bonk',
+      id: 'DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263',
+      getId: 'bonk',
+      imgUrl: 'https://coin-images.coingecko.com/coins/images/28600/large/bonk.jpg?1696527587'
     },
   ];
   return (
@@ -114,21 +107,21 @@ export const WalletView = () => {
           token1.map((token, i) => (
             <>
               <div
-                onClick={() => router.replace(`/token/${token.id}`)}
+                onClick={() => router.push(`/token/${token.ticker}`)}
                 key={i}
                 className="bg-white/10 w-[90%] mb-1.5 flex items-center justify-center rounded-xl h-[70px]"
               >
                 <div className="bg-gothic-600/85 w-12 flex items-center justify-center h-12 ml-[23px] mr-[10px] rounded-full">
                   <img
                     src={
-                      "https://solana-wallet-orcin.vercel.app/assets/5426.png"
+                      token.imgUrl
                     }
                     className="text-white/90 w-full h-full rounded-full text-2xl"
                   />
                 </div>
                 <div className="ml-[5px] text-white/85 mr-auto px-3">
-                  <p className="text-sm font-bold mb-1">{"Solana"}</p>
-                  <p className="text-sm">{`${233} SOL`}</p>
+                  <p className="text-sm font-bold mb-1">{token.name}</p>
+                  <p className="text-sm">{`${233} ${token.ticker}`}</p>
                 </div>
                 <div className="ml-[10px]  text-white/85 mr-4 px-3">
                   <p className="text-[15px] mb-1">{`$${30}`}</p>

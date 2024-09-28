@@ -13,6 +13,7 @@ const initialAuthState: AuthContextProps = {
     user: undefined,
     setUser: (user: UserInterface) => { console.log(user)},
     logout: () => {},
+    fetchProfile: (userId:number) => {console.log(userId)},
     isUserLoading: true,
 }
 
@@ -93,6 +94,7 @@ export default function AuthContextProvider({children}: ReactChildrenProps) {
     user,
     setUser: handleSetUser,
     logout,
+    fetchProfile,
     isUserLoading,
   }
 
