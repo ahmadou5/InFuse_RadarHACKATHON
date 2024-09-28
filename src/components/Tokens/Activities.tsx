@@ -29,7 +29,7 @@ export const Activities = ({slug}: Params) => {
           </div>
           <div className="text-3xl  bg-white/10 flex flex-col items-center justify-center rounded-3xl h-16 w-16 ml-auto mr-auto  text-white/60">
             <img
-              src="https://solana-wallet-orcin.vercel.app/assets/receive.svg"
+              src="/assets/comp.svg"
               className="mt-1"
             />
            
