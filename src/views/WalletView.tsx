@@ -31,10 +31,15 @@ export const WalletView = () => {
     },
   ];
   const scan = () => {
-    scanner.open({
-      text: 'Scan Address'
-    })
-    console.log(scanner)
+    try {
+      scanner.open('Scan QR code').then((content) => {
+        console.log(content);
+        
+      });
+      console.log(scanner.isOpened); // true
+    } catch (error) {
+      console.log(error)
+    }
   }
   return (
     <div className="w-[100%]">
