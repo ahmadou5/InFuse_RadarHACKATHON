@@ -1,9 +1,12 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
+import { Montserrat,} from "next/font/google";
 import "./globals.css";
 import { TelegramProvider } from "@/provider/Telegram.Provider";
 import AuthContextProvider from "@/context/AuthContext";
 
+
+const inter = Montserrat({ subsets: ["latin"], weight: '400' });
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
   variable: "--font-geist-sans",
@@ -28,7 +31,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${inter.className} ${geistMono.variable} antialiased`}
       >
          <TelegramProvider>
         <AuthContextProvider>

@@ -5,6 +5,7 @@ import { UserService } from "@/lib/services/user.service";
 import React, { useState, ChangeEvent } from 'react';
 import {  ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 // Define 
 interface FormData {
@@ -71,7 +72,7 @@ export const NewView = () => {
 
   const [isNew, setIsNew] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [created, setIsCreated] = useState<boolean>(true);
+  const [created, setIsCreated] = useState<boolean>(false);
   const tgData = useInitData();
  
   
@@ -116,10 +117,8 @@ export const NewView = () => {
        
         <div className="w-[100%] flex items-center justify-center h-[210px]">
           <div className="flex bg-black15 rounded-lg bg-opacity-30">
-            <img
-              src="https://solana-wallet-orcin.vercel.app/assets/show.png"
-              className="h-[290px] outline-none w-[290px]"
-            />
+          
+            <Image src={"https://solana-wallet-orcin.vercel.app/assets/show.png"} height={29} width={29} alt="Omo" />
           </div>
         </div>
           <div className="mt-24 w-[90%] ml-auto mr-auto flex items-center justify-center">
