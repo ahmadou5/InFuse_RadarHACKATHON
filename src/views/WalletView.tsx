@@ -4,6 +4,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 //import { MdKeyboardArrowDown } from "react-icons/md";
 import { Menu } from "@/components/Menu/Menu";
+import { useQRScanner } from "@telegram-apps/sdk-react";
 interface token {
   name: string;
   ticker: string;
@@ -18,6 +19,8 @@ export const WalletView = () => {
   const {logout} = useAuth()
   const [activeTab, setActiveTab] = useState("Tokens");
   const router = useRouter()
+  const scanner = useQRScanner(false)
+  console.log(scanner)
   const token1: TeamList = [
     {
       name: 'Bonk',
@@ -27,16 +30,29 @@ export const WalletView = () => {
       imgUrl: 'https://coin-images.coingecko.com/coins/images/28600/large/bonk.jpg?1696527587'
     },
   ];
+  const scan = () => {
+    scanner.open({
+      text: 'Scan Address'
+    })
+    console.log(scanner)
+  }
   return (
     <div className="w-[100%]">
       <div className="bg-gothic-950/0 mt-0.5 flex  mb-2 flex-col items-center justify-center w-[100%] h-auto">
-        <div className="mt-0.5 mb-4 w-full flex">
-          <div onClick={() => router.replace('/settings') } className="w-[50px] h-[50px] p-2 mr-1.5 ml-auto flex items-center justify-center rounded-full">
+        <div className="p-2 mb-4 w-full flex">
+          <div onClick={() => router.replace('/settings') } className="mr-auto ml-1.5 flex items-center justify-center rounded-full">
             <img
-              src="https://solana-wallet-orcin.vercel.app/assets/setting.svg"
+              src="./assets/setting.svg"
               className="text-white"
             />
           </div>
+          <div onClick={() => scan() } className=" mr-1.5  ml-auto flex items-center justify-center rounded-full">
+            <img
+              src="./assets/scanner.svg"
+              className="text-white"
+            />
+          </div>
+          
         </div>
         <div className="bg-s-gray-300/0 w-[90%] flex flex-col items-center justify-center rounded-3xl h-[120px]">
           <p className="text-[22px] font-light text-[#666666] mb-2.5">
@@ -52,21 +68,21 @@ export const WalletView = () => {
               src="https://solana-wallet-orcin.vercel.app/assets/send.svg"
               className="mt-1"
             />
-            <p className="text-sm mt-2.5 text-white/50 font-light ">Send</p>
+            
           </div>
           <div onClick={() => router.push(`/receive`)} className="text-3xl  bg-white/10 flex flex-col items-center justify-center rounded-3xl h-20 w-20 ml-auto mr-auto  text-white/60">
             <img
               src="https://solana-wallet-orcin.vercel.app/assets/qr.svg"
               className="mt-1"
             />
-            <p className="text-sm mt-2.5 text-white/50 font-light">Receive</p>
+            
           </div>
           <div className="text-3xl  bg-white/10 flex flex-col items-center justify-center rounded-3xl h-20 w-20 ml-auto mr-auto  text-white/60">
             <img
               src="https://solana-wallet-orcin.vercel.app/assets/dollar.svg"
               className="mt-1"
             />
-            <p className="text-sm mt-2.5 text-white/50 font-light">Buy</p>
+          
           </div>
         </div>
       </div>
@@ -87,7 +103,9 @@ export const WalletView = () => {
             </button>
           ))}
         </div>
-        <div className="bg-white/10 w-[90%] mb-1.5 flex items-center justify-center rounded-xl h-[70px]">
+        <div
+        onClick={() => router.push(`/token/solana`)}
+        className="bg-white/10 w-[90%] mb-1.5 flex items-center justify-center rounded-xl h-[70px]">
           <div className="bg-gothic-600/85 w-12 flex items-center justify-center h-12 ml-[23px] mr-[10px] rounded-full">
             <img
               src={"https://solana-wallet-orcin.vercel.app/assets/5426.png"}

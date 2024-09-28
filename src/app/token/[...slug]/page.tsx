@@ -7,7 +7,7 @@ export default function token ({params} : { params: {
 
     return(
         <div className="min-h-screen">
-<TokenView slug={params.slug}/>
+            <TokenView slug={params.slug}/>
         </div>
 ) 
 }

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip, TooltipProps } from 'recharts';
-import { ArrowUpRight, ArrowDownRight } from 'lucide-react';
+import { ArrowUpRight, ArrowDownRight, ArrowLeft } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 interface ChartProps {
   tokenId: string;
@@ -12,6 +13,7 @@ interface ChartDataPoint {
 }
 
 interface CustomTooltipProps extends TooltipProps<number, string> {
+  tokenId: string;
   active?: boolean;
   payload?: Array<{
     value: number;
@@ -19,11 +21,12 @@ interface CustomTooltipProps extends TooltipProps<number, string> {
     payload: ChartDataPoint;
   }>;
 }
-const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload }) => {
+const CustomTooltip: React.FC<CustomTooltipProps> = ({ tokenId, active, payload }) => {
   if (active && payload && payload.length) {
     return (
       <div className="bg-white/10 backdrop-blur-md p-2 rounded shadow-md">
-        <p className="text-white">SOL {payload[0].value.toFixed(2)}</p>
+        <p className="text-white">{`${tokenId}`}</p>
+        <p className="text-white">{`$${payload[0].value.toFixed(7)}`}</p>
         <p className="text-white text-xs">{new Date(payload[0].payload.date).toLocaleString()}</p>
       </div>
     );
@@ -49,10 +52,10 @@ const fetchTokenData = async (tokenId: string, timeframe: string) => {
   }
 };
 
-const Chart = ({ tokenId = "bitcoin" }: ChartProps) => {
+const Chart = ({ tokenId }: ChartProps) => {
   const [timeframe, setTimeframe] = useState('1D');
   const [chartData, setChartData] = useState<{ date: Date; price: number }[]>([]);
-
+  const router = useRouter()
   useEffect(() => {
     const fetchData = async () => {
       const data = await fetchTokenData(tokenId, timeframe);
@@ -74,19 +77,24 @@ const Chart = ({ tokenId = "bitcoin" }: ChartProps) => {
   }, [chartData, priceChange]);
 
   return (
-    <div className="bg-white/0 w-[96%] mt-10 ml-auto mr-auto p-4 rounded-lg ">
+    <div className="bg-white/0 w-[96%] mt-2 ml-auto mr-auto py-1 px-2 rounded-lg ">
+        <div className=" bg-slate-50/0 mb-[26px] w-[100%] flex flex-col ">
+             <div onClick={() => router.back()} className="bg-white/5 flex items-center justify-center w-14 rounded-xl ml-0 h-8">
+             <ArrowLeft  className="font-bold text-xl"/>
+             </div>
+            </div>
       <div className="flex justify-between items-baseline mb-4">
-        <span className="text-2xl  font-bold"> SOL {currentPrice.toFixed(2)}</span>
+        <span className="text-2xl  font-bold">{`$ ${currentPrice.toFixed(7)}`}</span>
         <span className={`flex items-center ${priceChange >= 0 ? 'text-green-500' : 'text-red-500'}`}>
           {priceChange >= 0 ? <ArrowUpRight size={16} /> : <ArrowDownRight size={16} />}
-          SOL {Math.abs(priceChange).toFixed(2)} ({Math.abs(priceChangePercentage).toFixed(2)}%)
+           ${Math.abs(priceChange).toFixed(2)} ({Math.abs(priceChangePercentage).toFixed(2)}%)
         </span>
       </div>
       <ResponsiveContainer width="100%" height={120}>
         <LineChart data={chartData}>
           <XAxis dataKey="date" hide />
           <YAxis hide domain={['auto', 'auto']} />
-          <Tooltip content={<CustomTooltip />} />
+          <Tooltip content={<CustomTooltip tokenId={tokenId} />} />
           <Line 
             type="monotone" 
             dataKey="price" 
