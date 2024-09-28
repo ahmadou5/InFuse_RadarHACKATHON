@@ -7,7 +7,7 @@ import {  useQRScanner } from "@telegram-apps/sdk-react";
 export const SendView = ({slug}: {slug:string}) => {
     const [receiveAddress, setReceiveAddress] = useState<string>('');
     const [isAddressChecked,setIsAddressChecked] = useState<boolean>(true)
-    const [amount,setAmount] = useState(0)
+    const [amount,setAmount] = useState<number>(0)
     const router = useRouter()
     const scanner = useQRScanner()
     const  handleChange = (event:React.ChangeEvent<HTMLInputElement>) => {
@@ -15,12 +15,12 @@ export const SendView = ({slug}: {slug:string}) => {
     }
     const scan = () => {
       try {
-        alert('startes')
+        //alert('startes')
         scanner.open('Scan QR code').then((content) => {
           if(!content) {
             return
           }
-          alert('in d middle')
+          //alert('in d middle')
           console.log(content);
           //setReceiveAddress(content)
           setReceiveAddress(content)

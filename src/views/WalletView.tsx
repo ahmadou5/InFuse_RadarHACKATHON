@@ -82,7 +82,7 @@ export const WalletView = () => {
             />
             
           </div>
-          <div className="text-3xl  bg-white/10 flex flex-col items-center justify-center rounded-3xl h-20 w-20 ml-auto mr-auto  text-white/60">
+          <div onClick={() => router.push(`/ramp`)} className="text-3xl  bg-white/10 flex flex-col items-center justify-center rounded-3xl h-20 w-20 ml-auto mr-auto  text-white/60">
             <img
               src="https://solana-wallet-orcin.vercel.app/assets/dollar.svg"
               className="mt-1"

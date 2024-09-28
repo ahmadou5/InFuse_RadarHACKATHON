@@ -17,7 +17,7 @@ export const TokenView = ({slug}:{slug:string}) => {
     <div>
       <Chart tokenId={slug} />
       <Activities slug={slug} />
-      <TokenDetails tokenId="solana" tokenSymbol="SOL" />
+      <TokenDetails tokenId={slug} tokenSymbol={slug} />
       <Transactions />
      {slug}
     </div>
