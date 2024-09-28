@@ -1,3 +1,5 @@
+import axios from 'axios'
+import { apiResponse } from './api.helpers';
 import * as bip39 from 'bip39';
 
 interface SeedGenerationResult {
@@ -26,3 +28,20 @@ export const GenerateSeed = async (): Promise<SeedGenerationResult> => {
   }
 };
 
+export const GetTokenPrice = async (tokenId:string) => {
+ try {
+  const baseUrl = "https://api.coingecko.com/api/v3/simple/price";
+  const response = await axios.get(
+    `${baseUrl}?ids=${tokenId}&vs_currencies=usd`
+  );
+  return apiResponse(true, 'Token Price', response.data)
+
+ } catch (error) {
+  if (error instanceof Error) {
+    apiResponse(false, 'Token price error', error.message)
+    console.log(error.message)
+  }
+ 
+  throw error
+ }
+}

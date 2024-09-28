@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
+import { GetTokenPrice } from "@/lib/helper.lib";
 //import { MdKeyboardArrowDown } from "react-icons/md";
 import { Menu } from "@/components/Menu/Menu";
 import { useQRScanner } from "@telegram-apps/sdk-react";
@@ -147,7 +148,7 @@ export const WalletView = () => {
                   <p className="text-sm">{`${233} ${token.ticker}`}</p>
                 </div>
                 <div className="ml-[10px]  text-white/85 mr-4 px-3">
-                  <p className="text-[15px] mb-1">{`$${30}`}</p>
+                  <p className="text-[15px] mb-1">{`$${GetTokenPrice(token.ticker)}`}</p>
                   <p className="text-[15px] ">{`$${20}`}</p>
                 </div>
               </div>
