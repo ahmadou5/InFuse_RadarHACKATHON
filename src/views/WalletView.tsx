@@ -63,7 +63,7 @@ export const WalletView = () => {
           <p className="text-[22px] font-light text-[#666666] mb-2.5">
             Total Balance
           </p>
-          <p className="text-5xl font-bold text-white/65">{`$${399}`}</p>
+          <p className="text-5xl font-bold text-white/65">{`$${0}`}</p>
         </div>
       </div>
       <div className="bg-gothic-950/0 mt-3 flex items-center justify-center w-[100%] h-auto">
@@ -128,7 +128,7 @@ export const WalletView = () => {
         </div>
         {token1 &&
           token1.map((token, i) => (
-            <>
+            
               <div
                 onClick={() => router.push(`/token/${token.ticker}`)}
                 key={i}
@@ -151,7 +151,7 @@ export const WalletView = () => {
                   <p className="text-[15px] ">{`$${20}`}</p>
                 </div>
               </div>
-            </>
+            
           ))}
         <div
           onClick={() => logout()}
