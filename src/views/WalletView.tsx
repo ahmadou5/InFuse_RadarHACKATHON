@@ -1,6 +1,6 @@
 "use client";
-import { Connection, clusterApiUrl } from "@solana/web3.js";
-import { useState, useEffect, Suspense } from "react";
+import { Connection } from "@solana/web3.js";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { getTokenPrices } from "@/lib/helper.lib";
@@ -8,7 +8,7 @@ import { getSplTokenBalance } from "@/lib/solana.lib";
 //import { MdKeyboardArrowDown } from "react-icons/md";
 import { Menu } from "@/components/Menu/Menu";
 import { useQRScanner } from "@telegram-apps/sdk-react";
-import SkeletonLoader from "@/components/Skeleton";
+
 interface token {
   name: string;
   ticker: string;

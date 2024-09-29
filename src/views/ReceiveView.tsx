@@ -1,16 +1,16 @@
 'use client'
 import { CustomQRCode } from "@/components/QrGenerator"
 import { Copy } from "lucide-react"
-import { useState } from "react"
+//import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/context/AuthContext"
 import { formatAddress } from "@/lib/helper.lib"
 export const ReceiveModal = () => {
-    const [userAddress,setUserAddress] = useState<string>('Holandia')
+   
     const { user } = useAuth()
     const handleSomething = () => {
         alert('update')
-        setUserAddress('address is new')
+        
     }
     const router = useRouter()
     return(
