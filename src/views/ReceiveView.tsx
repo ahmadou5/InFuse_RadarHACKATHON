@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation"
 import { useAuth } from "@/context/AuthContext"
 import { formatAddress } from "@/lib/helper.lib"
 export const ReceiveModal = () => {
-   
+    const router = useRouter()
     const { user } = useAuth()
     const handleSomething = () => {
         alert('update')
@@ -15,7 +15,7 @@ export const ReceiveModal = () => {
     if(!user) {
       return
     }
-    const router = useRouter()
+    
     return(
     <div className="inset-0 fixed bg-black bg-opacity-100 w-[100%] z-[99999999] min-h-screen h-auto backdrop-blur-sm flex ">
         <div className="w-[100%] py-4 px-4 bg-white/15 rounded-t-3xl h-auto mt-[70px]">
