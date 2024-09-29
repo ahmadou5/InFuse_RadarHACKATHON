@@ -7,6 +7,7 @@ import {
     SystemProgram,
     Transaction,
   } from '@solana/web3.js'
+import { getAssociatedTokenAddress } from '@solana/spl-token';
 import { GenerateSeed } from './helper.lib'
 import { TransactionDetails } from '@/interfaces/models.interface'
 import bs58 from 'bs58'
@@ -63,6 +64,33 @@ import bs58 from 'bs58'
       } else {
         throw new Error('An unknown error occurred while creating the transaction');
       }
+    }
+  }
+
+  export async function getSplTokenBalance(
+    connection: Connection,
+    tokenAddress: string,
+    userAddress: string
+  ): Promise<number> {
+    try {
+      const tokenPublicKey = new PublicKey(tokenAddress);
+      const userPublicKey = new PublicKey(userAddress);
+  
+      // Get the associated token account address
+      const associatedTokenAddress = await getAssociatedTokenAddress(
+        tokenPublicKey,
+        userPublicKey
+      );
+  
+      // Fetch the token account info
+      const tokenAccountInfo = await connection.getTokenAccountBalance(associatedTokenAddress);
+  
+      // Return the balance as a number
+      return Number(tokenAccountInfo.value.uiAmount);
+    } catch (error) {
+      console.error('Error fetching SPL token balance:', error);
+      // If there's an error (e.g., account doesn't exist), return 0
+      return 0;
     }
   }
 

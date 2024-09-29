@@ -3,8 +3,11 @@ import { CustomQRCode } from "@/components/QrGenerator"
 import { Copy } from "lucide-react"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import { useAuth } from "@/context/AuthContext"
+import { formatAddress } from "@/lib/helper.lib"
 export const ReceiveModal = () => {
     const [userAddress,setUserAddress] = useState<string>('Holandia')
+    const { user } = useAuth()
     const handleSomething = () => {
         alert('update')
         setUserAddress('address is new')
@@ -20,13 +23,13 @@ export const ReceiveModal = () => {
                </div>
                <div className="w-[98%] mt-1 ml-auto mr-auto h-[290px] py-3 px-2 flex flex-col items-center justify-center rounded-2xl bg-white/90">
                 <div className="w-[100%] p-0 h-[100%] flex items-center justify-center">
-                   <CustomQRCode logo="/assets/show.png" value="hello maaaa" />
+                   <CustomQRCode logo="/assets/show.png" value={user?.publicKey}/>
                 </div>
                </div>
                <div>
                <div className="mt-4 w-[100%] ml-auto mr-auto">
                 <div className="mt-2 mb-2">
-                 <p className="text-white/80 text-center font-light ml-auto mr-auto ">{(userAddress)}</p>
+                 <p className="text-white/80 text-center font-light ml-auto mr-auto ">{formatAddress(user.publicKey)}</p>
                 </div>
                <div onClick={() => handleSomething()}  className="w-[50%] mb-5   ml-auto mr-auto py-1 mt-3 px-3 flex  items-center justify-center bg-black/80 rounded-full h-9">
                  <p className="text-white font-light text-[17px] ml-auto mr-1 ">Copy</p>
