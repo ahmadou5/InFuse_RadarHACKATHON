@@ -12,6 +12,9 @@ export const ReceiveModal = () => {
         alert('update')
         
     }
+    if(!user) {
+      return
+    }
     const router = useRouter()
     return(
     <div className="inset-0 fixed bg-black bg-opacity-100 w-[100%] z-[99999999] min-h-screen h-auto backdrop-blur-sm flex ">

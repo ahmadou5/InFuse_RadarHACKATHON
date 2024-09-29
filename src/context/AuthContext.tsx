@@ -28,7 +28,7 @@ export default function AuthContextProvider({children}: ReactChildrenProps) {
   const tgData = useInitData()
 
   const [isLoggedIn, setIsLoggedIn] = useState(false)
-  const [user, setUser] = useState<UserInterface | undefined>(undefined)
+  const [user, setUser] = useState<UserInterface|undefined>(undefined)
   const [isUserLoading, setIsUserLoading] = useState(true)
 
   useEffect(() => {

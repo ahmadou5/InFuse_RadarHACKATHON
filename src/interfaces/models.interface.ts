@@ -1,5 +1,5 @@
 export interface UserInterface {
-    id: string | undefined;
+    id: string ;
     username: string;
     pin: string;
     publicKey: string;
