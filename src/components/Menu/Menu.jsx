@@ -1,4 +1,5 @@
 "use client";
+import { Wallet } from "lucide-react";
 //import { useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -24,7 +25,7 @@ export const Menu = () => {
               onClick={() => router.push('/wallet')}
               className="flex flex-col ml-auto mr-auto items-center justify-center"
             >
-              <img src="./assets/task.svg" className="w-7 h-7" />
+              <Wallet />
               <p className={`font-light mt-1 text-white text-[10px]`}>Tasks</p>
             </div>
           </div>

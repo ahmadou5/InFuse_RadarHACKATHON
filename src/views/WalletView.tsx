@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { getSolPrice, getTokenPrices } from "@/lib/helper.lib";
-import { Connection, PublicKey, clusterApiUrl } from "@solana/web3.js";
+import { Connection, LAMPORTS_PER_SOL, PublicKey, clusterApiUrl } from "@solana/web3.js";
 import { Menu } from "@/components/Menu/Menu";
 import { useQRScanner } from "@telegram-apps/sdk-react";
 import { getSplTokenBalance } from "@/lib/solana.lib";
@@ -94,7 +94,7 @@ export const WalletView = () => {
         const price = await getSolPrice('solana')
         const balance = await connection.getBalance(userAddress)
         setSolPrice(price)
-        setSolBalance(balance)
+        setSolBalance(balance/LAMPORTS_PER_SOL)
       } catch (error) {
         throw error
       }
