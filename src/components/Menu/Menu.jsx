@@ -1,5 +1,5 @@
 "use client";
-import { Wallet } from "lucide-react";
+import { Globe2, Wallet2 } from "lucide-react";
 //import { useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -25,8 +25,8 @@ export const Menu = () => {
               onClick={() => router.push('/wallet')}
               className="flex flex-col ml-auto mr-auto items-center justify-center"
             >
-              <Wallet />
-              <p className={`font-light mt-1 text-white text-[10px]`}>Tasks</p>
+              <Wallet2 />
+              <p className={`font-light mt-1 text-white text-[10px]`}>Wallet</p>
             </div>
           </div>
 
@@ -38,23 +38,13 @@ export const Menu = () => {
               
               className="flex ml-auto mr-auto flex-col items-center justify-center"
             >
-              <img src="./assets/board.svg" className="w-7 h-7" />
+              <Globe2 />
               <p className={`font-light mt-1 text-white text-[10px]`}>
-                Leaderboard
+                Browser
               </p>
             </div>
           </div>
-          <div
-            className={`h-12 ml-auto mr-auto w-[25%] bg-white/0 flex  items-center justify-center`}
-          >
-            <div
-              
-              className="flex ml-auto mr-auto flex-col items-center justify-center"
-            >
-              <img src="./assets/community.svg" className="w-7 h-7" />
-              <p className={`font-light mt-1 text-white text-[10px]`}>Frens</p>
-            </div>
-          </div>
+          
         </div>
       </div>
     </>
