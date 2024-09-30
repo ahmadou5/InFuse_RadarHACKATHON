@@ -47,7 +47,7 @@ export const getTokenPrice = async (tokenId: string): Promise<number> => {
     
     return price;
   } catch (error) {
-    console.error('Error fetching token price:', error instanceof Error ? error.message : 'Unknown error');
+    //console.error('Error fetching token price:', error instanceof Error ? error.message : 'Unknown error');
     throw error;
   }
 };
@@ -67,7 +67,7 @@ export const getTokenPrices = async (tokenIds: string[]): Promise<Map<string, nu
 
     return tokenPrices;
   } catch (error) {
-    console.error('Error fetching token prices:', error instanceof Error ? error.message : 'Unknown error');
+    //console.error('Error fetching token prices:', error instanceof Error ? error.message : 'Unknown error');
     throw error;
   }
 };

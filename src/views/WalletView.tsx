@@ -1,5 +1,5 @@
 "use client";
-import { Connection } from "@solana/web3.js";
+import { Connection, clusterApiUrl } from "@solana/web3.js";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
@@ -29,7 +29,7 @@ export const WalletView = () => {
   const [activeTab, setActiveTab] = useState("tokens");
   const router = useRouter();
   const scanner = useQRScanner(false);
-  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=e5fc821c-2b64-4d66-9d88-7cf162a5ffc8', { commitment: 'confirmed' });
+  const connection = new Connection(clusterApiUrl('devnet'), { commitment: 'confirmed' });
 
   const token1: TeamList = [
     {
@@ -62,7 +62,7 @@ export const WalletView = () => {
     };
 
     fetchPrices();
-  }, []);
+  }, [token1]);
  
   useEffect(() => {
     const fetchBalances = async () => {
@@ -97,10 +97,16 @@ export const WalletView = () => {
     }
   };
 
-  const getUSDValue = (amount: number, price: number) => amount * price;
+  //const getUSDValue = (amount: number, price: number) => amount * price;
 
   const navigate = (path: string) => {
-    router.push(path);
+    if(!router) {
+      return
+    }
+    router.refresh();
+    router.push(path , {
+      scroll: true
+    })
   };
 
   return (
@@ -128,6 +134,7 @@ export const WalletView = () => {
           ].map((item, index) => (
             <div key={index} onClick={() => navigate(item.path)} className="text-xl bg-white/10 border-[#448cff]/25 flex flex-col items-center justify-center rounded-3xl h-20 w-20 mx-auto cursor-pointer">
               <img src={`https://solana-wallet-orcin.vercel.app/assets/${item.icon}`} alt={item.alt} className="mt-1" />
+              <p>{item.alt}</p>
             </div>
           ))}
         </div>
@@ -135,7 +142,7 @@ export const WalletView = () => {
 
       <div className="bg-gothic-950/0 mt-8 flex flex-col items-center justify-center w-full h-auto">
         <div className="flex justify-around mb-6 bg-white/0 bg-opacity-10 rounded-xl p-1">
-          {["Spl", "Zero's"].map((tab) => (
+          {["tokens", "NFT's"].map((tab) => (
             <button
               key={tab}
               className={`flex-1 py-2 px-6 rounded-lg ml-2 mr-2 text-sm font-medium ${

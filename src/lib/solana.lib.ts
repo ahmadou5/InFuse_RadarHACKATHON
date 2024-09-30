@@ -67,33 +67,42 @@ import bs58 from 'bs58'
     }
   }
 
-  export async function getSplTokenBalance(
-    connection: Connection,
-    tokenAddress: string,
-    userAddress: string
-  ): Promise<number> {
-    try {
-      const tokenPublicKey = new PublicKey(tokenAddress);
-      const userPublicKey = new PublicKey(userAddress);
   
-      // Get the associated token account address
-      const associatedTokenAddress = await getAssociatedTokenAddress(
-        tokenPublicKey,
-        userPublicKey
-      );
-  
-      // Fetch the token account info
-      const tokenAccountInfo = await connection.getTokenAccountBalance(associatedTokenAddress);
-  
-      // Return the balance as a number
-      return Number(tokenAccountInfo.value.uiAmount);
-    } catch (error) {
-      console.error('Error fetching SPL token balance:', error);
-      // If there's an error (e.g., account doesn't exist), return 0
+
+export async function getSplTokenBalance(
+  connection: Connection,
+  tokenAddress: string,
+  userAddress: string
+): Promise<number> {
+  try {
+    const tokenPublicKey = new PublicKey(tokenAddress);
+    const userPublicKey = new PublicKey(userAddress);
+
+    // Get the associated token account address
+    const associatedTokenAddress = await getAssociatedTokenAddress(
+      tokenPublicKey,
+      userPublicKey
+    );
+
+    // Check if the account exists
+    const accountInfo = await connection.getAccountInfo(associatedTokenAddress);
+
+    if (accountInfo === null) {
+      // Account doesn't exist, which means the balance is 0
       return 0;
     }
-  }
 
+    // Fetch the token account info
+    const tokenAccountInfo = await connection.getTokenAccountBalance(associatedTokenAddress);
+
+    // Return the balance as a number
+    return Number(tokenAccountInfo.value.uiAmount);
+  } catch (error) {
+    console.error('Error fetching SPL token balance:', error);
+    // If there's an error, return 0
+    return 0;
+  }
+}
 
   export const createSolanaWallet = async () => {
     try {
