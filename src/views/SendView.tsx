@@ -3,6 +3,7 @@ import { ArrowLeft, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react"
 import {  useQRScanner } from "@telegram-apps/sdk-react";
+import { formatAddress } from "@/lib/helper.lib";
 
 export const SendView = ({slug}: {slug:string}) => {
     const [receiveAddress, setReceiveAddress] = useState<string>('');
@@ -13,6 +14,7 @@ export const SendView = ({slug}: {slug:string}) => {
     const  handleChange = (event:React.ChangeEvent<HTMLInputElement>) => {
       setReceiveAddress(event.target.value)
     }
+    console.log(slug)
     const router = useRouter()
     const scan = () => {
       try {
@@ -39,7 +41,7 @@ export const SendView = ({slug}: {slug:string}) => {
       <>
       <div className=" py-4 px-2 bg-red-600/0 max-h-screen flex flex-col rounded-xl w-[99%] ml-auto mr-auto">
       <div className=" bg-slate-50/0 mb-[5px] w-[100%] flex  ">
-             <div onClick={() => setIsAddressChecked(false)} className="bg-white/5 flex items-center justify-center w-12 rounded-xl ml-1 mr-auto h-9">
+             <div onClick={() => setIsAddressChecked(false)} className="bg-white/5 flex items-center justify-center w-11 rounded-full ml-1 mr-auto h-10">
              <ArrowLeft  className="font-bold text-xl"/>
              </div>
              <div className="ml-auto mt-0.5 mr-[45%]">
@@ -48,19 +50,19 @@ export const SendView = ({slug}: {slug:string}) => {
             
             </div>
             <div className="w-[100%] h-12 bg-slate-50/0 rounded-xl py-3 px-6">
-              <p className="text-[19px] text-white font-light">{`to: ${
-                receiveAddress}`}</p>
+              <p className="text-[19px] text-white font-light">{`Address to :      ${formatAddress(receiveAddress)
+                }`}</p>
             </div>
-            <div className="w-[98%] mt-7 ml-auto mr-auto h-[430px] py-3 px-2 flex flex-col items-center justify-center border border-[#448cff]/60 rounded-2xl bg-black/40">
+            <div className="w-[98%] mt-4 ml-auto mr-auto h-[430px] py-3 px-2 flex flex-col items-center justify-center border border-[#448cff]/60 rounded-2xl bg-black/40">
               <div className="w-[100%] ml-auto mr-auto text-white rounded-xl  flex  h-16">
               
                 <input
-                  type="tel"
+                  type="number"
                   id="pin"
                   name="pin"
                   value={amount}
                   onChange={(e:React.ChangeEvent<HTMLInputElement>) => setAmount(e.target.valueAsNumber) }
-                  placeholder="Create 4-digit PIN"
+                  placeholder="0"
                   pattern="[0-9]*"
                   inputMode="numeric"
                   security='yes'
@@ -71,9 +73,9 @@ export const SendView = ({slug}: {slug:string}) => {
                 />
                 <p className="mt-5 text-xl font-light ml-1 mr-auto">SOL</p>
               </div>
-              <div className="bg-black/0 rounded-2xl w-[120px] border border-white h-9">
+              <div className="bg-black/0 rounded-2xl w-[150px] border border-white h-9">
                 <p className="text-white text-center py-1.5">
-                  4555
+                  $4555
                 </p>
               </div>
             </div>
@@ -198,7 +200,7 @@ export const SendView = ({slug}: {slug:string}) => {
              
             </div>
        <div className="flex mt-[30px]">
-       
+       <p className="mb-3 mt-2 mr-auto text-[16px] ml-3"></p>
        <div className="mr-4 mt-8">
          {
            receiveAddress?.length > 42 &&
@@ -217,6 +219,7 @@ export const SendView = ({slug}: {slug:string}) => {
                   onChange={handleChange}
                   type="text"
                   placeholder="Address"
+                  value={receiveAddress}
                 />
                  <div className=" mr-3 ml-2 h-[100%] bg-slate-400/0" onClick={() => scan() } >
             <img src="/assets/scanner.svg" className="h-7  w-7 mt-0" />
