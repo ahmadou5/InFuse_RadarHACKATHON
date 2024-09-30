@@ -52,6 +52,24 @@ export const getTokenPrice = async (tokenId: string): Promise<number> => {
   }
 };
 
+export const getSolPrice = async (tokenId: string): Promise<number> => {
+  try {
+    const baseUrl = "https://api.coingecko.com/api/v3/simple/price";
+    const response = await axios.get(`${baseUrl}?ids=${tokenId}&vs_currencies=usd`);
+    
+    const price = response.data[tokenId]?.usd;
+    
+    if (typeof price !== 'number') {
+      throw new Error('Invalid sol price data received');
+    }
+    
+    return price;
+  } catch (error) {
+    //console.error('Error fetching token price:', error instanceof Error ? error.message : 'Unknown error');
+    throw error;
+  }
+};
+
 // New function to get prices for multiple tokens
 export const getTokenPrices = async (tokenIds: string[]): Promise<Map<string, number>> => {
   const tokenPrices = new Map<string, number>();

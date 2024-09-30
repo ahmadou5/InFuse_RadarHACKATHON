@@ -1,6 +1,6 @@
 'use client'
-import { ArrowLeft } from "lucide-react";
-//import { useRouter } from "next/navigation";
+import { ArrowLeft, X } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useState } from "react"
 import {  useQRScanner } from "@telegram-apps/sdk-react";
 
@@ -13,6 +13,7 @@ export const SendView = ({slug}: {slug:string}) => {
     const  handleChange = (event:React.ChangeEvent<HTMLInputElement>) => {
       setReceiveAddress(event.target.value)
     }
+    const router = useRouter()
     const scan = () => {
       try {
         //alert('startes')
@@ -187,20 +188,18 @@ export const SendView = ({slug}: {slug:string}) => {
        <div className="mt-3 px-0.5 py-1.5 bg-red-600/0 h-[85%] flex flex-col rounded-xl w-[100%] ml-auto mr-auto">
        <div className="w-[100%] bg-white/0 px-2 flex flex-col border border-[#448cff]/0 justify-center items-center rounded-xl h-[370px]">
      <div className="w-[100%] py-0 px-0 h-[40%] bg-black/0">
-     <div className=" bg-slate-50/0 mb-[5px] w-[100%] flex  ">
-             <div  className="bg-white/5 flex items-center justify-center w-12 rounded-xl ml-1 mr-auto h-9">
-             <ArrowLeft  className="font-bold text-xl"/>
+     <div className=" bg-slate-50/0 mb-[5px] mt-1 w-[100%] flex  ">
+             <div onClick={() => router.back()}  className="bg-white/5 flex items-center justify-center w-11 rounded-full ml-1 mr-auto h-10">
+               <X  className="font-bold text-xl"/>
              </div>
-             <div className="ml-auto mt-0.5 mr-auto">
-               <p className="font-light text-xl">Send</p>
+             <div className="ml-auto mt-1 mr-[145px]">
+               <p className="font-light text-xl">Receipient</p>
              </div>
-             <div className=" mr-3 ml-auto h-[100%] bg-slate-400/0" onClick={() => scan() } >
-            <img src="/assets/scanner.svg" className="h-7  w-7 mt-0" />
-           </div>
+             
             </div>
        <div className="flex mt-[30px]">
-       <p className="mb-3 mt-2 mr-auto text-[16px] ml-3">Receiver`s Address{slug}</p>
-       <div className="mr-4 mt-2">
+       
+       <div className="mr-4 mt-8">
          {
            receiveAddress?.length > 42 &&
            <>
@@ -214,11 +213,14 @@ export const SendView = ({slug}: {slug:string}) => {
               
               <div className="w-[99%] py-1.5 flex items-center justify-center bg-slate-50/0">
                 <input
-                  className={`w-[90%] h-[90%] ml-auto mr-auto text-[18px] bg-transparent outline-none`}
+                  className={`w-[90%] h-[90%] ml-3 mr-auto text-[18px] bg-transparent outline-none`}
                   onChange={handleChange}
                   type="text"
                   placeholder="Address"
                 />
+                 <div className=" mr-3 ml-2 h-[100%] bg-slate-400/0" onClick={() => scan() } >
+            <img src="/assets/scanner.svg" className="h-7  w-7 mt-0" />
+           </div>
               </div>
             </div>
        <div>
@@ -232,13 +234,13 @@ export const SendView = ({slug}: {slug:string}) => {
      </div>
      <div className="w-[99%] flex flex-col py-2 px-1 h-[60%] bg-black/0">
      
-       <div className="mt-[320px] w-[98%] ml-auto mr-auto">
+       <div className="mt-[360px] w-[98%] ml-auto mr-auto">
         <button onClick={() => {
            if(receiveAddress.length >= 40 ) {
              setIsAddressChecked(true)
            }
          }}  className="w-[98%] ml-auto mr-auto py-1 border border-[#448cff]/60 rounded-xl bg-black/90 h-14">
-           Next
+           Continue
          </button> 
        </div>
      </div>

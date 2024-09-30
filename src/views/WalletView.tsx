@@ -2,8 +2,8 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
-import { getTokenPrices } from "@/lib/helper.lib";
-import { Connection, clusterApiUrl } from "@solana/web3.js";
+import { getSolPrice, getTokenPrices } from "@/lib/helper.lib";
+import { Connection, PublicKey, clusterApiUrl } from "@solana/web3.js";
 import { Menu } from "@/components/Menu/Menu";
 import { useQRScanner } from "@telegram-apps/sdk-react";
 import { getSplTokenBalance } from "@/lib/solana.lib";
@@ -23,8 +23,8 @@ type TeamList = Token[];
 
 interface TokenItemProps {
   token: Token;
-  balance: number;
-  price: number;
+  balance: number|undefined;
+  price: number|undefined;
   onClick: () => void;
 }
 
@@ -66,6 +66,8 @@ const TokenItem: React.FC<TokenItemProps> = ({ token, balance, price, onClick })
 export const WalletView = () => {
   const [tokenBalances, setTokenBalances] = useState<{[address: string]: number}>({});
   const [tokenPrices, setTokenPrices] = useState<TokenPrices>({});
+  const [solBalance,setSolBalance] = useState<number|undefined>()
+  const [solPrice,setSolPrice] = useState<number|undefined>()
   const { user} = useAuth()
   const [activeTab, setActiveTab] = useState("tokens");
   const router = useRouter()
@@ -82,7 +84,23 @@ export const WalletView = () => {
     },
   ];
 
-
+  useEffect(() => {
+    const fetchSolPrice = async () => {
+      try {
+        if(!user) {
+          return
+        }
+        const userAddress = new PublicKey(user?.publicKey)
+        const price = await getSolPrice('solana')
+        const balance = await connection.getBalance(userAddress)
+        setSolPrice(price)
+        setSolBalance(balance)
+      } catch (error) {
+        throw error
+      }
+    }
+    fetchSolPrice()
+  },[])
   useEffect(() => {
     const fetchPrices = async () => {
       if (token1.length > 0) {
@@ -205,8 +223,8 @@ export const WalletView = () => {
           <>
             <TokenItem
               token={{ name: "Solana", ticker: "SOL", id:'' , getId: '', imgUrl: "https://solana-wallet-orcin.vercel.app/assets/5426.png" }}
-              balance={2}
-              price={150}
+              balance={solBalance}
+              price={solPrice}
               onClick={() => router.push('/token/solana')}
             />
             {token1.map((token, i) => (
