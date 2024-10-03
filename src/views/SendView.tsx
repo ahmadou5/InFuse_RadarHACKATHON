@@ -3,11 +3,11 @@ import { ArrowLeft, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react"
 import {  useQRScanner } from "@telegram-apps/sdk-react";
-import { sendNativeSol } from "@/lib/solana.lib";
-import { formatAddress, getKeypairFromPrivateKey } from "@/lib/helper.lib";
-
-import { PublicKey,Connection, clusterApiUrl } from "@solana/web3.js";
-import { useAuth } from "@/context/AuthContext";
+import {sendNativeSol}  from "@/lib/solana.lib";
+import { formatAddress } from "@/lib/helper.lib";
+import { SpinningCircles } from "react-loading-icons";
+import { PublicKey} from "@solana/web3.js";
+//import { useAuth } from "@/context/AuthContext";
 
 
 export const SendView = ({slug}: {slug:string}) => {
@@ -16,9 +16,9 @@ export const SendView = ({slug}: {slug:string}) => {
     const [receiveAddress, setReceiveAddress] = useState<string>('');
     const [isAddressChecked,setIsAddressChecked] = useState<boolean>(false)
     const [amount,setAmount] = useState<number>(0)
-    const connection = new Connection(clusterApiUrl('devnet'))
+    //const connection = new Connection(clusterApiUrl('devnet'))
     //const router = useRouter()
-    const { user } = useAuth()
+    //const { user } = useAuth()
     const scanner = useQRScanner()
     const  handleChange = (event:React.ChangeEvent<HTMLInputElement>) => {
       setReceiveAddress(event.target.value)
@@ -52,6 +52,7 @@ export const SendView = ({slug}: {slug:string}) => {
             fromPubkey: new PublicKey(receiveAddress),
             toPubkey: new PublicKey(receiveAddress)
           })
+          setIsLoading(true)
         }
         alert(slug)
       } catch (error) {
@@ -205,7 +206,7 @@ export const SendView = ({slug}: {slug:string}) => {
         </div>
         </div>
                 </>
-                )} }
+                )}
              {/** {isTxSuccess && (
                 <TransactionSuccessModal hash={comment} amount={amount} />
               )}
