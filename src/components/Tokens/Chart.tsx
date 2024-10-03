@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip, TooltipProps } from 'recharts';
-import { ArrowUpRight, ArrowDownRight, ArrowLeft } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { ArrowUpRight, ArrowDownRight } from 'lucide-react';
+//import { useRouter } from 'next/navigation';
 
 interface ChartProps {
   tokenId: string;
