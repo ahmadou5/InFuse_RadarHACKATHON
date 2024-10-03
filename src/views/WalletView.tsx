@@ -2,11 +2,12 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
-import { getSolPrice, getTokenPrices } from "@/lib/helper.lib";
+import { getKeypairFromPrivateKey, getSolPrice, getTokenPrices } from "@/lib/helper.lib";
 import { Connection, LAMPORTS_PER_SOL, PublicKey, clusterApiUrl } from "@solana/web3.js";
 import { Menu } from "@/components/Menu/Menu";
 import { useQRScanner } from "@telegram-apps/sdk-react";
 import { getSplTokenBalance } from "@/lib/solana.lib";
+import { getCompressTokenBalance } from "@/lib/compressed.lib";
 interface Token {
   name: string;
   ticker: string;
@@ -15,10 +16,14 @@ interface Token {
   imgUrl: string;
 }
 
+interface comToken {
+ balance: number ; mint: PublicKey;
+}[]
+
 interface TokenPrices {
   [ticker: string]: number;
 }
-
+type CompressTokenList = comToken[]
 type TeamList = Token[];
 
 interface TokenItemProps {
@@ -68,6 +73,7 @@ export const WalletView = () => {
   const [tokenPrices, setTokenPrices] = useState<TokenPrices>({});
   const [solBalance,setSolBalance] = useState<number|undefined>()
   const [solPrice,setSolPrice] = useState<number|undefined>()
+  const [compTokens,setCompTokens] = useState<CompressTokenList>([])
   const { user} = useAuth()
   const [activeTab, setActiveTab] = useState("tokens");
   const router = useRouter()
@@ -116,7 +122,16 @@ export const WalletView = () => {
 
     fetchPrices();
   }, [token1]);
- 
+  useEffect(() => {
+    const fetchCompress = async () => {
+      if(!user) return;
+      const owner = getKeypairFromPrivateKey(user.publicKey)
+      const CompresstokenList = getCompressTokenBalance({Owner: owner })
+      setCompTokens((await CompresstokenList).items)
+      console.log((await CompresstokenList).items)
+    }
+    fetchCompress()
+  },[])
   useEffect(() => {
     const fetchBalances = async () => {
       if (!user) return;
@@ -153,7 +168,7 @@ export const WalletView = () => {
     }
   }
   return (
-    <div className="w-[100%]">
+    <div className="w-[100%] flex items-center justify-center flex-col">
       <div className="bg-gothic-950/0 mt-0.5 flex  mb-2 flex-col items-center justify-center w-[100%] h-auto">
         <div className="p-2 mb-4 w-full flex">
           <div onClick={() => router.replace('/settings') } className="mr-auto ml-1.5 flex items-center justify-center rounded-full">
@@ -205,10 +220,10 @@ export const WalletView = () => {
 
       <div className="bg-gothic-950/0 mt-8 flex flex-col items-center justify-center w-[100%] h-auto">
       <div className="flex justify-around mb-6 bg-white/0 bg-opacity-10 rounded-xl p-1">
-          {["tokens", "NFT's"].map((tab) => (
+          {["Tokens", "Compressed"].map((tab) => (
             <button
               key={tab}
-              className={`flex-1 py-2 px-6 rounded-lg ml-2 mr-2 text-sm font-medium ${
+              className={`flex-1 py-2 px-6 w-[130px] rounded-xl ml-2 mr-2 text-sm font-medium ${
                 activeTab.toLowerCase() === tab.toLowerCase()
                   ? "bg-white/10 bg-opacity-20 text-white"
                   : "text-gray-400 hover:text-white"
@@ -238,7 +253,18 @@ export const WalletView = () => {
             ))}
           </>
         ) : (
-          'NFTs content here'
+          <>
+          {
+            compTokens.length > 0 ? 
+            <>{
+              compTokens.map((token,i) => (
+                <div key={i}>
+                  {token.balance}
+                </div>
+              ))
+            }</> : 'You have not Compress Token yet'
+          }
+          </>
         )}
         
       </div>

@@ -3,17 +3,26 @@ import { ArrowLeft, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react"
 import {  useQRScanner } from "@telegram-apps/sdk-react";
-import { formatAddress } from "@/lib/helper.lib";
+import { sendNativeSol } from "@/lib/solana.lib";
+import { formatAddress, getKeypairFromPrivateKey } from "@/lib/helper.lib";
+import { PublicKey,Connection, clusterApiUrl } from "@solana/web3.js";
+import { useAuth } from "@/context/AuthContext";
+
 
 export const SendView = ({slug}: {slug:string}) => {
+    const [loading,setIsLoading] = useState<boolean>(false)
+    const [preview,setPreview] = useState<boolean>(false)
     const [receiveAddress, setReceiveAddress] = useState<string>('');
     const [isAddressChecked,setIsAddressChecked] = useState<boolean>(false)
     const [amount,setAmount] = useState<number>(0)
+    const connection = new Connection(clusterApiUrl('devnet'))
     //const router = useRouter()
+    const { user } = useAuth()
     const scanner = useQRScanner()
     const  handleChange = (event:React.ChangeEvent<HTMLInputElement>) => {
       setReceiveAddress(event.target.value)
     }
+    
     console.log(slug)
     const router = useRouter()
     const scan = () => {
@@ -29,6 +38,21 @@ export const SendView = ({slug}: {slug:string}) => {
           setReceiveAddress(content)
         });
         console.log(scanner.isOpened); // true
+      } catch (error) {
+        console.log(error)
+      }
+    }
+    const handleTransfer = async () => {
+      try {
+        if(slug[0] === 'solana') {
+          console.log('send it',slug)
+          sendNativeSol({
+            amount:amount,
+            fromPubkey: new PublicKey(receiveAddress),
+            toPubkey: new PublicKey(receiveAddress)
+          })
+        }
+        alert(slug)
       } catch (error) {
         console.log(error)
       }
@@ -50,7 +74,7 @@ export const SendView = ({slug}: {slug:string}) => {
             
             </div>
             <div className="w-[100%] h-12 bg-slate-50/0 rounded-xl py-3 px-6">
-              <p className="text-[19px] text-white font-light">{`Address to :      ${formatAddress(receiveAddress)
+              <p className="text-[19px] text-white font-light">{`Address to : ${formatAddress(receiveAddress)
                 }`}</p>
             </div>
             <div className="w-[98%] mt-4 ml-auto mr-auto h-[430px] py-3 px-2 flex flex-col items-center justify-center border border-[#448cff]/60 rounded-2xl bg-black/40">
@@ -75,7 +99,7 @@ export const SendView = ({slug}: {slug:string}) => {
               </div>
               <div className="bg-black/0 rounded-2xl w-[150px] border border-white h-9">
                 <p className="text-white text-center py-1.5">
-                  $4555
+                  
                 </p>
               </div>
             </div>
@@ -83,7 +107,7 @@ export const SendView = ({slug}: {slug:string}) => {
               <div className="h-12 w-[100%] flex items-center justify-between py-1 px-2 bg-red-500/0 mt-8">
                 <div
                   //onClick={() => setAmount(ethBalance.toString().slice(0, 6))}
-                  className="bg-black/20 rounded-2xl w-20 h-9"
+                  className="bg-white/20 rounded-2xl w-20 h-9"
                 >
                   <p className="text-white text-center py-1.5">MAX</p>
                 </div>
@@ -97,6 +121,7 @@ export const SendView = ({slug}: {slug:string}) => {
                     onClick={() => {
                       if (receiveAddress !== "") {
                         //setPreview(true);
+                        handleTransfer()
                       }
                     }}
                     className="outline-none bg-transparent w-[100%] h-[100%] text-white  py-2 px-4"
@@ -111,7 +136,7 @@ export const SendView = ({slug}: {slug:string}) => {
                   </button>
                 </div>
               </div>
-              {/** preview && (
+              {preview && (
                 <>
                 <div className="inset-0 fixed bg-black/95 bg-opacity-100 w-[100%] z-[99999999] min-h-screen h-auto backdrop-blur-sm flex ">
         <div className="w-[100%] flex items-center px-3 justify-center">
@@ -126,7 +151,7 @@ export const SendView = ({slug}: {slug:string}) => {
                   <p className="text-white/85 font-bold text-[32px] ml-auto mr-auto ">{`${amount} SOL`}</p>
                 </div>
                 <div className="w-[90%]  ml-auto mr-auto py-1 px-3 flex  items-center justify-center bg-white/0 rounded-full h-9">
-                  <p className="text-[#666666] font-bold text-[14px] ml-auto mr-auto ">{`$${multiple(ethPrice, amount).toString().slice(0, 6)}`}</p>
+                  <p className="text-[#666666] font-bold text-[14px] ml-auto mr-auto ">{`$${(6)}`}</p>
                 </div>
                 
                 <div className="w-[303px]  ml-auto mr-auto py-1 px-3 flex flex-col items-center justify-center bg-white/0 rounded-sm mt-1 mb-3 h-[163px]">
@@ -147,7 +172,7 @@ export const SendView = ({slug}: {slug:string}) => {
                 <div className="flex w-[100%]">
                 <div onClick={() => {
                     //setIsSend(false)
-                  //  setPreview(false)
+                     setPreview(false)
                     }} className="w-[105px] mt-1  ml-auto mr-auto py-1 px-3 flex  items-center border border-[#448cff]/60  justify-center text-white bg-black/90 rounded-full h-9">
                   <p>Cancel</p>
                 </div>
@@ -158,17 +183,18 @@ export const SendView = ({slug}: {slug:string}) => {
                       if (receiveAddress !== "") {
                         //handleSendSol();
                         //setIsTxSuccess(true)
+                        console.log('uiss')
                       }
                     }}
                     className="outline-none bg-transparent w-[100%] h-[100%] text-white  py-0 px-4"
                   >
-                    {/** {" "}
+                    {" "}
                     {loading ? (
                       <SpinningCircles className="ml-auto mr-auto h-5 w-5" />
                     ) : (
                       "Sign"
                     )}  
-                    sign
+                    
                   </button>
                 </div>
                 </div>
@@ -176,9 +202,9 @@ export const SendView = ({slug}: {slug:string}) => {
             </div>
             </div>
         </div>
-    </div>
+        </div>
                 </>
-                )}  */}
+                )} }
              {/** {isTxSuccess && (
                 <TransactionSuccessModal hash={comment} amount={amount} />
               )}

@@ -1,6 +1,8 @@
+import { Keypair } from "@solana/web3.js";
 import axios from "axios";
 //import { apiResponse } from "./api.helpers";
 import * as bip39 from "bip39";
+import bs58 from 'bs58'
 
 interface SeedGenerationResult {
   seedArray: Uint8Array;
@@ -10,7 +12,11 @@ interface SeedGenerationResult {
 export const formatAddress = (value:string) => {
   return value.substring(0, 10) + "..." + value.substring(value.length - 3);
 };
-
+export const getKeypairFromPrivateKey = (privateKeyString: string):Keypair => {
+  // If the private key is in base58 format, decode it
+  const privateKeyBytes = bs58.decode(privateKeyString);
+  return Keypair.fromSecretKey(privateKeyBytes);
+}
 export const GenerateSeed = async (): Promise<SeedGenerationResult> => {
   try {
     const mnemonic = bip39.generateMnemonic();

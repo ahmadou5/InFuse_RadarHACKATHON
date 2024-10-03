@@ -55,7 +55,7 @@ const fetchTokenData = async (tokenId: string, timeframe: string) => {
 const Chart = ({ tokenId }: ChartProps) => {
   const [timeframe, setTimeframe] = useState('1D');
   const [chartData, setChartData] = useState<{ date: Date; price: number }[]>([]);
-  const router = useRouter()
+ 
   useEffect(() => {
     const fetchData = async () => {
       const data = await fetchTokenData(tokenId, timeframe);
@@ -78,11 +78,7 @@ const Chart = ({ tokenId }: ChartProps) => {
 
   return (
     <div className="bg-white/0 w-[96%] mt-2 ml-auto mr-auto py-1 px-2 rounded-lg ">
-        <div className=" bg-slate-50/0 mb-[26px] w-[100%] flex flex-col ">
-             <div onClick={() => router.back()} className="bg-white/5 flex items-center justify-center w-14 rounded-xl ml-0 h-8">
-             <ArrowLeft  className="font-bold text-xl"/>
-             </div>
-            </div>
+       
       <div className="flex justify-between items-baseline mb-4">
         <span className="text-2xl  font-bold">{`$ ${currentPrice.toFixed(7)}`}</span>
         <span className={`flex items-center ${priceChange >= 0 ? 'text-green-500' : 'text-red-500'}`}>

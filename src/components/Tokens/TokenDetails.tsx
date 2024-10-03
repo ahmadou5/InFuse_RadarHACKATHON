@@ -6,7 +6,7 @@ interface TokenProps {
     tokenSymbol: string;
    
 }
-export const TokenDetails = ({ tokenId = "solana", tokenSymbol = "SOL"}: TokenProps) => {
+export const TokenDetails = ({ tokenId, tokenSymbol = "SOL"}: TokenProps) => {
     
     const [tokenInfo, setTokenInfo] = useState({
         currentPrice: 0,
