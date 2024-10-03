@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, type PropsWithChildren } from "react";
+import { type PropsWithChildren } from "react";
 import { SDKProvider } from "@telegram-apps/sdk-react";
-import { useBackButton } from "@telegram-apps/sdk-react";
+
 
 import { useTelegramMock } from "@/hooks/useTgMock";
 import { useDidMount } from "@/hooks/useDidMount";
@@ -41,11 +41,7 @@ function RootInner({ children }: PropsWithChildren) {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     useTelegramMock();
   }
-  const bb = useBackButton()
-
-  useEffect(() => {
-   bb
-  },[bb])
+  
  
 
   // Enable debug mode to see all the methods sent and events received.
