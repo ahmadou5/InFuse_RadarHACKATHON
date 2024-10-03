@@ -14,8 +14,7 @@ import {
   createPostResponse,
 } from '@solana/actions'
 import {
-  clusterApiUrl,
-  Connection,
+  
   PublicKey,
   Transaction,
 } from '@solana/web3.js'
@@ -81,10 +80,10 @@ export const POST = async (req: Request) => {
       })
     }
 
-    const connection = new Connection(clusterApiUrl('mainnet-beta'))
+    //const connection = new Connection(clusterApiUrl('mainnet-beta'))
     let transaction: Transaction = new Transaction()
 
-    transaction = await SendNativeSol(connection, {
+    transaction = await SendNativeSol({
         amount,
         toPubkey,
         fromPubkey: account,
