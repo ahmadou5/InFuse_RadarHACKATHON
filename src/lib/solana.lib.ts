@@ -16,7 +16,6 @@ import { TransactionDetails } from "@/interfaces/models.interface";
 import bs58 from "bs58";
 
 export const sendNativeSol = async (
-  connection: Connection,
   {
     amount,
     fromPubkey,
@@ -28,7 +27,7 @@ export const sendNativeSol = async (
   }
 ) => {
   try {
-    const connection = new Connection(clusterApiUrl("mainnet-beta"));
+    const connection = new Connection(clusterApiUrl("devnet"));
     // ensure the receiving account will be rent exempt
     const minimumBalance = await connection.getMinimumBalanceForRentExemption(
       0 // note: simple accounts that just store native SOL have `0` bytes of data
