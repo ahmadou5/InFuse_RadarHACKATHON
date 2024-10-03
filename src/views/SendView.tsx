@@ -3,7 +3,7 @@ import { ArrowLeft, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react"
 import {  useQRScanner } from "@telegram-apps/sdk-react";
-import {sendNativeSol}  from "@/lib/solana.lib";
+import {SendNativeSol}  from "@/lib/solana.lib";
 import { formatAddress } from "@/lib/helper.lib";
 import { SpinningCircles } from "react-loading-icons";
 import { PublicKey} from "@solana/web3.js";
@@ -47,7 +47,7 @@ export const SendView = ({slug}: {slug:string}) => {
       try {
         if(slug[0] === 'solana') {
           console.log('send it',slug)
-          sendNativeSol({
+          SendNativeSol({
             amount:amount,
             fromPubkey: new PublicKey(receiveAddress),
             toPubkey: new PublicKey(receiveAddress)

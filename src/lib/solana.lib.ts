@@ -15,7 +15,7 @@ import { GenerateSeed, getKeypairFromPrivateKey } from "./helper.lib";
 import { TransactionDetails } from "@/interfaces/models.interface";
 import bs58 from "bs58";
 
-export const sendNativeSol = async (
+export const SendNativeSol = async (
   {
     amount,
     fromPubkey,
