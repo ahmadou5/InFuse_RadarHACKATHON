@@ -1,13 +1,15 @@
 'use client'
 import { ArrowLeft, X } from "lucide-react";
+import { Connection, clusterApiUrl } from "@solana/web3.js";
 import { useRouter } from "next/navigation";
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import {  useQRScanner } from "@telegram-apps/sdk-react";
-import {SendNativeSol}  from "@/lib/solana.lib";
+import {getSplTokenBalance, SendNativeSol}  from "@/lib/solana.lib";
 import { formatAddress } from "@/lib/helper.lib";
 import { SpinningCircles } from "react-loading-icons";
 import { PublicKey} from "@solana/web3.js";
-//import { useAuth } from "@/context/AuthContext";
+import { fetchSolPriceB } from "@/lib/solana.lib";
+import { useAuth } from "@/context/AuthContext";
 
 
 export const SendView = ({slug}: {slug:string}) => {
@@ -16,9 +18,11 @@ export const SendView = ({slug}: {slug:string}) => {
     const [receiveAddress, setReceiveAddress] = useState<string>('');
     const [isAddressChecked,setIsAddressChecked] = useState<boolean>(false)
     const [amount,setAmount] = useState<number>(0)
-    //const connection = new Connection(clusterApiUrl('devnet'))
+    const [userBalance, setUserBalance] = useState<number|undefined>(0)
+    
+    const connection = new Connection(clusterApiUrl('devnet'))
     //const router = useRouter()
-    //const { user } = useAuth()
+    const { user } = useAuth()
     const scanner = useQRScanner()
     const  handleChange = (event:React.ChangeEvent<HTMLInputElement>) => {
       setReceiveAddress(event.target.value)
@@ -43,6 +47,23 @@ export const SendView = ({slug}: {slug:string}) => {
         console.log(error)
       }
     }
+    const getUserBalance = async () => {
+      try {
+        if(slug[0] === 'solana') {
+          if(!user) return
+          const  data = await fetchSolPriceB({user: user?.publicKey})
+          setUserBalance(data?.balance)
+        } else {
+          if(!user) return
+          const data = await getSplTokenBalance(connection,slug[0],user.publicKey)
+          setUserBalance(data)
+        }
+          
+      } catch (error) {
+        if(error instanceof Error)
+        console.log(error.message)
+      }
+    }
     const handleTransfer = async () => {
       try {
         if(slug[0] === 'solana') {
@@ -59,6 +80,9 @@ export const SendView = ({slug}: {slug:string}) => {
         console.log(error)
       }
     }
+    useEffect(() => {
+      getUserBalance()
+    },[])
     return(
     
     <>
@@ -101,20 +125,23 @@ export const SendView = ({slug}: {slug:string}) => {
               </div>
               <div className="bg-black/0 rounded-2xl w-[150px] border border-white h-9">
                 <p className="text-white text-center py-1.5">
-                  
+                  {`$${userBalance}`}
                 </p>
               </div>
             </div>
             <div>
               <div className="h-12 w-[100%] flex items-center justify-between py-1 px-2 bg-red-500/0 mt-8">
                 <div
-                  //onClick={() => setAmount(ethBalance.toString().slice(0, 6))}
+                  onClick={() => {
+                    if(!userBalance) return
+                    setAmount(userBalance)
+                  }}
                   className="bg-white/20 rounded-2xl w-20 h-9"
                 >
                   <p className="text-white text-center py-1.5">MAX</p>
                 </div>
                 <div className="text-s-gray-950">
-                  <p>{`Available: ${0} SOL`}</p>
+                  <p>{`Available: ${userBalance} ${slug[0] === 'solana' ? 'SOL' : slug[0]}`}</p>
                 </div>
               </div>
               <div className="mt-10 w-[100%] ml-auto mr-auto">
@@ -122,19 +149,19 @@ export const SendView = ({slug}: {slug:string}) => {
                   <button
                     onClick={() => {
                       if (receiveAddress !== "") {
-                        //setPreview(true);
+                        setPreview(true);
                         handleTransfer()
                       }
                     }}
                     className="outline-none bg-transparent w-[100%] h-[100%] text-white  py-2 px-4"
                   >
-                    {/** {" "} ${ethBalance.toString().slice(0, 5)}
+                    {" "}
                     {loading ? (
                       <SpinningCircles className="ml-auto mr-auto h-7 w-7" />
                     ) : (
                       "Confirm"
-                    )}*/}
-                    confirm
+                    )}
+                    
                   </button>
                 </div>
               </div>
@@ -159,7 +186,7 @@ export const SendView = ({slug}: {slug:string}) => {
                 <div className="w-[303px]  ml-auto mr-auto py-1 px-3 flex flex-col items-center justify-center bg-white/0 rounded-sm mt-1 mb-3 h-[163px]">
                   <div className="w-[100%] mt-1 mb-1 bg-black/15 h-10 py-2 px-2 rounded-2xl flex">
                     <div className="ml-2 mr-auto">To</div>
-                    <div className="ml-auto mr-2">{(receiveAddress)}</div>
+                    <div className="ml-auto mr-2">{formatAddress(receiveAddress)}</div>
                   </div>
                   <div className="w-[100%] mt-1 mb-1 bg-black/15 h-10 py-2 px-2 rounded-2xl flex">
                     <div className="ml-2 mr-auto">Network</div>
@@ -183,7 +210,7 @@ export const SendView = ({slug}: {slug:string}) => {
                   <button
                     onClick={() => {
                       if (receiveAddress !== "") {
-                        //handleSendSol();
+                        handleTransfer();
                         //setIsTxSuccess(true)
                         console.log('uiss')
                       }

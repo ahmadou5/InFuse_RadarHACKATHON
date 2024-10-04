@@ -3,6 +3,7 @@ import {
   Connection,
   //LAMPORTS_PER_SOL,
   Keypair,
+ 
   PublicKey,
   PublicKeyData,
   sendAndConfirmTransaction,
@@ -11,7 +12,8 @@ import {
 } from "@solana/web3.js";
 import { createTransferInstruction } from "@solana/spl-token";
 import { getAssociatedTokenAddress } from "@solana/spl-token";
-import { GenerateSeed, getKeypairFromPrivateKey } from "./helper.lib";
+
+import { GenerateSeed, getKeypairFromPrivateKey, getSolPrice } from "./helper.lib";
 import { TransactionDetails } from "@/interfaces/models.interface";
 import bs58 from "bs58";
 
@@ -245,3 +247,20 @@ export const GetUserTransaction = async (
       throw new Error(`Failed to fetch transaction ${error.message}`);
   }
 };
+export const fetchSolPriceB = async ({
+  user
+}:{user:string|undefined}) => {
+    try {
+      if(!user) {
+        return
+      }
+      const connection = new Connection(clusterApiUrl("devnet"));
+      const userAddress = new PublicKey(user)
+      const price = await getSolPrice('solana')
+      const balance = await connection.getBalance(userAddress)
+      return {price, balance};
+     
+    } catch (error) {
+      throw error
+    }
+  }

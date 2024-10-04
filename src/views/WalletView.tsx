@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import { GeneratePayLink } from "@/lib/Mercuryo.lib";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { getKeypairFromPrivateKey, getSolPrice, getTokenPrices } from "@/lib/helper.lib";
@@ -126,7 +127,7 @@ export const WalletView = () => {
     const fetchCompress = async () => {
       if(!user) return;
       const owner = getKeypairFromPrivateKey(user.publicKey)
-      const CompresstokenList = getCompressTokenBalance({Owner: owner })
+      const CompresstokenList = getCompressTokenBalance({Owner: owner.publicKey })
       setCompTokens((await CompresstokenList).items)
       console.log((await CompresstokenList).items)
     }
@@ -155,7 +156,21 @@ export const WalletView = () => {
     fetchBalances();
   }, []);
 
-
+  const LinkG = () => {
+    try {
+      if(!user) return
+      const Link = GeneratePayLink({
+        tokenName: 'SOL',
+        amount: 10,
+        type: 'buy',
+        userAddress: user?.publicKey
+      })
+      console.log(Link)
+      //router.push(Link)
+    } catch (error) {
+      
+    }
+  }
   const scan = () => {
     try {
       scanner.open('Scan QR code').then((content) => {
@@ -167,6 +182,7 @@ export const WalletView = () => {
       console.log(error)
     }
   }
+  
   return (
     <div className="w-[100%] flex items-center justify-center flex-col">
       <div className="bg-gothic-950/0 mt-0.5 flex  mb-2 flex-col items-center justify-center w-[100%] h-auto">
@@ -208,7 +224,7 @@ export const WalletView = () => {
             />
             
           </div>
-          <div onClick={() => router.push(`/ramp`)} className="text-3xl  bg-white/10 flex flex-col items-center justify-center rounded-3xl h-20 w-20 ml-auto mr-auto  text-white/60">
+          <div onClick={() => LinkG()} className="text-3xl  bg-white/10 flex flex-col items-center justify-center rounded-3xl h-20 w-20 ml-auto mr-auto  text-white/60">
             <img
               src="https://solana-wallet-orcin.vercel.app/assets/dollar.svg"
               className="mt-1"
