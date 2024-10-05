@@ -99,63 +99,56 @@ export const handleSendSol = async ({
 };
 
 // Example usage
-
-
 export const SendNativeSol = async (
+  connection: Connection,
   {
     amount,
-    mnemonicString,
+    fromPubkey,
     toPubkey,
   }: {
-    amount: number;
-    toPubkey: PublicKey;
-    mnemonicString: string;
+    amount: number
+    fromPubkey: PublicKey
+    toPubkey: PublicKey
   }
 ) => {
   try {
-    const connection = new Connection(clusterApiUrl("devnet"));
+    const connection = new Connection(clusterApiUrl('mainnet-beta'))
     // ensure the receiving account will be rent exempt
-      const seed = await bip39.mnemonicToSeed(mnemonicString);
-      console.log(seed,'seed')
-      const seedBytes = seed.slice(0, 32);
-      const account = await Keypair.fromSeed(seedBytes);
+    const minimumBalance = await connection.getMinimumBalanceForRentExemption(
+      0 // note: simple accounts that just store native SOL have `0` bytes of data
+    )
+
+    console.log('minimum balance', minimumBalance, amount )
+    if (amount < minimumBalance) {
+      // throw `account may not be rent exempt: ${toPubkey.toBase58()}`
+      // return Response.json({
+      //   error: `account may not be rent exempt: ${toPubkey.toBase58()}`,
+      // })
+    }
 
     // create an instruction to transfer native SOL from one wallet to another
     const transferSolInstruction = SystemProgram.transfer({
-      fromPubkey: account.publicKey,
+      fromPubkey: fromPubkey,
       toPubkey: toPubkey,
-      lamports: amount,
-    });
-    
+      lamports: amount ,
+    })
+
     // get the latest blockhash amd block height
     const { blockhash, lastValidBlockHeight } =
-      await connection.getLatestBlockhash();
+      await connection.getLatestBlockhash()
 
     // create a legacy transaction
     const transaction = new Transaction({
-      feePayer: account.publicKey,
+      feePayer: fromPubkey,
       blockhash,
       lastValidBlockHeight,
-    }).add(transferSolInstruction);
+    }).add(transferSolInstruction)
 
-    const transactionSignature = await sendAndConfirmTransaction(
-      connection,
-      transaction,
-      [
-        account, // payer, owner
-      ]
-    );
-    return transactionSignature
+    return transaction
   } catch (error: unknown) {
-    if (error instanceof Error) {
-      throw new Error(`Failed to create transaction: ${error.message}`);
-    } else {
-      throw new Error(
-        "An unknown error occurred while creating the transaction"
-      );
-    }
+   if (error instanceof Error) throw new Error(error.message || 'Unknown error occurred')
   }
-};
+}
 
 export const transferSpl = async (
  
