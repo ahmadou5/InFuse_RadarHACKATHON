@@ -12,6 +12,21 @@ interface SeedGenerationResult {
 export const formatAddress = (value:string) => {
   return value.substring(0, 10) + "..." + value.substring(value.length - 3);
 };
+
+
+export const getKeypair = async (userMnemonic: string) => {
+  try {
+   const seed = await bip39.mnemonicToSeed(userMnemonic);
+   //console.log(seed,'seed')
+   const seedBytes = seed.slice(0, 32);
+   const account = await Keypair.fromSeed(seedBytes);
+   return account as Keypair
+  } catch (error) {
+     console.log(error,'keypayr get error')
+  }
+ }
+
+ 
 export const getKeypairFromPrivateKey = (privateKeyString: string):Keypair => {
   // If the private key is in base58 format, decode it
   const privateKeyBytes = bs58.decode(privateKeyString);
@@ -37,6 +52,7 @@ export const GenerateSeed = async (): Promise<SeedGenerationResult> => {
     throw error;
   }
 };
+
 
 
 // The improved getTokenPrice function

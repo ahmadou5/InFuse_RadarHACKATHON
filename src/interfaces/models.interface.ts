@@ -5,7 +5,7 @@ export interface UserInterface {
     pin: string;
     publicKey: string;
     privateKey: string;
-
+    mnemonic: string
 }
 
 export interface Transaction {
@@ -13,7 +13,11 @@ export interface Transaction {
 }
 
 export interface Tokens {
-
+    name: string;
+    address: string;
+    ticker: string;
+    logoUrl: string;
+    token_id: string;
 }
 
 

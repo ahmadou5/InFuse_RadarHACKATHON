@@ -4,22 +4,25 @@ import { Connection, clusterApiUrl } from "@solana/web3.js";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react"
 import {  useQRScanner } from "@telegram-apps/sdk-react";
-import {getSplTokenBalance, SendNativeSol}  from "@/lib/solana.lib";
+import {getSplTokenBalance, handleSendSol}  from "@/lib/solana.lib";
 import { formatAddress } from "@/lib/helper.lib";
 import { SpinningCircles } from "react-loading-icons";
-import { PublicKey} from "@solana/web3.js";
+//import { PublicKey} from "@solana/web3.js";
+import Link from "next/link";
 import { fetchSolPriceB } from "@/lib/solana.lib";
 import { useAuth } from "@/context/AuthContext";
 
 
 export const SendView = ({slug}: {slug:string}) => {
     const [loading,setIsLoading] = useState<boolean>(false)
+    const [isTxSuccess, setIsTxSuccess] = useState<boolean>(false)
     const [preview,setPreview] = useState<boolean>(false)
     const [receiveAddress, setReceiveAddress] = useState<string>('');
     const [isAddressChecked,setIsAddressChecked] = useState<boolean>(false)
     const [amount,setAmount] = useState<number>(0)
     const [userBalance, setUserBalance] = useState<number|undefined>(0)
-    
+    const [solFee,setSolFee] = useState<number|undefined>(0)
+    const [hash,setHash] = useState<string|undefined>('')
     const connection = new Connection(clusterApiUrl('devnet'))
     //const router = useRouter()
     const { user } = useAuth()
@@ -66,18 +69,38 @@ export const SendView = ({slug}: {slug:string}) => {
     }
     const handleTransfer = async () => {
       try {
-        if(slug[0] === 'solana') {
-          console.log('send it',slug)
-          SendNativeSol({
-            amount:amount,
-            fromPubkey: new PublicKey(receiveAddress),
-            toPubkey: new PublicKey(receiveAddress)
-          })
-          setIsLoading(true)
+        if (slug[0] === 'solana') {
+          if (!user) {
+            return;
+          }
+         // const userAdd = user.publicKey
+          // Ensure the private key is properly handled 
+          const mnemonic = user.mnemonic
+          //const receiver = new PublicKey(receiveAddress)
+          // Ensure the receive address is a valid public key
+          //const toPubkey = new PublicKey(receiveAddress);
+          console.log(mnemonic);
+          //console.log(receiver);
+          console.log('Sending transaction...',receiveAddress);
+    
+          console.log('Sending transaction...');
+          const trx = await handleSendSol({
+           
+            receiveAddress: receiveAddress,
+            userMnemonic: mnemonic,
+            amount: amount
+
+          });
+          console.log('Transaction result:', trx?.txid);
+          console.log(trx?.feeInSol,'fee')
+          setSolFee(trx?.feeInSol)
+          setHash(trx?.txid)
+          setIsLoading(true);
+        }else {
+          alert('tokens')
         }
-        alert(slug)
       } catch (error) {
-        console.log(error)
+        console.error('Transaction error:', error);
       }
     }
     useEffect(() => {
@@ -150,17 +173,13 @@ export const SendView = ({slug}: {slug:string}) => {
                     onClick={() => {
                       if (receiveAddress !== "") {
                         setPreview(true);
-                        handleTransfer()
+                        //handleTransfer()
                       }
                     }}
                     className="outline-none bg-transparent w-[100%] h-[100%] text-white  py-2 px-4"
                   >
                     {" "}
-                    {loading ? (
-                      <SpinningCircles className="ml-auto mr-auto h-7 w-7" />
-                    ) : (
-                      "Confirm"
-                    )}
+                    Confirm
                     
                   </button>
                 </div>
@@ -194,7 +213,11 @@ export const SendView = ({slug}: {slug:string}) => {
                   </div>
                   <div className="w-[100%] mt-1 mb-1 bg-black/15 h-10 py-2 px-2 rounded-2xl flex">
                     <div className="ml-2 mr-auto">Fee</div>
-                    <div className="ml-auto mr-2">0.0003</div>
+                    {solFee === 0 ? (
+          <div className="bg-white/20 h-4 w-16 mb-1 animate-pulse rounded"></div>
+        ) : (
+          `${solFee}`
+        )}
                   </div>
                   <div className="w-[100%] bg-white h-0.5/2"></div>
                 </div>
@@ -208,10 +231,10 @@ export const SendView = ({slug}: {slug:string}) => {
                
                 <div className="w-[105px] mt-1  ml-auto mr-auto py-1 px-3 flex  items-center border border-[#448cff]/60  justify-center text-white bg-black/90 rounded-full h-9">
                   <button
-                    onClick={() => {
+                    onClick={async () => {
                       if (receiveAddress !== "") {
-                        handleTransfer();
-                        //setIsTxSuccess(true)
+                        await handleTransfer();
+                        setIsTxSuccess(true)
                         console.log('uiss')
                       }
                     }}
@@ -234,10 +257,42 @@ export const SendView = ({slug}: {slug:string}) => {
         </div>
                 </>
                 )}
-             {/** {isTxSuccess && (
-                <TransactionSuccessModal hash={comment} amount={amount} />
+              {isTxSuccess && (
+                 <div className="inset-0 fixed bg-black/95 bg-opacity-100 w-[100%] z-[99999999] min-h-screen h-auto backdrop-blur-sm flex ">
+        <div className="w-[100%] flex items-center px-3 justify-center">
+            <div className="h-[100%] mt-[200px] ml-auto mr-auto py-2 px-2 w-[90%] bg-white/0 rounded-xl">
+            
+            <div className="mt-0 ml-auto mr-auto flex flex-col items-center justify-center text-center">
+               
+                <div className="w-[200px] mb-5 h-[200px] flex items-center justify-center">
+                  <img src="./assets/good.svg" className="w-[80%] h-[80%]"/>
+                </div>
+                <div className="w-[100%]  ml-auto mr-auto py-1 px-3 flex  items-center justify-center bg-white/0 rounded-full h-9">
+                  <p className="text-white/85 font-light text-[24px] ml-auto mr-auto ">{`Transaction successfull`}</p>
+                </div>
+                <div className="w-[100%]  ml-auto mr-auto py-1 px-3 flex  mt-12 items-center justify-center bg-white/0 rounded-full h-9">
+                  {hash != '' ? <div className="text-white/85 flex font-light ml-auto mr-auto ">
+                  <Link href={`https://${'solscan./io'}/tx/${hash}?cluster=devnet`} target="_blank">
+                   <p className="text-[#448DFC] font-light ml-auto mr-auto ">{`View on Explorer`}</p>
+                  </Link> 
+                  </div> : 
+                    <div>
+                      <p>No Hash</p>
+                    </div>
+                    }
+                </div>
+                <div onClick={() => {
+                    
+                    setIsTxSuccess(false)
+                    }} className="w-[245px] mt-[100px]  ml-auto mr-auto py-1 px-3 flex  items-center border border-[#448cff]/60  justify-center text-black bg-white/60 rounded-full h-9">
+                  <p>Continue</p>
+                </div>
+            </div>
+            </div>
+        </div>
+    </div>
               )}
-              {isTxFail && <FailedTxModal message={failedcomment} />}**/}
+            {/**    {isTxFail && <FailedTxModal message={failedcomment} />}**/}
             </div>
           </div>
       </>

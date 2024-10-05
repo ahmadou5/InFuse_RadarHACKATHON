@@ -1,9 +1,10 @@
 import {
   clusterApiUrl,
   Connection,
-  //LAMPORTS_PER_SOL,
+  LAMPORTS_PER_SOL,
   Keypair,
- 
+  TransactionMessage,
+  VersionedTransaction,
   PublicKey,
   PublicKeyData,
   sendAndConfirmTransaction,
@@ -12,56 +13,139 @@ import {
 } from "@solana/web3.js";
 import { createTransferInstruction } from "@solana/spl-token";
 import { getAssociatedTokenAddress } from "@solana/spl-token";
-
-import { GenerateSeed, getKeypairFromPrivateKey, getSolPrice } from "./helper.lib";
+import * as bip39 from 'bip39'
+import { GenerateSeed, getSolPrice } from "./helper.lib";
 import { TransactionDetails } from "@/interfaces/models.interface";
-import bs58 from "bs58";
+import  bs58 from "bs58";
+
+
+interface HandleSendSolParams {
+  receiveAddress: string;
+  userMnemonic: string;
+  amount: string | number;
+}
+
+
+
+export const handleSendSol = async ({
+  receiveAddress,
+  userMnemonic,
+  amount
+}: HandleSendSolParams) => {
+  try {
+    // Convert amount to number if it's a string
+    const numericAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
+    
+    // Validate amount
+    if (isNaN(numericAmount) || numericAmount <= 0) {
+      throw new Error("Invalid amount");
+    }
+
+    const seed = await bip39.mnemonicToSeed(userMnemonic);
+    const seedBytes = seed.slice(0, 32);
+    const account = Keypair.fromSeed(seedBytes);
+    
+    const connection = new Connection(clusterApiUrl('devnet'), "confirmed");
+
+    const { blockhash } = await connection.getLatestBlockhash();
+
+    // Validate receive address
+    let receivePubKey: PublicKey;
+    try {
+      receivePubKey = new PublicKey(receiveAddress);
+    } catch (error) {
+      throw new Error("Invalid receive address");
+    }
+
+    const instruction = SystemProgram.transfer({
+      fromPubkey: account.publicKey,
+      toPubkey:receivePubKey,
+      lamports: numericAmount * LAMPORTS_PER_SOL,
+    });
+
+    
+    
+     
+
+    const messageV0 = new TransactionMessage({
+      payerKey: new PublicKey(account.publicKey),
+      recentBlockhash: blockhash,
+      instructions: [instruction],
+    }).compileToV0Message();
+
+    const transaction = new VersionedTransaction(messageV0);
+     // Get the fee for the transaction
+    const fee = await connection.getFeeForMessage(
+      messageV0,
+      'confirmed'
+    );
+    
+    // Convert fee from lamports to SOL
+    if(fee === undefined) return
+    const feeInSol = fee.value / LAMPORTS_PER_SOL;
+
+
+    transaction.sign([account]);
+    
+    const txid = await connection.sendTransaction(transaction);
+    console.log(`Transaction ID: ${txid}`);
+    
+    await connection.confirmTransaction(txid, "confirmed");
+    return {txid, feeInSol};
+  } catch (error) {
+    console.error("Error sending SOL:", error);
+    return undefined;
+  }
+};
+
+// Example usage
+
 
 export const SendNativeSol = async (
   {
     amount,
-    fromPubkey,
+    mnemonicString,
     toPubkey,
   }: {
     amount: number;
-    fromPubkey: PublicKey;
     toPubkey: PublicKey;
+    mnemonicString: string;
   }
 ) => {
   try {
     const connection = new Connection(clusterApiUrl("devnet"));
     // ensure the receiving account will be rent exempt
-    const minimumBalance = await connection.getMinimumBalanceForRentExemption(
-      0 // note: simple accounts that just store native SOL have `0` bytes of data
-    );
-
-    console.log("minimum balance", minimumBalance, amount);
-    if (amount < minimumBalance) {
-      // throw `account may not be rent exempt: ${toPubkey.toBase58()}`
-      // return Response.json({
-      //   error: `account may not be rent exempt: ${toPubkey.toBase58()}`,
-      // })
-    }
+      const seed = await bip39.mnemonicToSeed(mnemonicString);
+      console.log(seed,'seed')
+      const seedBytes = seed.slice(0, 32);
+      const account = await Keypair.fromSeed(seedBytes);
 
     // create an instruction to transfer native SOL from one wallet to another
     const transferSolInstruction = SystemProgram.transfer({
-      fromPubkey: fromPubkey,
+      fromPubkey: account.publicKey,
       toPubkey: toPubkey,
       lamports: amount,
     });
-
+    
     // get the latest blockhash amd block height
     const { blockhash, lastValidBlockHeight } =
       await connection.getLatestBlockhash();
 
     // create a legacy transaction
     const transaction = new Transaction({
-      feePayer: fromPubkey,
+      feePayer: account.publicKey,
       blockhash,
       lastValidBlockHeight,
     }).add(transferSolInstruction);
 
-    return transaction;
+    const transactionSignature = await sendAndConfirmTransaction(
+      connection,
+      transaction,
+      [
+        account, // payer, owner
+      ]
+    );
+    return transactionSignature
   } catch (error: unknown) {
     if (error instanceof Error) {
       throw new Error(`Failed to create transaction: ${error.message}`);
@@ -74,23 +158,28 @@ export const SendNativeSol = async (
 };
 
 export const transferSpl = async (
-  connection: Connection,
+ 
   {
-    sender,
+    mnemonicString,
     splTokenAddress,
     receiver,
     amount,
   }: {
-    sender: PublicKeyData;
+    mnemonicString: string;
     splTokenAddress: PublicKeyData;
     receiver: PublicKeyData;
     amount: number;
   }
 ) => {
   try {
+    const seed = await bip39.mnemonicToSeed(mnemonicString);
+      console.log(seed,'seed')
+    const seedBytes = seed.slice(0, 32);
+    const account = await Keypair.fromSeed(seedBytes);
+    const connection = new Connection(clusterApiUrl("devnet"));
     const tokenAddress = new PublicKey(splTokenAddress);
     const receiverKey = new PublicKey(receiver);
-    const account = getKeypairFromPrivateKey(sender.toString());
+    //const account = getKeypairFromPrivateKey(sender.toString());
 
     // Create instruction to transfer tokens
     const instruction = createTransferInstruction(

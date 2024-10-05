@@ -4,6 +4,7 @@ import { createSolanaWallet } from "@/lib/solana.lib";
 import { UserService } from "@/lib/services/user.service";
 import React, { useState, ChangeEvent } from 'react';
 import { ArrowRight, CircleGauge, ShieldCheck, ArrowLeft  } from "lucide-react"
+import { SpinningCircles } from "react-loading-icons";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 
@@ -21,6 +22,12 @@ export const OnboardView = () => {
     const [isGetStart,setGetStart] = useState<boolean>(true)
     const [isSecond,setIsSecond] = useState<boolean>(false)
     const [isThird,setIsThird] = useState<boolean>(false)
+      ////const [isNew, setIsNew] = useState<boolean>(false);
+      const [isLoading, setIsLoading] = useState<boolean>(false);
+      const [created, setIsCreated] = useState<boolean>(false);
+      const tgData = useInitData();
+      const router = useRouter()
+      const { setUser } = useAuth()
 
     const [formData, setFormData] = useState<FormData>({
       email: '',
@@ -76,12 +83,7 @@ export const OnboardView = () => {
       }
     };
   
-    ////const [isNew, setIsNew] = useState<boolean>(false);
-    const [isLoading, setIsLoading] = useState<boolean>(false);
-    const [created, setIsCreated] = useState<boolean>(false);
-    const tgData = useInitData();
-    const router = useRouter()
-    const { setUser } = useAuth()
+  
    
     const handleSubmit2 = async () => {
       if (tgData?.user?.id === undefined) {
@@ -146,7 +148,7 @@ export const OnboardView = () => {
                       setIsThird(false)
                       setGetStart(false)
                       }} className="w-[99%] ml-auto mr-auto text-black/85 flex items-center justify-center py-1 border border-[#448cff]/60 rounded-xl bg-white/90 h-14">
-                      <p className="ml-4 text-lg mr-auto">Lets Get U Started</p>
+                      <p className="ml-4 text-lg mr-auto">Get Started</p>
                       <ArrowRight className="mr-5 h-6 w-6"/>
                     </div>
                     
@@ -170,7 +172,11 @@ export const OnboardView = () => {
           <div>
 
           </div>
-          <div className="max-w-md mx-auto w-[93%] mt-[190px] h-[300px] py-9 px-4 bg-white/5 bg-opacity-20 rounded-lg shadow-md">
+          <div className="ml-auto mr-auto mt-[80px] h-20 flex items-center justify-center bg-white/5 rounded-md w-[93%]">
+            <p>Hey Lets Get Your Recovery Details</p>
+          </div>
+          <div className="max-w-md mx-auto w-[93%] mt-[15px] h-[300px] py-9 px-4 bg-white/5 bg-opacity-20 rounded-lg shadow-md">
+          
            <form  className="space-y-6">
              <div>
                <label htmlFor="email" className="block text-sm ml-3 font-medium text-white/75">
@@ -233,7 +239,7 @@ export const OnboardView = () => {
          {
           isLoading && 
           <div className="w-[120px] rounded-3xl h-8 flex items-center justify-center bg-white/5 bg-opacity-90">
-            {created ? <p className="font-light">Created</p> : <p className="font-light">Creating...</p>}
+            {created ? <p className="font-light">Created</p> : <div className="font-light flex"><p>Creating</p><SpinningCircles/></div>}
           </div>
          }
         </div>

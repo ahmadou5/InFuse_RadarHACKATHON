@@ -3,12 +3,13 @@ import { useState, useEffect } from "react";
 import { GeneratePayLink } from "@/lib/Mercuryo.lib";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
-import { getKeypairFromPrivateKey, getSolPrice, getTokenPrices } from "@/lib/helper.lib";
+import {  getSolPrice, getTokenPrices } from "@/lib/helper.lib";
 import { Connection, LAMPORTS_PER_SOL, PublicKey, clusterApiUrl } from "@solana/web3.js";
 import { Menu } from "@/components/Menu/Menu";
 import { useQRScanner } from "@telegram-apps/sdk-react";
 import { getSplTokenBalance } from "@/lib/solana.lib";
 import { getCompressTokenBalance } from "@/lib/compressed.lib";
+import { TokenService } from "@/lib/services/TokenServices";
 interface Token {
   name: string;
   ticker: string;
@@ -126,12 +127,22 @@ export const WalletView = () => {
   useEffect(() => {
     const fetchCompress = async () => {
       if(!user) return;
-      const owner = getKeypairFromPrivateKey(user.publicKey)
-      const CompresstokenList = getCompressTokenBalance({Owner: owner.publicKey })
+      const account = new PublicKey(user.publicKey)
+      const CompresstokenList = getCompressTokenBalance({Owner: account })
       setCompTokens((await CompresstokenList).items)
       console.log((await CompresstokenList).items)
     }
     fetchCompress()
+  },[])
+  useEffect(() => {
+    const fetchTo = async () => {
+      if(!user) return;
+      
+      const tokenList = await TokenService.getTokens()
+     
+      console.log(tokenList.data)
+    }
+    fetchTo()
   },[])
   useEffect(() => {
     const fetchBalances = async () => {
