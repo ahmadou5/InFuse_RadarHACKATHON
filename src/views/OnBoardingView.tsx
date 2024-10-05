@@ -238,8 +238,8 @@ export const OnboardView = () => {
         <div className=" flex items-center justify-center h-[12] mb-[230px] w-[100%]  ">
          {
           isLoading && 
-          <div className="w-[120px] rounded-3xl h-8 flex items-center justify-center bg-white/5 bg-opacity-90">
-            {created ? <p className="font-light">Created</p> : <div className="font-light flex"><p>Creating</p><SpinningCircles/></div>}
+          <div className="w-[130px] rounded-3xl h-8 flex items-center justify-center bg-white/5 bg-opacity-90">
+            {created ? <p className="font-light">Created</p> : <div className="font-light flex"><p>Creating</p><SpinningCircles className="h-4 w-4 ml-2 mr-2 mt-1 "/></div>}
           </div>
          }
         </div>

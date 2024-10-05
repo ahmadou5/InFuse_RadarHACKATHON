@@ -82,7 +82,7 @@ export const handleSendSol = async ({
     
     // Convert fee from lamports to SOL
     if(fee === undefined) return
-    const feeInSol = fee.value / LAMPORTS_PER_SOL;
+    const feeInSol = 0.00005;
 
 
     transaction.sign([account]);
