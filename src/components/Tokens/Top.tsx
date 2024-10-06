@@ -84,29 +84,54 @@ export const Top = ({ tokenId }: TopProps) => {
         </div>
       </div>
       <div className=" bg-slate-50/0 mb-[20px] py-2 px-2 h-[80px] w-[100%] flex  ">
-        {tokenInfo[0] === undefined ? (
-          <div className="bg-white/20 h-[70px] w-[70px] ml-7 mb-2 animate-pulse rounded"></div>
-        ) : (
-          <div className="bg-white/5 flex items-center ml-7 justify-center w-[70px] rounded-full h-[70px]">
+        {
+          tokenId[0] === 'solana' ? (
+            <div className="bg-white/5 flex items-center ml-7 justify-center w-[70px] rounded-full h-[70px]">
             <img
               className="rounded-full w-[98%] h-[98%]"
               src={
-                tokenId === "solana"
+                tokenId[0] === "solana"
                   ? "https://solana-wallet-orcin.vercel.app/assets/5426.png"
                   : tokenInfo[0]?.logoUrl
               }
             />
           </div>
-        )}
+          ) : (
+            <div>{tokenInfo[0] === undefined ? (
+              <div className="bg-white/20 h-[70px] w-[70px] ml-7 mb-2 animate-pulse rounded"></div>
+            ) : (
+              <div className="bg-white/5 flex items-center ml-7 justify-center w-[70px] rounded-full h-[70px]">
+                <img
+                  className="rounded-full w-[98%] h-[98%]"
+                  src={
+                    tokenId === "solana"
+                      ? "https://solana-wallet-orcin.vercel.app/assets/5426.png"
+                      : tokenInfo[0]?.logoUrl
+                  }
+                />
+              </div>
+            )} </div>
+          )
+        }
+       
 
         <div className="ml-auto text-xl font-bold mt-8 mr-2">
-          {tokenInfo[0] === undefined ? (
+          {
+            tokenId[0] === 'solana' ? (
+              <div className="flex"> <p className="ml-2 mr-2">{`${SolConverter(userBalance).toFixed(2)}`}</p><p></p>{` ${
+                tokenId[0] === "solana" ? "SOL" : tokenInfo[0]?.name
+              }`}</div>
+            ) : (<div>
+              {tokenInfo[0] === undefined ? (
             <div className="bg-white/20 h-4 w-16 mb-2 animate-pulse rounded"></div>
           ) : (
             <div className="flex"> <p className="ml-2 mr-2">{`${SolConverter(userBalance).toFixed(2)}`}</p><p></p>{` ${
                 tokenId[0] === "solana" ? "SOL" : tokenInfo[0]?.name
               }`}</div>
           )}
+            </div>)
+          }
+          
         </div>
       </div>
     </div>

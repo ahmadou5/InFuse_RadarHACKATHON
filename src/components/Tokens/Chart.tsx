@@ -99,7 +99,7 @@ const Chart = ({ tokenId }: ChartProps) => {
   return (
     <div className="bg-white/0 w-[96%] mt-2 ml-auto mr-auto py-1 px-2 rounded-lg ">
        
-      <div className="flex justify-between items-baseline mb-4">
+      <div className="flex justify-between ml-2 mr-2 items-baseline mb-8">
         <span className="text-2xl  font-bold">{`$ ${currentPrice.toFixed(7)}`}</span>
         <span className={`flex items-center ${priceChange >= 0 ? 'text-green-500' : 'text-red-500'}`}>
           {priceChange >= 0 ? <ArrowUpRight size={16} /> : <ArrowDownRight size={16} />}
@@ -110,7 +110,7 @@ const Chart = ({ tokenId }: ChartProps) => {
         <LineChart data={chartData}>
           <XAxis dataKey="date" hide />
           <YAxis hide domain={['auto', 'auto']} />
-          <Tooltip content={<CustomTooltip tokenId={tokenInfo[0]?.name} />} />
+          <Tooltip content={<CustomTooltip tokenId={tokenId[0] === 'solana' ? 'SOLANA' : tokenInfo[0]?.name} />} />
           <Line 
             type="monotone" 
             dataKey="price" 
