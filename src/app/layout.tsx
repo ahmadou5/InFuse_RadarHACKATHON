@@ -4,6 +4,7 @@ import { Montserrat,} from "next/font/google";
 import "./globals.css";
 import { TelegramProvider } from "@/provider/Telegram.Provider";
 import AuthContextProvider from "@/context/AuthContext";
+import { MiniContextProvider } from "@/context/MiniContext";
 
 
 const inter = Montserrat({ subsets: ["latin"], weight: '400' });
@@ -35,7 +36,9 @@ export default function RootLayout({
       >
       <TelegramProvider>
         <AuthContextProvider>
+          <MiniContextProvider>
           {children}
+          </MiniContextProvider>
         </AuthContextProvider>
         </TelegramProvider>
       </body>

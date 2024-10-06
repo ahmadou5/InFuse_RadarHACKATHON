@@ -100,26 +100,17 @@ export const WalletView = () => {
     }
     fetchSolPrice()
   },[])
-  useEffect(() => {
-    const fetchPrices = async () => {
-      if (tokens.length > 0) {
-        try {
-          const tickers = tokens.map(token => token.token_id);
-          const prices = await getTokenPrices(tickers);
-          setTokenPrices(Object.fromEntries(prices));
-        } catch (error) {
-          console.error('Failed to fetch token prices:', error);
-        }
-      }
-    };
-
-    fetchPrices();
-  }, [tokens]);
+ 
   useEffect(() => {
     const fetchCompress = async () => {
       if(!user) return;
-      const account = new PublicKey(user.publicKey)
-      const CompresstokenList = getCompressTokenBalance({Owner: account })
+      let userPubKey: PublicKey;
+        try {
+          userPubKey = new PublicKey(user.publicKey);
+        } catch (error) {
+          throw new Error("Invalid sender address");
+        }
+      const CompresstokenList = getCompressTokenBalance({address: userPubKey })
       setCompTokens((await CompresstokenList).items)
       console.log((await CompresstokenList).items)
     }
@@ -165,7 +156,24 @@ export const WalletView = () => {
       }
     };
 
+
     fetchBalances();
+  }, [tokens]);
+
+  useEffect(() => {
+    const fetchPrices = async () => {
+      if (tokens.length > 0) {
+        try {
+          const tickers = tokens.map(token => token.ticker);
+          const prices = await getTokenPrices(tickers);
+          setTokenPrices(Object.fromEntries(prices));
+        } catch (error) {
+          console.error('Failed to fetch token prices:', error);
+        }
+      }
+    };
+
+    fetchPrices();
   }, [tokens]);
 
   const LinkG = () => {

@@ -6,7 +6,7 @@ import {
   createRpc,
   bn
 } from "@lightprotocol/stateless.js";
-
+import * as bip39 from 'bip39'
 import { 
   createMint, mintTo,
   CompressedTokenProgram, 
@@ -88,16 +88,20 @@ console.log(decompressIx)
 
 // Compressionn function...................
 export const compressToken = async ({
-  userAddress,
+  userMnemonic,
   splAddress,
   amount
 }:{
-  userAddress: PublicKeyData;
+  userMnemonic:string;
   splAddress: PublicKeyData;
   amount: number;
 }) => {
   try {
-    const account = getKeypairFromPrivateKey(userAddress.toString())
+    const seed = await bip39.mnemonicToSeed(userMnemonic);
+    //console.log(seed,'seed')
+    const seedBytes = seed.slice(0, 32);
+    const account = await Keypair.fromSeed(seedBytes);
+    //const account = getKeypairFromPrivateKey(userAddress.toString())
     const tokenAddress = new PublicKey(splAddress)
     const ata = await createAssociatedTokenAccount(
     connection,
@@ -127,9 +131,9 @@ interface compressBalanceProps {
 
 
 //get list of compress token owned by userAddress
-export const getCompressTokenBalance = async ({Owner}:compressBalanceProps) => {
-  const key = new PublicKey(Owner)
-  const balance = await connection.getCompressedTokenBalancesByOwner(key)
+export const getCompressTokenBalance = async ({address}:{address:PublicKey}) => {
+  
+  const balance = await connection.getCompressedTokenBalancesByOwner(address)
   console.log('done')
   return balance
 }

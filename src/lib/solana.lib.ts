@@ -180,7 +180,7 @@ export const transferSpl = async (
 ) => {
   try {
     const seed = await bip39.mnemonicToSeed(mnemonicString);
-      console.log(seed,'seed')
+     // console.log(seed,'seed')
     const seedBytes = seed.slice(0, 32);
     const account = await Keypair.fromSeed(seedBytes);
     const connection = new Connection(clusterApiUrl("devnet"));

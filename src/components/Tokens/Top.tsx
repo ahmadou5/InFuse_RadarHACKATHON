@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { TokenService } from "@/lib/services/TokenServices";
 import { Tokens } from "@/interfaces/models.interface";
 import { Connection, clusterApiUrl, PublicKey } from "@solana/web3.js";
+import { SolConverter } from "@/lib/helper.lib";
 import { useAuth } from "@/context/AuthContext";
 import { getSplTokenBalance } from "@/lib/solana.lib";
 interface TopProps {
@@ -19,12 +20,12 @@ export const Top = ({ tokenId }: TopProps) => {
   });
   const getTokenInfo = async (slug: string) => {
     try {
-      console.log("token etails");
+      //console.log("token etails");
       const response = await TokenService.getTokenBytoken_id(slug);
 
       if (response.data && Array.isArray(response.data)) {
         setTokenInfo(response.data);
-        console.log(response, "anan ne");
+        //console.log(response, "anan ne");
       } else {
         console.error("Invalid token data received:", response);
         setTokenInfo([]); // Set to empty array if data is invalid
@@ -34,10 +35,10 @@ export const Top = ({ tokenId }: TopProps) => {
       setTokenInfo([]); // Set to empty array on error
     }
   };
-
+  
   const fetchBalances = async () => {
     try {
-      if (tokenId === "solana") {
+      if (tokenId[0] === "solana") {
         if (!user) return;
         let userPubKey: PublicKey;
         try {
@@ -48,7 +49,7 @@ export const Top = ({ tokenId }: TopProps) => {
 
         const balance = await connection.getBalance(userPubKey);
         setUserBalance(balance);
-        console.log(balance);
+        console.log(balance,'hhhhh');
       } else {
         if (!user) return;
         const balance = await getSplTokenBalance(
@@ -64,11 +65,11 @@ export const Top = ({ tokenId }: TopProps) => {
     }
   };
   const router = useRouter();
-
+  
   useEffect(() => {
     getTokenInfo(tokenId);
     fetchBalances();
-  }, []);
+  }, [user]);
   return (
     <div className="bg-white/0 w-[96%] mt-2 ml-auto mr-auto py-1 px-2 rounded-lg ">
       <div className=" bg-slate-50/0  mb-[26px] w-[100%] flex  ">
@@ -83,7 +84,7 @@ export const Top = ({ tokenId }: TopProps) => {
         </div>
       </div>
       <div className=" bg-slate-50/0 mb-[20px] py-2 px-2 h-[80px] w-[100%] flex  ">
-        {tokenInfo === undefined ? (
+        {tokenInfo[0] === undefined ? (
           <div className="bg-white/20 h-[70px] w-[70px] ml-7 mb-2 animate-pulse rounded"></div>
         ) : (
           <div className="bg-white/5 flex items-center ml-7 justify-center w-[70px] rounded-full h-[70px]">
@@ -99,12 +100,12 @@ export const Top = ({ tokenId }: TopProps) => {
         )}
 
         <div className="ml-auto text-xl font-bold mt-8 mr-2">
-          {tokenInfo === undefined ? (
+          {tokenInfo[0] === undefined ? (
             <div className="bg-white/20 h-4 w-16 mb-2 animate-pulse rounded"></div>
           ) : (
-            <p>{`${userBalance} ${
-              tokenId === "solana" ? "SOL" : tokenInfo[0]?.name
-            }`}</p>
+            <div className="flex"> <p className="ml-2 mr-2">{`${SolConverter(userBalance).toFixed(2)}`}</p><p></p>{` ${
+                tokenId[0] === "solana" ? "SOL" : tokenInfo[0]?.name
+              }`}</div>
           )}
         </div>
       </div>

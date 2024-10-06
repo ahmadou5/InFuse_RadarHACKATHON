@@ -1,4 +1,4 @@
-import { Keypair } from "@solana/web3.js";
+import { Keypair, LAMPORTS_PER_SOL } from "@solana/web3.js";
 import axios from "axios";
 //import { apiResponse } from "./api.helpers";
 import * as bip39 from "bip39";
@@ -7,6 +7,11 @@ import bs58 from 'bs58'
 interface SeedGenerationResult {
   seedArray: Uint8Array;
   mnemonic: string;
+}
+
+export const SolConverter = (value:number) => {
+  const converted = value/LAMPORTS_PER_SOL
+  return converted;
 }
 
 export const formatAddress = (value:string) => {
