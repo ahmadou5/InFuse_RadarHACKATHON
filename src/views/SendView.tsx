@@ -1,6 +1,6 @@
 'use client'
 import { ArrowLeft, X } from "lucide-react";
-import { Connection, clusterApiUrl } from "@solana/web3.js";
+import { Connection, PublicKey, clusterApiUrl } from "@solana/web3.js";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react"
 import {  useQRScanner } from "@telegram-apps/sdk-react";
@@ -8,15 +8,18 @@ import {getSplTokenBalance, handleSendSol}  from "@/lib/solana.lib";
 import { formatAddress } from "@/lib/helper.lib";
 import { SpinningCircles } from "react-loading-icons";
 //import { PublicKey} from "@solana/web3.js";
+import { SendSplToken } from "@/lib/spl.lib";
 import Link from "next/link";
 import { fetchSolPriceB } from "@/lib/solana.lib";
 import { useAuth } from "@/context/AuthContext";
-
+import { TokenService } from "@/lib/services/TokenServices";
+import { Tokens } from "@/interfaces/models.interface";
 
 export const SendView = ({slug}: {slug:string}) => {
     const [loading,setIsLoading] = useState<boolean>(false)
     const [isTxSuccess, setIsTxSuccess] = useState<boolean>(false)
     const [preview,setPreview] = useState<boolean>(false)
+    const [tokenInfo,setTokenInfo] =useState<Tokens[]>([]);
     const [receiveAddress, setReceiveAddress] = useState<string>('');
     const [isAddressChecked,setIsAddressChecked] = useState<boolean>(false)
     const [amount,setAmount] = useState<number>(0)
@@ -31,7 +34,24 @@ export const SendView = ({slug}: {slug:string}) => {
       setReceiveAddress(event.target.value)
     }
     
-    console.log(slug)
+    //console.log(slug)
+    const getTokenInfo = async (slug:string) => {
+      try {
+        console.log('token etails')
+        const response = await TokenService.getTokenBytoken_id(slug);
+       
+       if (response.data && Array.isArray(response.data)) {
+         setTokenInfo(response.data);
+         console.log(response,'anan ne')
+       } else {
+         console.error('Invalid token data received:', response);
+         setTokenInfo([]); // Set to empty array if data is invalid
+       }
+     } catch (error) {
+       console.error('Failed to fetch tokens:', error);
+       setTokenInfo([]); // Set to empty array on error
+     }
+    }
     const router = useRouter()
     const scan = () => {
       try {
@@ -97,7 +117,32 @@ export const SendView = ({slug}: {slug:string}) => {
           setHash(trx?.txid)
           setIsLoading(true);
         }else {
-          alert('tokens')
+          if(!user) return
+          let mintPubKey: PublicKey;
+          try {
+            mintPubKey = new PublicKey(tokenInfo[0].address);
+          } catch (error) {
+            throw new Error("Invalid mint address");
+          }
+          let senderPubKey: PublicKey;
+          try {
+          senderPubKey = new PublicKey(user.publicKey);
+          } catch (error) {
+           throw new Error("Invalid sender address");
+          }
+          let receivePubKey: PublicKey;
+          try {
+          receivePubKey = new PublicKey(receiveAddress);
+          } catch (error) {
+           throw new Error("Invalid receive address");
+          }
+          const trx = await SendSplToken(connection,{
+            amount: amount,
+            fromPubKey: senderPubKey,
+            toPubKey: receivePubKey,
+            mintAddress: mintPubKey
+          }) 
+          console.log(trx,'transaction')
         }
       } catch (error) {
         console.error('Transaction error:', error);
@@ -105,6 +150,8 @@ export const SendView = ({slug}: {slug:string}) => {
     }
     useEffect(() => {
       getUserBalance()
+      if(slug[0] === 'solana') return
+      getTokenInfo(slug[0])
     },[])
     return(
     
@@ -112,7 +159,7 @@ export const SendView = ({slug}: {slug:string}) => {
     {
       isAddressChecked ? 
       <>
-      <div className=" py-4 px-2 bg-red-600/0 max-h-screen flex flex-col rounded-xl w-[99%] ml-auto mr-auto">
+      <div className=" py-3 px-2 bg-red-600/0 max-h-screen flex flex-col rounded-xl w-[99%] ml-auto mr-auto">
       <div className=" bg-slate-50/0 mb-[5px] w-[100%] flex  ">
              <div onClick={() => setIsAddressChecked(false)} className="bg-white/5 flex items-center justify-center w-11 rounded-full ml-1 mr-auto h-10">
              <ArrowLeft  className="font-bold text-xl"/>
@@ -144,11 +191,11 @@ export const SendView = ({slug}: {slug:string}) => {
                   className="outline-none bg-transparent text-end text-3xl ml- w-[50%] h-[100%] "
                 
                 />
-                <p className="mt-5 text-xl font-light ml-1 mr-auto">SOL</p>
+                <p className="mt-5 text-xl font-light ml-1 mr-auto">{slug[0] === 'solana' ? 'SOL' : tokenInfo[0].ticker}</p>
               </div>
               <div className="bg-black/0 rounded-2xl w-[150px] border border-white h-9">
                 <p className="text-white text-center py-1.5">
-                  {`$${userBalance}`}
+                  {`$${userBalance?.toString().slice(0,4)}`}
                 </p>
               </div>
             </div>
@@ -164,7 +211,7 @@ export const SendView = ({slug}: {slug:string}) => {
                   <p className="text-white text-center py-1.5">MAX</p>
                 </div>
                 <div className="text-s-gray-950">
-                  <p>{`Available: ${userBalance} ${slug[0] === 'solana' ? 'SOL' : slug[0]}`}</p>
+                  <p>{`Available: ${userBalance?.toString().slice(0,4)} ${slug[0] === 'solana' ? 'SOL' : tokenInfo[0].ticker}`}</p>
                 </div>
               </div>
               <div className="mt-10 w-[100%] ml-auto mr-auto">
@@ -188,15 +235,15 @@ export const SendView = ({slug}: {slug:string}) => {
                 <>
                 <div className="inset-0 fixed bg-black/95 bg-opacity-100 w-[100%] z-[99999999] min-h-screen h-auto backdrop-blur-sm flex ">
         <div className="w-[100%] flex items-center px-3 justify-center">
-            <div className="h-[416px] ml-auto mr-auto py-2 px-2 w-[352px] bg-white/15 rounded-xl">
+            <div className="h-[436px] ml-auto mr-auto py-2 px-2 w-[352px] bg-white/15 rounded-xl">
             
             <div className="mt-5 ml-auto mr-auto flex flex-col items-center justify-center text-center">
                 <p className="text-center text-[#DEEAFC]  font-light text-[18px] mb-3">{`Transaction Details`} </p>
-                <div className="flex items-center justify-center">
-                  <img src="./assets/sol.png" className="w-[42px] h-[42px]" />
+                <div className="flex mb-2 items-center justify-center">
+                  <img src={slug[0] === 'solana' ? '/assets/sol.png' : `${tokenInfo[0].logoUrl}`} className="w-[47px] h-[47px]" />
                 </div>
                 <div className="w-[90%]  ml-auto mr-auto py-1 px-3 flex  items-center justify-center bg-white/0 rounded-full h-9">
-                  <p className="text-white/85 font-bold text-[32px] ml-auto mr-auto ">{`${amount} SOL`}</p>
+                  <p className="text-white/85 font-bold text-[32px] ml-auto mr-auto ">{`${amount} ${slug[0] === 'solana' ? 'SOL' : `${tokenInfo[0].name}`}`}</p>
                 </div>
                 <div className="w-[90%]  ml-auto mr-auto py-1 px-3 flex  items-center justify-center bg-white/0 rounded-full h-9">
                   <p className="text-[#666666] font-bold text-[14px] ml-auto mr-auto ">{`$${(6)}`}</p>
@@ -214,7 +261,7 @@ export const SendView = ({slug}: {slug:string}) => {
                   <div className="w-[100%] mt-1 mb-1 bg-black/15 h-10 py-2 px-2 rounded-2xl flex">
                     <div className="ml-2 mr-auto">Fee</div>
                     {solFee === 0 ? (
-          <div className="bg-white/20 h-4 w-16 mb-1 animate-pulse rounded"></div>
+          <div className="bg-white/20 h-4 w-16 mb-1 mt-2 animate-pulse rounded"></div>
         ) : (
           `${solFee}`
         )}
@@ -297,10 +344,10 @@ export const SendView = ({slug}: {slug:string}) => {
           </div>
       </>
        : 
-       <div className="mt-3 px-0.5 py-1.5 bg-red-600/0 h-[85%] flex flex-col rounded-xl w-[100%] ml-auto mr-auto">
+       <div className="mt-3 px-0.5 py-1 bg-red-600/0 h-[85%] flex flex-col rounded-xl w-[100%] ml-auto mr-auto">
        <div className="w-[100%] bg-white/0 px-2 flex flex-col border border-[#448cff]/0 justify-center items-center rounded-xl h-[370px]">
      <div className="w-[100%] py-0 px-0 h-[40%] bg-black/0">
-     <div className=" bg-slate-50/0 mb-[5px] mt-1 w-[100%] flex  ">
+     <div className=" bg-slate-50/0 mb-[5px] w-[100%] flex  ">
              <div onClick={() => router.back()}  className="bg-white/5 flex items-center justify-center w-11 rounded-full ml-1 mr-auto h-10">
                <X  className="font-bold text-xl"/>
              </div>
@@ -309,9 +356,9 @@ export const SendView = ({slug}: {slug:string}) => {
              </div>
              
             </div>
-       <div className="flex mt-[30px]">
-       <p className="mb-3 mt-2 mr-auto text-[16px] ml-3"></p>
-       <div className="mr-4 mt-8">
+       <div className="flex mt-[15px]">
+       <p className="mb-3 mt-0 mr-auto text-[16px] ml-3"></p>
+       <div className="mr-4 mt-8 h-8">
          {
            receiveAddress?.length > 42 &&
            <>

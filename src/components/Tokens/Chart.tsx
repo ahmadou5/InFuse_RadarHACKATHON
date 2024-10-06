@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip, TooltipProps } from 'recharts';
+import { Tokens } from '@/interfaces/models.interface';
+import { TokenService } from '@/lib/services/TokenServices';
 import { ArrowUpRight, ArrowDownRight } from 'lucide-react';
 //import { useRouter } from 'next/navigation';
 
@@ -24,7 +26,7 @@ interface CustomTooltipProps extends TooltipProps<number, string> {
 const CustomTooltip: React.FC<CustomTooltipProps> = ({ tokenId, active, payload }) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-white/10 backdrop-blur-md p-2 rounded shadow-md">
+      <div className="bg-white/5 w-[150px] backdrop-blur-md p-2 rounded-2xl shadow-md">
         <p className="text-white">{`${tokenId}`}</p>
         <p className="text-white">{`$${payload[0].value.toFixed(7)}`}</p>
         <p className="text-white text-xs">{new Date(payload[0].payload.date).toLocaleString()}</p>
@@ -55,7 +57,24 @@ const fetchTokenData = async (tokenId: string, timeframe: string) => {
 const Chart = ({ tokenId }: ChartProps) => {
   const [timeframe, setTimeframe] = useState('1D');
   const [chartData, setChartData] = useState<{ date: Date; price: number }[]>([]);
- 
+  const [tokenInfo,setTokenInfo] =useState<Tokens[]>([]);
+  const getTokenInfo = async (slug:string) => {
+    try {
+      console.log('token etails')
+      const response = await TokenService.getTokenBytoken_id(slug);
+     
+     if (response.data && Array.isArray(response.data)) {
+       setTokenInfo(response.data);
+       console.log(response,'anan ne')
+     } else {
+       console.error('Invalid token data received:', response);
+       setTokenInfo([]); // Set to empty array if data is invalid
+     }
+   } catch (error) {
+     console.error('Failed to fetch tokens:', error);
+     setTokenInfo([]); // Set to empty array on error
+   }
+  }
   useEffect(() => {
     const fetchData = async () => {
       const data = await fetchTokenData(tokenId, timeframe);
@@ -63,6 +82,7 @@ const Chart = ({ tokenId }: ChartProps) => {
     };
 
     fetchData();
+    getTokenInfo(tokenId)
   }, [tokenId, timeframe]);
 
   const currentPrice = useMemo(() => chartData[chartData.length - 1]?.price || 0, [chartData]);
@@ -70,7 +90,7 @@ const Chart = ({ tokenId }: ChartProps) => {
     if (chartData.length < 2) return 0;
     return currentPrice - chartData[0].price;
   }, [chartData, currentPrice]);
-
+  console.log(tokenInfo,'gggggggggggggggggggg')
   const priceChangePercentage = useMemo(() => {
     if (chartData.length < 2) return 0;
     return (priceChange / chartData[0].price) * 100;
@@ -90,7 +110,7 @@ const Chart = ({ tokenId }: ChartProps) => {
         <LineChart data={chartData}>
           <XAxis dataKey="date" hide />
           <YAxis hide domain={['auto', 'auto']} />
-          <Tooltip content={<CustomTooltip tokenId={tokenId} />} />
+          <Tooltip content={<CustomTooltip tokenId={tokenId === 'solana' ? 'SOL' : `${tokenInfo[0]?.name}`} />} />
           <Line 
             type="monotone" 
             dataKey="price" 

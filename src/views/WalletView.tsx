@@ -11,13 +11,6 @@ import { getSplTokenBalance } from "@/lib/solana.lib";
 import { getCompressTokenBalance } from "@/lib/compressed.lib";
 import { TokenService } from "@/lib/services/TokenServices";
 import { Tokens } from "@/interfaces/models.interface";
-interface Token {
-  name: string;
-  ticker: string;
-  id: string;
-  getId: string;
-  imgUrl: string;
-}
 
 
 
@@ -29,7 +22,7 @@ interface TokenPrices {
   [ticker: string]: number;
 }
 type CompressTokenList = comToken[]
-type TeamList = Token[];
+
 
 
 
@@ -51,11 +44,11 @@ const TokenItem: React.FC<TokenItemProps> = ({ token, balance, price, onClick })
         {balance === undefined ? (
           <div className="bg-white/20 h-4 w-16 mb-2 animate-pulse rounded"></div>
         ) : (
-          `${balance} ${token.ticker}`
+          `${balance?.toString().slice(0,4)} ${token.ticker}`
         )}
       </p>
     </div>
-    <div className="ml-[10px] text-white/85 mr-4 px-3">
+    <div className="ml-[10px] mt-1 text-white/85 mr-4 px-3">
       <p className="text-[15px] mb-1">
         {price ? (
           `$${price.toFixed(2)}`
@@ -88,15 +81,7 @@ export const WalletView = () => {
   const connection = new Connection(clusterApiUrl('devnet'), { commitment: 'confirmed' });
   const scanner = useQRScanner(false)
   console.log(scanner)
-  const token1: TeamList = [
-    {
-      name: 'Bonk',
-      ticker: 'bonk',
-      id: 'DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263',
-      getId: 'bonk',
-      imgUrl: 'https://coin-images.coingecko.com/coins/images/28600/large/bonk.jpg?1696527587'
-    },
-  ];
+ 
 
   useEffect(() => {
     const fetchSolPrice = async () => {
@@ -119,7 +104,7 @@ export const WalletView = () => {
     const fetchPrices = async () => {
       if (tokens.length > 0) {
         try {
-          const tickers = tokens.map(token => token.ticker);
+          const tickers = tokens.map(token => token.token_id);
           const prices = await getTokenPrices(tickers);
           setTokenPrices(Object.fromEntries(prices));
         } catch (error) {
@@ -164,24 +149,24 @@ export const WalletView = () => {
     const fetchBalances = async () => {
       if (!user) return;
 
-      const initialBalances = token1.reduce((acc, token) => {
-        acc[token.id] = 0;
+      const initialBalances = tokens.reduce((acc, token) => {
+        acc[token.address] = 0;
         return acc;
       }, {} as {[address: string]: number});
       setTokenBalances(initialBalances);
 
-      for (const token of token1) {
+      for (const token of tokens) {
         try {
-          const balance = await getSplTokenBalance(connection, token.id, user.publicKey);
-          setTokenBalances(prev => ({ ...prev, [token.id]: balance }));
+          const balance = await getSplTokenBalance(connection, token.address, user.publicKey);
+          setTokenBalances(prev => ({ ...prev, [token.address]: balance }));
         } catch (error) {
-          console.error(`Failed to fetch balance for token ${token.id}:`, error);
+          console.error(`Failed to fetch balance for token ${token.address}:`, error);
         }
       }
     };
 
     fetchBalances();
-  }, []);
+  }, [tokens]);
 
   const LinkG = () => {
     try {
