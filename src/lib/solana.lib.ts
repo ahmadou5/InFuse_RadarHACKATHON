@@ -11,7 +11,7 @@ import {
   SystemProgram,
   Transaction,
 } from "@solana/web3.js";
-import { createTransferInstruction } from "@solana/spl-token";
+import { createTransferInstruction,  } from "@solana/spl-token";
 import { getAssociatedTokenAddress } from "@solana/spl-token";
 import * as bip39 from 'bip39'
 import { GenerateSeed, getSolPrice } from "./helper.lib";
@@ -98,8 +98,9 @@ export const handleSendSol = async ({
   }
 };
 
+
 // Example usage
-export const SendNativeSol = async (
+export const sendNativeSol = async (
   connection: Connection,
   {
     amount,
@@ -112,15 +113,13 @@ export const SendNativeSol = async (
   }
 ) => {
   try {
-    const connection = new Connection(clusterApiUrl('mainnet-beta'))
     // ensure the receiving account will be rent exempt
     const minimumBalance = await connection.getMinimumBalanceForRentExemption(
       0 // note: simple accounts that just store native SOL have `0` bytes of data
     )
 
-    console.log('minimum balance', minimumBalance, amount )
     if (amount < minimumBalance) {
-      // throw `account may not be rent exempt: ${toPubkey.toBase58()}`
+      throw new Error(`account may not be rent exempt: ${toPubkey.toBase58()}`)
       // return Response.json({
       //   error: `account may not be rent exempt: ${toPubkey.toBase58()}`,
       // })
@@ -130,7 +129,7 @@ export const SendNativeSol = async (
     const transferSolInstruction = SystemProgram.transfer({
       fromPubkey: fromPubkey,
       toPubkey: toPubkey,
-      lamports: amount ,
+      lamports: amount,
     })
 
     // get the latest blockhash amd block height
@@ -144,9 +143,24 @@ export const SendNativeSol = async (
       lastValidBlockHeight,
     }).add(transferSolInstruction)
 
+    // const transaction = new Transaction().add(
+    //   SystemProgram.transfer({
+    //     fromPubkey: fromPubkey,
+    //     toPubkey: toPubkey,
+    //     lamports: amount,
+    //   })
+    // )
+    // transaction.feePayer = fromPubkey
+    // transaction.recentBlockhash = (
+    //   await connection.getLatestBlockhash()
+    // ).blockhash
+    // transaction.lastValidBlockHeight = (
+    //   await connection.getLatestBlockhash()
+    // ).lastValidBlockHeight
+
     return transaction
   } catch (error: unknown) {
-   if (error instanceof Error) throw new Error(error.message || 'Unknown error occurred')
+    if(error instanceof Error)throw new Error(error.message || 'Unknown error occurred')
   }
 }
 

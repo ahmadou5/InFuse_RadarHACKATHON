@@ -33,8 +33,7 @@ export class TokenService {
         const { data:tokens, error} = await supabaseClient
         .from('Token')
         .select('*')
-        
-
+      
         if (error)
           return apiResponse(false, error?.message, error)
         return apiResponse(true, 'get all tokens', tokens )

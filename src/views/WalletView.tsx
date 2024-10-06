@@ -10,6 +10,7 @@ import { useQRScanner } from "@telegram-apps/sdk-react";
 import { getSplTokenBalance } from "@/lib/solana.lib";
 import { getCompressTokenBalance } from "@/lib/compressed.lib";
 import { TokenService } from "@/lib/services/TokenServices";
+import { Tokens } from "@/interfaces/models.interface";
 interface Token {
   name: string;
   ticker: string;
@@ -28,8 +29,10 @@ interface TokenPrices {
 type CompressTokenList = comToken[]
 type TeamList = Token[];
 
+type TokenList = Tokens[];
+
 interface TokenItemProps {
-  token: Token;
+  token: Tokens;
   balance: number|undefined;
   price: number|undefined;
   onClick: () => void;
@@ -38,7 +41,7 @@ interface TokenItemProps {
 const TokenItem: React.FC<TokenItemProps> = ({ token, balance, price, onClick }) => (
   <div onClick={onClick} className="bg-white/10 w-[90%] mb-1.5 flex items-center justify-center rounded-xl h-[70px] cursor-pointer">
     <div className="bg-gothic-600/85 w-12 flex items-center justify-center h-12 ml-[23px] mr-[10px] rounded-full">
-      <img src={token.imgUrl} alt={token.name} className="text-white/90 w-full h-full rounded-full" />
+      <img src={token.logoUrl} alt={token.name} className="text-white/90 w-full h-full rounded-full" />
     </div>
     <div className="ml-[5px] text-white/85 mr-auto px-3">
       <p className="text-sm font-bold mb-1">{token.name}</p>
@@ -76,6 +79,7 @@ export const WalletView = () => {
   const [solBalance,setSolBalance] = useState<number|undefined>()
   const [solPrice,setSolPrice] = useState<number|undefined>()
   const [compTokens,setCompTokens] = useState<CompressTokenList>([])
+  const [tokens,setTokens] = useState<TokenList>([])
   const { user} = useAuth()
   const [activeTab, setActiveTab] = useState("tokens");
   const router = useRouter()
@@ -111,9 +115,9 @@ export const WalletView = () => {
   },[])
   useEffect(() => {
     const fetchPrices = async () => {
-      if (token1.length > 0) {
+      if (tokens.length > 0) {
         try {
-          const tickers = token1.map(token => token.ticker);
+          const tickers = tokens.map(token => token.ticker);
           const prices = await getTokenPrices(tickers);
           setTokenPrices(Object.fromEntries(prices));
         } catch (error) {
@@ -123,7 +127,7 @@ export const WalletView = () => {
     };
 
     fetchPrices();
-  }, [token1]);
+  }, [tokens]);
   useEffect(() => {
     const fetchCompress = async () => {
       if(!user) return;
@@ -134,16 +138,18 @@ export const WalletView = () => {
     }
     fetchCompress()
   },[])
+
   useEffect(() => {
-    const fetchTo = async () => {
-      if(!user) return;
-      
-      const tokenList = await TokenService.getTokens()
-     
-      console.log(tokenList.data)
+    const fetchTokens = async() => {
+       const tokens = TokenService.getTokens()
+       console.log((await tokens).data,'Tokenns')
+       
+       setTokens((await tokens).data)
+       console.log('not geeee')
     }
-    fetchTo()
+    fetchTokens() 
   },[])
+ 
   useEffect(() => {
     const fetchBalances = async () => {
       if (!user) return;
@@ -264,18 +270,18 @@ export const WalletView = () => {
         {activeTab === 'tokens' ? (
           <>
             <TokenItem
-              token={{ name: "Solana", ticker: "SOL", id:'' , getId: '', imgUrl: "https://solana-wallet-orcin.vercel.app/assets/5426.png" }}
+              token={{ name: "SOLANA", ticker: "SOL", token_id:'solana' , address : '', logoUrl: "https://solana-wallet-orcin.vercel.app/assets/5426.png" }}
               balance={solBalance}
               price={solPrice}
               onClick={() => router.push('/token/solana')}
             />
-            {token1.map((token, i) => (
+            {tokens.map((token, i) => (
               <TokenItem
                 key={i}
                 token={token}
-                balance={tokenBalances[token.id]}
-                price={tokenPrices[token.ticker]}
-                onClick={() => router.push(`/token/${token.ticker}`)}
+                balance={tokenBalances[token.address]}
+                price={tokenPrices[token.token_id]}
+                onClick={() => router.push(`/token/${token.token_id}`)}
               />
             ))}
           </>
