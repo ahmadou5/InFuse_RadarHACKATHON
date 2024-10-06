@@ -19,6 +19,8 @@ interface Token {
   imgUrl: string;
 }
 
+
+
 interface comToken {
  balance: number ; mint: PublicKey;
 }[]
@@ -29,7 +31,7 @@ interface TokenPrices {
 type CompressTokenList = comToken[]
 type TeamList = Token[];
 
-type TokenList = Tokens[];
+
 
 interface TokenItemProps {
   token: Tokens;
@@ -79,7 +81,7 @@ export const WalletView = () => {
   const [solBalance,setSolBalance] = useState<number|undefined>()
   const [solPrice,setSolPrice] = useState<number|undefined>()
   const [compTokens,setCompTokens] = useState<CompressTokenList>([])
-  const [tokens,setTokens] = useState<TokenList>([])
+  const [tokens,setTokens] = useState<Tokens[]>([]);
   const { user} = useAuth()
   const [activeTab, setActiveTab] = useState("tokens");
   const router = useRouter()
@@ -141,11 +143,19 @@ export const WalletView = () => {
 
   useEffect(() => {
     const fetchTokens = async() => {
-       const tokens = TokenService.getTokens()
-       console.log((await tokens).data,'Tokenns')
-       
-       setTokens((await tokens).data)
-       console.log('not geeee')
+      try {
+         const response = await TokenService.getTokens();
+        
+        if (response.data && Array.isArray(response.data)) {
+          setTokens(response.data);
+        } else {
+          console.error('Invalid token data received:', response);
+          setTokens([]); // Set to empty array if data is invalid
+        }
+      } catch (error) {
+        console.error('Failed to fetch tokens:', error);
+        setTokens([]); // Set to empty array on error
+      }
     }
     fetchTokens() 
   },[])
