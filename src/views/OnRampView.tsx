@@ -41,10 +41,12 @@ export const RampView = () => {
     }
   ]
   const router = useRouter();
+  const [isFirst,setIsFirst] = useState(true)
   const [activeTab, setActiveTab] = useState("Buy");
   return (
     <div className=" px-1.5 py-4  bg-red-600/0 h-[85%] flex flex-col rounded-xl w-[100%] ml-auto mr-auto">
-      <div className=" bg-slate-50/0 w-[100%] flex  ">
+      {
+        isFirst ?  (<><div className=" bg-slate-50/0 w-[100%] flex  ">
         <div
           onClick={() => router.back()}
           className="bg-white/5 flex items-center justify-center w-12 rounded-full ml-1 mr-[110px] h-11"
@@ -77,7 +79,9 @@ export const RampView = () => {
                 providerName={item.name}
                 providerAbout={item.about}
                 imgUrl={item.imgUrl}
-                onClick={() => router.push(`https://${item.url}`)}
+                onClick={() => {
+                  setIsFirst(true)
+                }}
               />
             ))}
             
@@ -90,12 +94,21 @@ export const RampView = () => {
                 providerName={item.name}
                 providerAbout={item.about}
                 imgUrl={item.imgUrl}
-                onClick={() => router.push(`https://${item.url}`)}
+                onClick={() => {
+                  setIsFirst(true)
+                }}
               />
             ))}
             </>
         )}
-     </div>
+     </div></>) : (
+      <>
+      <div className="w-[100%] h-[100%] bg-red-600">
+hey
+      </div>
+      </>
+    )
+       }
     </div>
   );
 };

@@ -110,7 +110,7 @@ const Chart = ({ tokenId }: ChartProps) => {
         <LineChart data={chartData}>
           <XAxis dataKey="date" hide />
           <YAxis hide domain={['auto', 'auto']} />
-          <Tooltip content={<CustomTooltip tokenId={tokenId === 'solana' ? 'SOL' : `${tokenInfo[0]?.name}`} />} />
+          <Tooltip content={<CustomTooltip tokenId={tokenInfo[0]?.name} />} />
           <Line 
             type="monotone" 
             dataKey="price" 
