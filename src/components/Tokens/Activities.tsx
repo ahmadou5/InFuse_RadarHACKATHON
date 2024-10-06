@@ -1,6 +1,5 @@
 import { useAuth } from "@/context/AuthContext"
-//import { testMint } from "@/lib/compressed.lib"
-import bs58 from 'bs58'
+
 import { getCompressTokenBalance } from "@/lib/compressed.lib"
 import { PublicKey } from "@solana/web3.js"
 import { Params } from "next/dist/shared/lib/router/utils/route-matcher"
@@ -18,8 +17,13 @@ export const Activities = ({slug}: Params) => {
         if(!user) {
           return
         }
-        const userAddress = new PublicKey(bs58.decode(user?.publicKey))
-        getCompressTokenBalance({Owner:userAddress})
+        let userPubKey: PublicKey;
+        try {
+          userPubKey = new PublicKey(user.publicKey);
+        } catch (error) {
+          throw new Error("Invalid sender address");
+        }
+        getCompressTokenBalance({address: userPubKey })
       } catch (error) {
         console.log(error)
       }
