@@ -1,6 +1,6 @@
 "use client";
 
-import { IoWallet, IoGlobe } from "react-icons/io5";
+import { IoWallet } from "react-icons/io5";
 import { GrAppsRounded } from "react-icons/gr";
 //import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -35,7 +35,7 @@ export const Menu = () => {
             className={`h-12 ml-auto mr-auto bg-white/0 flex  items-center justify-center`}
           >
             <div
-              onClick={() => router.push('/create')}
+              onClick={() => router.push('/collectibles')}
               className="flex ml-auto mr-auto flex-col items-center justify-center"
             >
               <GrAppsRounded  size={28} className={`text-white/75`} />
@@ -50,12 +50,12 @@ export const Menu = () => {
             className={`h-12 ml-auto mr-auto bg-white/0 flex  items-center justify-center`}
           >
             <div
-              onClick={() => router.push('/create')}
+              onClick={() => router.push('/dapps')}
               className="flex ml-auto mr-auto flex-col items-center justify-center"
             >
-              <IoGlobe size={28} className={`text-white/75`} />
+              <img src="/assets/browser.svg" />
               <p className={`font-light mt-1 text-white text-[10px]`}>
-                Browser
+                Dapps
               </p>
             </div>
           </div>

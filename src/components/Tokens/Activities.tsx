@@ -1,16 +1,38 @@
 import { useAuth } from "@/context/AuthContext"
 
-import { getCompressTokenBalance } from "@/lib/compressed.lib"
-import { PublicKey } from "@solana/web3.js"
+
 import { Params } from "next/dist/shared/lib/router/utils/route-matcher"
+import toast, { Toaster } from "react-hot-toast";
+
 import { useRouter } from "next/navigation"
+import { useMini } from "@/context/MiniContext"
 export const Activities = ({slug}: Params) => {
 
     const { user } = useAuth()
+    const {  setIsCompressed} = useMini()
+    
     
 
     const router = useRouter()
-    
+    const hanleCopy = (value:string) => {
+      navigator.clipboard.writeText(value).then(
+        () => {
+          toast.success("Address Copied.");
+        },
+        (err) => {
+          // Failed to copy to clipboard
+          toast.error("Could not copy: ", err);
+        }
+      );
+    }
+
+   {/**  const handleCompress = async () => {
+        try {
+          setIsLoading()
+        } catch (error) {
+          
+        }
+    }
     const HandleMint = () => {
       
       try {
@@ -27,7 +49,7 @@ export const Activities = ({slug}: Params) => {
       } catch (error) {
         console.log(error)
       }
-    }
+    }*/}
     return(
     <>
      
@@ -39,9 +61,12 @@ export const Activities = ({slug}: Params) => {
             />
             
           </div>
-          <div onClick={() => router.replace(`/receive`)} className="text-3xl  bg-white/10 flex flex-col items-center justify-center rounded-3xl h-16 w-16 ml-auto mr-auto  text-white/60">
+          <div onClick={() => {
+            if(!user) return
+            hanleCopy(user?.publicKey)
+            }} className="text-3xl  bg-white/10 flex flex-col items-center justify-center rounded-3xl h-16 w-16 ml-auto mr-auto  text-white/60">
             <img
-              src="https://solana-wallet-orcin.vercel.app/assets/qr.svg"
+              src="/assets/link.svg"
               className="mt-1"
             />
           </div>
@@ -52,13 +77,21 @@ export const Activities = ({slug}: Params) => {
             />
            
           </div>
-          <div onClick={() => HandleMint() } className="text-3xl  bg-white/10 flex flex-col items-center justify-center rounded-3xl h-16 w-16 ml-auto mr-auto  text-white/60">
+          {
+            slug[0] === 'solana' ? 
+            <></>
+             : 
+            <div onClick={() => setIsCompressed(true) } className="text-3xl  bg-white/10 flex flex-col items-center justify-center rounded-3xl h-16 w-16 ml-auto mr-auto  text-white/60">
             <img
               src="/assets/comp.svg"
               className="mt-1"
             />
            
-          </div>
+            </div>
+          }
+          
+          
+          <Toaster />
         </div>
     </>
 )
