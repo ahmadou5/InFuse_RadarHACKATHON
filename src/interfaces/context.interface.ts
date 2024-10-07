@@ -1,5 +1,5 @@
 import { UserInterface } from '.'
-//import { Dispatch, SetStateAction } from 'react';
+import { Dispatch, SetStateAction } from 'react';
 
 export interface AuthContextProps {
   isLoggedIn: boolean;
@@ -8,6 +8,15 @@ export interface AuthContextProps {
   logout: () => void;
   fetchProfile: (userId: number) => void;
   isUserLoading: boolean;
+}
+
+export interface MiniContextType {
+  solBalance: number;
+  isCompressed: boolean;
+  isLoading: boolean;
+  setIsLoading: Dispatch<SetStateAction<boolean>>;
+  setIsCompressed: Dispatch<SetStateAction<boolean>>;
+  setSolBalance: Dispatch<SetStateAction<number>>;
 }
 
 export interface AppContextProps {
