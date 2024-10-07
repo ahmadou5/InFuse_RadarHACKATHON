@@ -25,7 +25,7 @@ export const GeneratePayLink = ({
   type: string;
 }) => {
   try {
-    const secret = "secret";
+    const secret = "3333eecret";
 
     const input = `${userAddress}${secret}`;
     const signature = crypto.createHash("sha512").update(input).digest("hex");
@@ -49,7 +49,7 @@ export const GeneratePayLink = ({
           `${encodeURIComponent(key)}=${encodeURIComponent(value)}`
       )
       .join("&");
-    const final = `${baseUrl}${encodedParams}`;
+    const final:string = `${baseUrl}${encodedParams}`;
 
     console.log(tokenName);
     console.log(final, "asdfghj");
@@ -63,7 +63,7 @@ export const GeneratePayLink = ({
 
 export const generateSignature = (publicKey: string) => {
   try {
-    const secret = "secret";
+    const secret = "showsss";
 
     const input = `${publicKey}${secret}`;
     const signature = crypto.createHash("sha512").update(input).digest("hex");

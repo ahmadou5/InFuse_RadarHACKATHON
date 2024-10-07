@@ -15,7 +15,7 @@ export const SolConverter = (value:number) => {
 }
 
 export const formatAddress = (value:string) => {
-  return value.substring(0, 10) + "..." + value.substring(value.length - 3);
+  return value.substring(0, 7) + "......" + value.substring(value.length - 2);
 };
 
 

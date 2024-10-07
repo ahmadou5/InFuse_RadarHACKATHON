@@ -58,6 +58,8 @@ const Chart = ({ tokenId }: ChartProps) => {
   const [timeframe, setTimeframe] = useState('1D');
   const [chartData, setChartData] = useState<{ date: Date; price: number }[]>([]);
   const [tokenInfo,setTokenInfo] =useState<Tokens[]>([]);
+
+  
   const getTokenInfo = async (slug:string) => {
     try {
       console.log('token etails')

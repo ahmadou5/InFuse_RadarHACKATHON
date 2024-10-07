@@ -61,7 +61,7 @@ export const SendView = ({slug}: {slug:string}) => {
             return
           }
           //alert('in d middle')
-          console.log(content);
+          alert(content);
           //setReceiveAddress(content)
           setReceiveAddress(content)
         });

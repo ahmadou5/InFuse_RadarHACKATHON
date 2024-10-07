@@ -80,7 +80,7 @@ export const Top = ({ tokenId }: TopProps) => {
           <ArrowLeft className="font-bold text-xl" />
         </div>
         <div className="ml-auto text-lg mt-2 mr-[41%]">
-          {tokenId === "solana" ? "SOLANA" : tokenInfo[0]?.name}
+          {tokenId[0] === "solana" ? "SOLANA" : tokenInfo[0]?.name}
         </div>
       </div>
       <div className=" bg-slate-50/0 mb-[20px] py-2 px-2 h-[80px] w-[100%] flex  ">
@@ -118,16 +118,22 @@ export const Top = ({ tokenId }: TopProps) => {
         <div className="ml-auto text-xl font-bold mt-8 mr-2">
           {
             tokenId[0] === 'solana' ? (
-              <div className="flex"> <p className="ml-2 mr-2">{`${SolConverter(userBalance).toFixed(2)}`}</p><p></p>{` ${
+              <div className="flex"> <p className="ml-2 text-4xl mr-2">{`${SolConverter(userBalance).toFixed(2)}`}</p>
+              <p className="mt-3">{` ${
                 tokenId[0] === "solana" ? "SOL" : tokenInfo[0]?.name
-              }`}</div>
+              }`}</p>
+              </div>
             ) : (<div>
               {tokenInfo[0] === undefined ? (
             <div className="bg-white/20 h-4 w-16 mb-2 animate-pulse rounded"></div>
           ) : (
-            <div className="flex"> <p className="ml-2 mr-2">{`${SolConverter(userBalance).toFixed(2)}`}</p><p></p>{` ${
+            <div className="flex"> <p className="ml-2 text-4xl mr-2">{`${SolConverter(userBalance).toFixed(2)}`}</p>
+            <p className="mt-[11px]">
+            {` ${
                 tokenId[0] === "solana" ? "SOL" : tokenInfo[0]?.name
-              }`}</div>
+              }`}
+            </p>
+            </div>
           )}
             </div>)
           }

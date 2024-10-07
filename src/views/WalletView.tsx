@@ -1,6 +1,5 @@
 "use client";
 import { useState, useEffect } from "react";
-import { GeneratePayLink } from "@/lib/Mercuryo.lib";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import {  getSolPrice, getTokenPrices } from "@/lib/helper.lib";
@@ -176,21 +175,7 @@ export const WalletView = () => {
     fetchPrices();
   }, [tokens]);
 
-  const LinkG = () => {
-    try {
-      if(!user) return
-      const Link = GeneratePayLink({
-        tokenName: 'SOL',
-        amount: 10,
-        type: 'buy',
-        userAddress: user?.publicKey
-      })
-      console.log(Link)
-      //router.push(Link)
-    } catch (error) {
-      
-    }
-  }
+  
   const scan = () => {
     try {
       scanner.open('Scan QR code').then((content) => {
@@ -244,7 +229,7 @@ export const WalletView = () => {
             />
             
           </div>
-          <div onClick={() => LinkG()} className="text-3xl  bg-white/10 flex flex-col items-center justify-center rounded-3xl h-20 w-20 ml-auto mr-auto  text-white/60">
+          <div onClick={() => router.push('/ramp/solana')} className="text-3xl  bg-white/10 flex flex-col items-center justify-center rounded-3xl h-20 w-20 ml-auto mr-auto  text-white/60">
             <img
               src="https://solana-wallet-orcin.vercel.app/assets/dollar.svg"
               className="mt-1"

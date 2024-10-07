@@ -85,7 +85,7 @@ export const TokenDetails = ({ tokenId }: TokenProps) => {
                 <div className="bg-white/20 h-4 w-16 mb-2 animate-pulse rounded"></div>
               ) : (
                 <span>
-                  {`${formatNumber(tokenInfo.circulatingSupply)}`} {tokenId[0] === 'solana' ? 'SOL' : token1Info[0].ticker}
+                  {`${formatNumber(tokenInfo.circulatingSupply)}`} {tokenId[0] === 'solana' ? 'SOL' : token1Info[0]?.ticker}
                 </span>
               )}
             </div>

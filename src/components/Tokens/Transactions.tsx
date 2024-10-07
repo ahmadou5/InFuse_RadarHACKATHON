@@ -3,10 +3,12 @@ import { Connection, clusterApiUrl,PublicKey } from "@solana/web3.js"
 import { useAuth } from "@/context/AuthContext"
 import { TransactionDetails } from "@/interfaces/models.interface"
 import { useEffect, useState } from "react"
+import { ArrowUp01, ArrowDown01,  } from "lucide-react"
+import { formatAddress } from "@/lib/helper.lib"
 export const Transactions = ({tokenId}:{tokenId: string}) => {
   const [userReceiveTxn, setUserReceiveTxn] = useState<TransactionDetails[]|undefined>([])
   const connection = new Connection(clusterApiUrl('devnet'))
-  const [activeTab, setActiveTab] = useState("Sent");
+  const [activeTab, setActiveTab] = useState("Received");
   const { user } = useAuth()
     const getUserReceiveTx = async () => {
         try {
@@ -23,7 +25,7 @@ export const Transactions = ({tokenId}:{tokenId: string}) => {
             setUserReceiveTxn(trx)
             console.log(trx)
           } else {
-            
+            //spl tranactions later on
           }
           
         } catch (error) {
@@ -42,7 +44,7 @@ export const Transactions = ({tokenId}:{tokenId: string}) => {
             <h3 className="text-lg font-semibold mb-4">Recent Transaction</h3>
             <div className="space-y-2">
               <div>
-              {["Sent", "Receive"].map((tab) => (
+              {["Received", "Sent"].map((tab) => (
             <button
               key={tab}
               className={`flex-1 py-2 px-6 rounded-lg ml-0 mr-2 text-sm mb-4 font-medium ${
@@ -57,24 +59,54 @@ export const Transactions = ({tokenId}:{tokenId: string}) => {
           ))}
 
             {
-              activeTab === 'Sent' ? 
+              activeTab === 'Received' ? 
               <>
               {
-                userReceiveTxn && userReceiveTxn.map((txn,i) => (
+                !userReceiveTxn  ? <>
+                <div className="w-[50%] ml-auto mr-auto h-12 flex items-center justify-center">
+                  <p>No recent Transaction</p>
+                </div>
+                </> :
+                  userReceiveTxn.map((txn,i) => (
                   <div className="h-20 rounded-2xl w-[99%] mt-1 mb-1 ml-auto mr-auto bg-white/5" key={i}>
-                    {txn.amount}
+                    <div className="flex py-2 px-1">
+                      <div className="w-[20%] flex text-sm py-2 flex-col items-center justify-center">
+                        <ArrowDown01 />
+                        <p>{txn.direction}</p>
+                      </div>
+                      <div className="w-[45%] flex items-center justify-center">
+                        <p className="ml-auto mr-auto">{formatAddress(txn.signature)}</p>
+                      </div>
+                      <div className="w-[35%] flex text-sm items-center justify-center">{txn.fee}</div>
+                    </div>
                   </div>
                 )) 
+                
               }
               </> 
               : 
               <> 
                {
-                userReceiveTxn && userReceiveTxn.map((txn,i) => (
+                !userReceiveTxn  ? <>
+                <div className="w-[50%] ml-auto mr-auto h-12 flex items-center justify-center">
+                  <p>No recent Transaction</p>
+                </div>
+                </> :
+                  userReceiveTxn.map((txn,i) => (
                   <div className="h-20 rounded-2xl w-[99%] mt-1 mb-1 ml-auto mr-auto bg-white/5" key={i}>
-                    {txn.amount}
+                    <div className="flex py-2 px-1">
+                      <div className="w-[20%] flex text-sm py-2 flex-col items-center justify-center">
+                        <ArrowUp01 />
+                        <p>{txn.direction}</p>
+                      </div>
+                      <div className="w-[45%] flex items-center justify-center">
+                        <p className="ml-auto mr-auto">{formatAddress(txn.signature)}</p>
+                      </div>
+                      <div className="w-[35%] flex text-sm items-center justify-center">{txn.fee}</div>
+                    </div>
                   </div>
                 )) 
+                 
               }
               </>
             }
