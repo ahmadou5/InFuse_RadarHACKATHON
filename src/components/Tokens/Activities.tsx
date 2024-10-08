@@ -17,7 +17,7 @@ export const Activities = ({slug}: Params) => {
     const hanleCopy = (value:string) => {
       navigator.clipboard.writeText(value).then(
         () => {
-          toast.success("Address Copied.");
+          toast.success("Copied.Successfully");
         },
         (err) => {
           // Failed to copy to clipboard
@@ -91,7 +91,7 @@ export const Activities = ({slug}: Params) => {
           }
           
           
-          <Toaster />
+          <Toaster containerStyle={{'backgroundColor': 'black'}} />
         </div>
     </>
 )

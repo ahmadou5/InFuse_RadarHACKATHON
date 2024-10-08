@@ -8,6 +8,9 @@ import { PublicKey } from "@solana/web3.js";
 import { SpinningCircles } from "react-loading-icons";
 import { useAuth } from "@/context/AuthContext";
 import { compressToken } from "@/lib/compressed.lib";
+import toast, { Toaster } from "react-hot-toast";
+
+
 export const Card = ({ tokenId }: { tokenId: string }) => {
   const {user} = useAuth()
   const { setIsCompressed } = useMini();
@@ -22,8 +25,11 @@ export const Card = ({ tokenId }: { tokenId: string }) => {
   const handleCompression = async () => {
     try {
       if(!user) return
-      setIsFirst(false)
       setIsLoading(true)
+      setTimeout(() => {
+        setIsFirst(false)
+        toast.success('Compress Success')
+      },5000)
       let ownerPubKey: PublicKey;
       try {
       ownerPubKey = new PublicKey(tokenInfo[0].owner);
@@ -42,9 +48,11 @@ export const Card = ({ tokenId }: { tokenId: string }) => {
         owner: ownerPubKey,
         amount: amount
       })
-      console.log(result)
-    } catch (error) {
+   
       
+      console.log(result)
+    } catch (error: unknown) {
+      if(error instanceof Error)console.log(error.message)
     }
 
   }
@@ -133,15 +141,15 @@ export const Card = ({ tokenId }: { tokenId: string }) => {
                 onClick={() => handleCompression()}
                 className="w-[98%] ml-auto mr-auto py-1 border border-[#448cff]/60 rounded-xl bg-black/50 h-14 flex items-center"
               >
-                {isLoading ? <SpinningCircles /> : <p className="ml-auto mr-auto">Continue</p>}
+                {isLoading ? <SpinningCircles className="ml-auto mr-auto h-7 w-7" /> : <p className="ml-auto mr-auto">Continue</p>}
               </div>
             </div>
           </>
         ) : (
           <>
            <div className="w-[98%] ml-auto py-3 px-2 mr-auto ">
-              <div className=" bg-slate-50/0 mb-[20px] w-[100%] flex py-3 px-2 ">
-                <img src="/assets/good.svg" />
+              <div className=" bg-slate-50/0 mb-[20px] h-[200px] items-center justify-center w-[100%] flex py-3 px-2 ">
+                <img src="/assets/good.svg" className="h-[80%] w-[80%]" />
               </div>
             </div>
             <div className="w-[80%] ml-auto mr-auto">
@@ -155,6 +163,7 @@ export const Card = ({ tokenId }: { tokenId: string }) => {
           </>
         )}
       </div>
+      <Toaster/>
     </div>
   );
 };
