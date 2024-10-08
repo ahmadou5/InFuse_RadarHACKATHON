@@ -5,7 +5,7 @@ import { TokenService } from "@/lib/services/TokenServices";
 import { getSplTokenBalance } from "@/lib/solana.lib";
 import { Connection, clusterApiUrl } from "@solana/web3.js";
 import { PublicKey } from "@solana/web3.js";
-import { ChangeEvent } from "react";
+import { SpinningCircles } from "react-loading-icons";
 import { useAuth } from "@/context/AuthContext";
 import { compressToken } from "@/lib/compressed.lib";
 export const Card = ({ tokenId }: { tokenId: string }) => {
@@ -14,7 +14,7 @@ export const Card = ({ tokenId }: { tokenId: string }) => {
   const [amount,setAmount] = useState<number>(0)
   const [tokenBalance,setTokenBalance] = useState<number>(0)
   const [isFirst, setIsFirst] = useState<boolean>(true);
-  const [isLoaing, setIsLoading] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [tokenInfo, setTokenInfo] = useState<Tokens[]>([]);
   
 
@@ -133,14 +133,25 @@ export const Card = ({ tokenId }: { tokenId: string }) => {
                 onClick={() => handleCompression()}
                 className="w-[98%] ml-auto mr-auto py-1 border border-[#448cff]/60 rounded-xl bg-black/50 h-14 flex items-center"
               >
-                <p className="ml-auto mr-auto">Continue</p>
+                {isLoading ? <SpinningCircles /> : <p className="ml-auto mr-auto">Continue</p>}
               </div>
             </div>
           </>
         ) : (
           <>
-          {amount}
-            <button onClick={() => setIsCompressed(false)}>Close</button>
+           <div className="w-[98%] ml-auto py-3 px-2 mr-auto ">
+              <div className=" bg-slate-50/0 mb-[20px] w-[100%] flex py-3 px-2 ">
+                <img src="/assets/good.svg" />
+              </div>
+            </div>
+            <div className="w-[80%] ml-auto mr-auto">
+              <div
+                onClick={() => setIsCompressed(false)}
+                className="w-[98%] ml-auto mr-auto py-1 border border-[#448cff]/60 rounded-xl bg-black/50 h-14 flex items-center"
+              >
+                <p className="ml-auto mr-auto">Continue</p>
+              </div>
+            </div>
           </>
         )}
       </div>
