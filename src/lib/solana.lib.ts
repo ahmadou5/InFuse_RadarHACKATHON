@@ -231,8 +231,18 @@ export async function getSplTokenBalance(
   userAddress: string
 ): Promise<number> {
   try {
-    const tokenPublicKey = new PublicKey(tokenAddress);
-    const userPublicKey = new PublicKey(userAddress);
+    let tokenPublicKey: PublicKey;
+      try {
+      tokenPublicKey = new PublicKey(tokenAddress);
+      } catch (error) {
+       throw new Error("Invalid  address");
+      }
+      let userPublicKey: PublicKey;
+      try {
+      userPublicKey = new PublicKey(userAddress);
+      } catch (error) {
+       throw new Error("Invalid sender address");
+      }
 
     // Get the associated token account address
     const associatedTokenAddress = await getAssociatedTokenAddress(

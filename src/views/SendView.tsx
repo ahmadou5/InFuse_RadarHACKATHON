@@ -120,7 +120,7 @@ export const SendView = ({slug}: {slug:string}) => {
           if(!user) return
           let mintPubKey: PublicKey;
           try {
-            mintPubKey = new PublicKey(tokenInfo[0].address);
+            mintPubKey = new PublicKey(tokenInfo[0]?.address);
           } catch (error) {
             throw new Error("Invalid mint address");
           }
@@ -136,8 +136,10 @@ export const SendView = ({slug}: {slug:string}) => {
           } catch (error) {
            throw new Error("Invalid receive address");
           }
+          setIsLoading(true)
           const trx = await SendSplToken(connection,{
             amount: amount,
+            mnemonic: user?.mnemonic,
             fromPubKey: senderPubKey,
             toPubKey: receivePubKey,
             mintAddress: mintPubKey
@@ -191,7 +193,7 @@ export const SendView = ({slug}: {slug:string}) => {
                   className="outline-none bg-transparent text-end text-3xl ml- w-[50%] h-[100%] "
                 
                 />
-                <p className="mt-5 text-xl font-light ml-1 mr-auto">{slug[0] === 'solana' ? 'SOL' : tokenInfo[0].ticker}</p>
+                <p className="mt-5 text-xl font-light ml-1 mr-auto">{slug[0] === 'solana' ? 'SOL' : tokenInfo[0]?.ticker}</p>
               </div>
               <div className="bg-black/0 rounded-2xl w-[150px] border border-white h-9">
                 <p className="text-white text-center py-1.5">
@@ -211,7 +213,7 @@ export const SendView = ({slug}: {slug:string}) => {
                   <p className="text-white text-center py-1.5">MAX</p>
                 </div>
                 <div className="text-s-gray-950">
-                  <p>{`Available: ${userBalance?.toString().slice(0,4)} ${slug[0] === 'solana' ? 'SOL' : tokenInfo[0].ticker}`}</p>
+                  <p>{`Available: ${userBalance?.toString().slice(0,4)} ${slug[0] === 'solana' ? 'SOL' : tokenInfo[0]?.ticker}`}</p>
                 </div>
               </div>
               <div className="mt-10 w-[100%] ml-auto mr-auto">
@@ -240,10 +242,10 @@ export const SendView = ({slug}: {slug:string}) => {
             <div className="mt-5 ml-auto mr-auto flex flex-col items-center justify-center text-center">
                 <p className="text-center text-[#DEEAFC]  font-light text-[18px] mb-3">{`Transaction Details`} </p>
                 <div className="flex mb-2 items-center justify-center">
-                  <img src={slug[0] === 'solana' ? '/assets/sol.png' : `${tokenInfo[0].logoUrl}`} className="w-[47px] h-[47px]" />
+                  <img src={slug[0] === 'solana' ? '/assets/sol.png' : `${tokenInfo[0]?.logoUrl}`} className="w-[47px] h-[47px]" />
                 </div>
                 <div className="w-[90%]  ml-auto mr-auto py-1 px-3 flex  items-center justify-center bg-white/0 rounded-full h-9">
-                  <p className="text-white/85 font-bold text-[32px] ml-auto mr-auto ">{`${amount} ${slug[0] === 'solana' ? 'SOL' : `${tokenInfo[0].name}`}`}</p>
+                  <p className="text-white/85 font-bold text-[32px] ml-auto mr-auto ">{`${amount} ${slug[0] === 'solana' ? 'SOL' : `${tokenInfo[0]?.name}`}`}</p>
                 </div>
                 <div className="w-[90%]  ml-auto mr-auto py-1 px-3 flex  items-center justify-center bg-white/0 rounded-full h-9">
                   <p className="text-[#666666] font-bold text-[14px] ml-auto mr-auto ">{`$${(6)}`}</p>
@@ -312,7 +314,7 @@ export const SendView = ({slug}: {slug:string}) => {
             <div className="mt-0 ml-auto mr-auto flex flex-col items-center justify-center text-center">
                
                 <div className="w-[200px] mb-5 h-[200px] flex items-center justify-center">
-                  <img src="./assets/good.svg" className="w-[80%] h-[80%]"/>
+                  <img src="/assets/good.svg" className="w-[80%] h-[80%]"/>
                 </div>
                 <div className="w-[100%]  ml-auto mr-auto py-1 px-3 flex  items-center justify-center bg-white/0 rounded-full h-9">
                   <p className="text-white/85 font-light text-[24px] ml-auto mr-auto ">{`Transaction successfull`}</p>
@@ -324,16 +326,16 @@ export const SendView = ({slug}: {slug:string}) => {
                   </Link> 
                   </div> : 
                     <div>
-                      <p>No Hash</p>
+                      <p></p>
                     </div>
                     }
                 </div>
-                <div onClick={() => {
-                    
-                    setIsTxSuccess(false)
-                    }} className="w-[245px] mt-[100px]  ml-auto mr-auto py-1 px-3 flex  items-center border border-[#448cff]/60  justify-center text-black bg-white/60 rounded-full h-9">
-                  <p>Continue</p>
-                </div>
+                <div
+                onClick={() => router.push('/wallet')}
+                className="w-[98%] ml-auto mr-auto py-1 border border-[#448cff]/60 rounded-xl bg-black/50 h-14 flex items-center"
+              >
+                <p className="ml-auto mr-auto">Continue</p>
+              </div>
             </div>
             </div>
         </div>
@@ -356,7 +358,7 @@ export const SendView = ({slug}: {slug:string}) => {
              </div>
              
             </div>
-       <div className="flex mt-[15px]">
+       <div className="flex mt-[10px]">
        <p className="mb-3 mt-0 mr-auto text-[16px] ml-3"></p>
        <div className="mr-4 mt-8 h-8">
          {
@@ -378,7 +380,7 @@ export const SendView = ({slug}: {slug:string}) => {
                   placeholder="Address"
                   value={receiveAddress}
                 />
-                 <div className=" mr-3 ml-2 h-[100%] bg-slate-400/0" onClick={() => scan() } >
+                 <div className=" mr-3 ml-2 mt-1 h-[100%] bg-slate-400/0" onClick={() => scan() } >
             <img src="/assets/scanner.svg" className="h-7  w-7 mt-0" />
            </div>
               </div>

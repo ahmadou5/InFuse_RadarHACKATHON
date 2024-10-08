@@ -89,10 +89,12 @@ console.log(decompressIx)
 // Compressionn function...................
 export const compressToken = async ({
   userMnemonic,
+  owner,
   splAddress,
   amount
 }:{
   userMnemonic:string;
+  owner: PublicKeyData;
   splAddress: PublicKeyData;
   amount: number;
 }) => {
@@ -103,24 +105,26 @@ export const compressToken = async ({
     const account = await Keypair.fromSeed(seedBytes);
     //const account = getKeypairFromPrivateKey(userAddress.toString())
     const tokenAddress = new PublicKey(splAddress)
+    const tokenAuth = new PublicKey(owner)
     const ata = await createAssociatedTokenAccount(
     connection,
     account,
     tokenAddress,
-    account.publicKey,
+    tokenAuth,
 );
+    console.log('mun wuce1')
     const compressTx = await CompressedTokenProgram.compress({
       payer: account.publicKey,
-      owner: account.publicKey,
+      owner: tokenAuth,
       source: ata,
       toAddress: account.publicKey,
       amount:amount,
       mint:tokenAddress,
     });
-
+    return(compressTx)
     console.log(compressTx)
-  } catch (error) {
-    
+  } catch (error: unknown) {
+    if(error instanceof Error) console.log(error.message)
   }
 }
 

@@ -18,11 +18,15 @@ export const Top = ({ tokenId }: TopProps) => {
   const connection = new Connection(clusterApiUrl("devnet"), {
     commitment: "confirmed",
   });
+
+  
+
+
   const getTokenInfo = async (slug: string) => {
     try {
       //console.log("token etails");
       const response = await TokenService.getTokenBytoken_id(slug);
-
+      console.log(response,'gamu')
       if (response.data && Array.isArray(response.data)) {
         setTokenInfo(response.data);
         //console.log(response, "anan ne");
@@ -38,6 +42,8 @@ export const Top = ({ tokenId }: TopProps) => {
   
   const fetchBalances = async () => {
     try {
+      console.log('gettin bal')
+      console.log(tokenInfo[0],'shineee')
       if (tokenId[0] === "solana") {
         if (!user) return;
         let userPubKey: PublicKey;
@@ -51,13 +57,15 @@ export const Top = ({ tokenId }: TopProps) => {
         setUserBalance(balance);
         console.log(balance,'hhhhh');
       } else {
+        console.log('spl',tokenInfo[0]?.address,)
         if (!user) return;
         const balance = await getSplTokenBalance(
           connection,
-          tokenInfo[0].address,
-          user?.publicKey
+          'DYcWQh7rEXJbd9bynvisTn9WgQ7HWXZN6jk7sRmAjMaw',
+          user.publicKey
         );
         console.log(balance);
+        
         setUserBalance(balance);
       }
     } catch (error: unknown) {
@@ -67,8 +75,8 @@ export const Top = ({ tokenId }: TopProps) => {
   const router = useRouter();
   
   useEffect(() => {
-    getTokenInfo(tokenId);
-    fetchBalances();
+    getTokenInfo(tokenId[0]);
+    fetchBalances()
   }, [user]);
   return (
     <div className="bg-white/0 w-[96%] mt-2 ml-auto mr-auto py-1 px-2 rounded-lg ">
@@ -118,7 +126,7 @@ export const Top = ({ tokenId }: TopProps) => {
         <div className="ml-auto text-xl font-bold mt-8 mr-2">
           {
             tokenId[0] === 'solana' ? (
-              <div className="flex"> <p className="ml-2 text-4xl mr-2">{`${SolConverter(userBalance).toFixed(2)}`}</p>
+              <div className="flex"> <p className="ml-2 text-4xl mr-2">{`${userBalance.toFixed(2)}`}</p>
               <p className="mt-3">{` ${
                 tokenId[0] === "solana" ? "SOL" : tokenInfo[0]?.name
               }`}</p>

@@ -18,6 +18,7 @@ export interface Tokens {
     ticker: string;
     logoUrl: string;
     token_id: string;
+    owner: string;
 }
 
 

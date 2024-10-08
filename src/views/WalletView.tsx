@@ -10,6 +10,7 @@ import { getSplTokenBalance } from "@/lib/solana.lib";
 import { getCompressTokenBalance } from "@/lib/compressed.lib";
 import { TokenService } from "@/lib/services/TokenServices";
 import { Tokens } from "@/interfaces/models.interface";
+import {calculateWalletTotals}  from "@/lib/helper.lib";
 
 
 
@@ -43,21 +44,21 @@ const TokenItem: React.FC<TokenItemProps> = ({ token, balance, price, onClick })
         {balance === undefined ? (
           <div className="bg-white/20 h-4 w-16 mb-2 animate-pulse rounded"></div>
         ) : (
-          `${balance?.toString().slice(0,4)} ${token.ticker}`
+          `${balance?.toString().length > 7 ? balance?.toString().slice(0,4) : balance?.toString()} ${token.ticker}`
         )}
       </p>
     </div>
     <div className="ml-[10px] mt-1 text-white/85 mr-4 px-3">
       <p className="text-[15px] mb-1">
         {price ? (
-          `$${price.toFixed(2)}`
+          `$${price.toFixed(3)}`
         ) : (
           <div className="bg-white/20 h-4 w-16 mb-2 animate-pulse rounded"></div>
         )}
       </p>
       <div className="text-[15px]">
         {balance !== undefined && price !== undefined ? (
-          `$${(balance * price).toFixed(2)}`
+          `$${(balance * price).toFixed(3)}`
         ) : (
           <div className="bg-white/20 h-4 w-16 mb-2 animate-pulse rounded"></div>
         )}
@@ -66,6 +67,11 @@ const TokenItem: React.FC<TokenItemProps> = ({ token, balance, price, onClick })
   </div>
 );
 
+interface WalletTotals {
+  totalValue: number;
+  solValue: number;
+  tokenValue: number;
+}
 
 export const WalletView = () => {
   const [tokenBalances, setTokenBalances] = useState<{[address: string]: number}>({});
@@ -80,7 +86,23 @@ export const WalletView = () => {
   const connection = new Connection(clusterApiUrl('devnet'), { commitment: 'confirmed' });
   const scanner = useQRScanner(false)
   console.log(scanner)
- 
+  const [walletTotals, setWalletTotals] = useState<WalletTotals>({
+    totalValue: 0,
+    solValue: 0,
+    tokenValue: 0
+  });
+  
+  // Add this useEffect to calculate totals whenever relevant values change
+  useEffect(() => {
+    const totals = calculateWalletTotals(
+      solBalance,
+      solPrice,
+      tokenBalances,
+      tokenPrices,
+      tokens
+    );
+    setWalletTotals(totals);
+  }, [solBalance, solPrice, tokenBalances, tokenPrices, tokens]);
 
   useEffect(() => {
     const fetchSolPrice = async () => {
@@ -163,7 +185,7 @@ export const WalletView = () => {
     const fetchPrices = async () => {
       if (tokens.length > 0) {
         try {
-          const tickers = tokens.map(token => token.ticker);
+          const tickers = tokens.map(token => token.token_id);
           const prices = await getTokenPrices(tickers);
           setTokenPrices(Object.fromEntries(prices));
         } catch (error) {
@@ -210,7 +232,7 @@ export const WalletView = () => {
           <p className="text-[22px] font-light text-[#666666] mb-2.5">
             Total Balance
           </p>
-          <p className="text-5xl font-bold text-white/65">{`$${0}`}</p>
+          <p className="text-5xl font-bold text-white/65">{`$${walletTotals.totalValue.toFixed(2)}`}</p>
         </div>
       </div>
       <div className="bg-gothic-950/0 mt-3 flex items-center justify-center w-[100%] h-auto">
@@ -258,7 +280,7 @@ export const WalletView = () => {
         {activeTab === 'tokens' ? (
           <>
             <TokenItem
-              token={{ name: "SOLANA", ticker: "SOL", token_id:'solana' , address : '', logoUrl: "https://solana-wallet-orcin.vercel.app/assets/5426.png" }}
+              token={{ name: "SOLANA", ticker: "SOL", token_id:'solana' , address : '', owner: '',  logoUrl: "https://solana-wallet-orcin.vercel.app/assets/5426.png" }}
               balance={solBalance}
               price={solPrice}
               onClick={() => router.push('/token/solana')}

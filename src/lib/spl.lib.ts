@@ -5,11 +5,15 @@ import {
     getAssociatedTokenAddress,
     TOKEN_PROGRAM_ID,
   } from '@solana/spl-token'
+  import * as bip39 from 'bip39'
   import {
     Connection,
+    sendAndConfirmTransaction,
     ParsedAccountData,
     PublicKey,
+    clusterApiUrl,
     Transaction,
+    Keypair
   } from '@solana/web3.js'
   
   export const getSplTokenAddress = (token: string) =>
@@ -32,19 +36,25 @@ import {
     connection: Connection,
     {
       amount,
+      mnemonic,
       fromPubKey,
       toPubKey,
       mintAddress,
     }: {
       amount: number
+      mnemonic:string
       fromPubKey: PublicKey
       toPubKey: PublicKey
       mintAddress: PublicKey
     }
   ) => {
     try {
+      const connection = new Connection(clusterApiUrl('devnet'), "confirmed");
       const numberDecimals_ = await getNumberDecimals(connection, mintAddress)
-  
+
+      const seed = await bip39.mnemonicToSeed(mnemonic);
+      const seedBytes = seed.slice(0, 32);
+      const account = Keypair.fromSeed(seedBytes);
       let transferAmount: number = parseFloat(amount.toString())
     // .toFixed() returns a string, so we need to parse it back to a number
       transferAmount = Number(transferAmount.toFixed(numberDecimals_))
@@ -101,8 +111,14 @@ import {
       transaction.recentBlockhash = (
         await connection.getLatestBlockhash()
       ).blockhash
-  
-      return transaction
+      const transactionSignature = await sendAndConfirmTransaction(
+        connection,
+        transaction,
+        [
+          account, // payer, owner
+        ]
+      );
+      return transactionSignature
     } catch (error: unknown) {
       if(error instanceof Error)throw new Error(error.message || 'Unknown error occurred')
     }

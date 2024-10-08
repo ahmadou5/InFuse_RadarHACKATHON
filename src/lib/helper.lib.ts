@@ -1,6 +1,7 @@
 import { Keypair, LAMPORTS_PER_SOL } from "@solana/web3.js";
 import axios from "axios";
 //import { apiResponse } from "./api.helpers";
+import { Tokens } from "@/interfaces/models.interface";
 import * as bip39 from "bip39";
 import bs58 from 'bs58'
 
@@ -60,6 +61,41 @@ export const GenerateSeed = async (): Promise<SeedGenerationResult> => {
 
 
 
+interface WalletTotals {
+  totalValue: number;
+  solValue: number;
+  tokenValue: number;
+}
+
+export const calculateWalletTotals = (
+  solBalance: number | undefined,
+  solPrice: number | undefined,
+  tokenBalances: {[address: string]: number},
+  tokenPrices: {[ticker: string]: number},
+  tokens: Tokens[]
+): WalletTotals => {
+  // Calculate SOL va
+  // Calculate SOL value
+  const solValue = (solBalance ?? 0) * (solPrice ?? 0);
+  
+  // Calculate token values
+  const tokenValue = tokens.reduce((total, token) => {
+    const balance = tokenBalances[token.address] ?? 0;
+    const price = tokenPrices[token.token_id] ?? 0;
+    return total + (balance * price);
+  }, 0);
+  
+  // Calculate total value
+  const totalValue = solValue + tokenValue;
+  
+  return {
+    totalValue,
+    solValue,
+    tokenValue
+  };
+};
+
+
 // The improved getTokenPrice function
 export const getTokenPrice = async (tokenId: string): Promise<number> => {
   try {
@@ -78,7 +114,7 @@ export const getTokenPrice = async (tokenId: string): Promise<number> => {
     throw error;
   }
 };
-
+// https://api.coingecko.com/api/v3/simple/price?ids=bonk&vs_currencies=usd
 export const getSolPrice = async (tokenId: string): Promise<number> => {
   try {
     const baseUrl = "https://api.coingecko.com/api/v3/simple/price";
