@@ -91,7 +91,7 @@ export const Activities = ({slug}: Params) => {
           }
           
           
-          <Toaster containerStyle={{'backgroundColor': 'black'}} />
+          <Toaster  />
         </div>
     </>
 )
