@@ -93,7 +93,7 @@ export const RampView = ({slug}: {slug:string}) => {
       setIsLoading(true)
       setInterval(() => {
         if(!Link) return
-        router.push(Link)
+        window.open(Link)
         setIsLoading(false)
       }, 3000);
       }
