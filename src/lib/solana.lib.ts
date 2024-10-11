@@ -247,9 +247,9 @@ export async function getSplTokenBalance(
     // Get the associated token account address
     const associatedTokenAddress = await getAssociatedTokenAddress(
       tokenPublicKey,
-      userPublicKey
+      userPublicKey,
     );
-
+    console.log(associatedTokenAddress,'addewss')
     // Check if the account exists
     const accountInfo = await connection.getAccountInfo(associatedTokenAddress);
 
@@ -257,12 +257,12 @@ export async function getSplTokenBalance(
       // Account doesn't exist, which means the balance is 0
       return 0;
     }
-
+    console.log(accountInfo,'info')
     // Fetch the token account info
     const tokenAccountInfo = await connection.getTokenAccountBalance(
       associatedTokenAddress
     );
-
+    console.log(tokenAccountInfo.value.amount)
     // Return the balance as a number
     return Number(tokenAccountInfo.value.uiAmount);
   } catch (error) {

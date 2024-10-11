@@ -16,7 +16,7 @@ import { createAssociatedTokenAccount } from "@solana/spl-token";
 import { Keypair, PublicKey, PublicKeyData,  } from "@solana/web3.js";
 import { getKeypairFromPrivateKey } from "./helper.lib";
 import { ENV } from "./constant/env.constant";
-
+import { apiResponse } from "./api.helpers";
 
 
 /// Helius exposes Solana and compression RPC endpoints through a single URL
@@ -121,10 +121,11 @@ export const compressToken = async ({
       amount:amount,
       mint:tokenAddress,
     });
-    return(compressTx)
-    console.log(compressTx)
+    return apiResponse(true, 'compressed', compressTx)
+    
   } catch (error: unknown) {
-    if(error instanceof Error) console.log(error.message)
+    if(error instanceof Error) 
+      return apiResponse(false, 'failed to compress', error.message)
   }
 }
 

@@ -15,82 +15,145 @@ export const Card = ({ tokenId }: { tokenId: string }) => {
   const {user} = useAuth()
   const { setIsCompressed } = useMini();
   const [amount,setAmount] = useState<number>(0)
+  //const [mintAu,setMintAu] = useState<string>('')
+  //const [mintAd,setMintAd] = useState<string>('')
   const [tokenBalance,setTokenBalance] = useState<number>(0)
   const [isFirst, setIsFirst] = useState<boolean>(true);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [tokenInfo, setTokenInfo] = useState<Tokens[]>([]);
   
 
+  const connection = new Connection(clusterApiUrl("devnet"), {
+    commitment: "confirmed",
+  });
+
+  const getTokenInfo = async (slug: string) => {
+    try {
+     // setIsLoading(true);
+     // console.log('Fetching token info for slug:', slug);
+      const response = await TokenService.getTokenBytoken_id(slug);
+      //console.log('Token info response:', response);
+
+      if (response?.data && Array.isArray(response.data)) {
+        setTokenInfo(response.data);
+        console.log('Token info set:', response.data);
+        return response.data
+      } else {
+        console.error("Invalid token data received:", response);
+        setTokenInfo([]);
+      }
+    } catch (error) {
+      console.error("Failed to fetch tokens:", error);
+      setTokenInfo([]);
+    } finally {
+  //    setIsLoading(false);
+  //alert('done')
+    }
+  };
+
+
+
+
+
+const fetchBalances = async (address: string) => {
+try {
+  //console.log('gettin bal')
+  console.log(tokenInfo[0],'shineee')
+  if (tokenId[0] === "solana") {
+    if (!user) return;
+    let userPubKey: PublicKey;
+    try {
+      userPubKey = new PublicKey(user.publicKey);
+    } catch (error) {
+      throw new Error("Invalid sender address");
+    }
+
+    const balance = await connection.getBalance(userPubKey);
+    setTokenBalance(balance);
+    //console.log(balance,'hhhhh');
+  } else {
+    //console.log('spl ne waannan',address,)
+    if (!user) return;
+    const balance = await getSplTokenBalance(
+      connection,
+      address,
+      user.publicKey
+    );
+    console.log(balance);
+    
+    setTokenBalance(balance);
+    
+  }
+} catch (error: unknown) {
+  if (error instanceof Error) console.log(error.message);
+}
+};
+
+const fetch = async () => {
+try {
+  const tokenDetails = await getTokenInfo(tokenId);
+  
+  if(!tokenDetails) return
+  //setMintAu(tokenDetails[0]?.owner)
+  //setMintAd(tokenDetails[0]?.address)
+  const balance = fetchBalances(tokenDetails[0]?.address)
+  console.log(balance)
+} catch (error) {
+  console.log(error)
+}
+
+}
   
   const handleCompression = async () => {
     try {
       if(!user) return
       setIsLoading(true)
-      setTimeout(() => {
-        setIsFirst(false)
-        toast.success('Compress Success')
-      },5000)
+      
       let ownerPubKey: PublicKey;
       try {
-      ownerPubKey = new PublicKey(tokenInfo[0].owner);
+      ownerPubKey = new PublicKey('kaBNFUWjQi2yh7DJYfWCg6M8WDjP78CGzxSwEUvpydN');
       } catch (error) {
        throw new Error("Invalid sender address");
       }
       let addressPubKey: PublicKey;
       try {
-      addressPubKey = new PublicKey(tokenInfo[0].address);
+      addressPubKey = new PublicKey('DYcWQh7rEXJbd9bynvisTn9WgQ7HWXZN6jk7sRmAjMaw');
       } catch (error) {
-       throw new Error("Invalid sender address");
+       throw new Error("Invalid sender Receiverrr");
       }
-      const result = compressToken({
+      const result = await compressToken({
         userMnemonic: user.mnemonic,
         splAddress: addressPubKey,
         owner: ownerPubKey,
         amount: amount
       })
-   
-      
+
+      if(result?.success)
+      setTimeout(() => {
+        setIsFirst(false)
+        toast.success('Compress Success')
+      },5000)
+      else {
+        setIsFirst(true)
+        setIsLoading
+        toast.error(`Error: ${result?.data}`)
+      }
       console.log(result)
     } catch (error: unknown) {
-      if(error instanceof Error)console.log(error.message)
+      if(error instanceof Error) toast.error(error.message)
+        setIsFirst(true)
     }
 
   }
-  const getTokenInfo = async (slug:string) => {
-    try {
-      console.log('token deeeeeetails')
-      const response = await TokenService.getTokenBytoken_id(slug);
-     
-     if (response.data && Array.isArray(response.data)) {
-       setTokenInfo(response.data);
-       console.log(response,'anan ne')
-     } else {
-       console.error('Invalid token data received:', response);
-       setTokenInfo([]); // Set to empty array if data is invalid
-     }
-   } catch (error) {
-     console.error('Failed to fetch tokens:', error);
-     setTokenInfo([]); // Set to empty array on error
-   }
-  }
+  
+  
 
 
-  const getTokenBalance = async () => {
-    try {
-      if(!user) return
-      const connection = new Connection(clusterApiUrl('devnet'),{commitment:'confirmed'});
-      const balance = await getSplTokenBalance(connection, 'DYcWQh7rEXJbd9bynvisTn9WgQ7HWXZN6jk7sRmAjMaw',user.publicKey )
-      setTokenBalance(balance)
-      console.log(balance)
-    } catch (error) {
-      
-    }
-}
+ 
 
 
   useEffect(() => {
-    getTokenInfo(tokenId);
-    getTokenBalance()
+    fetch()
   }, []);
   return (
     <div className="w-[100%] min-h-screen flex items-center justify-center inset-0 bg-opacity-100 z-[99999999] h-auto backdrop-blur-sm fixed">

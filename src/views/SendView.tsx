@@ -8,9 +8,10 @@ import {getSplTokenBalance, handleSendSol}  from "@/lib/solana.lib";
 import { formatAddress } from "@/lib/helper.lib";
 import { SpinningCircles } from "react-loading-icons";
 //import { PublicKey} from "@solana/web3.js";
+import { SolConverter } from "@/lib/helper.lib";
 import { SendSplToken } from "@/lib/spl.lib";
 import Link from "next/link";
-import { fetchSolPriceB } from "@/lib/solana.lib";
+//import { fetchSolPriceB } from "@/lib/solana.lib";
 import { useAuth } from "@/context/AuthContext";
 import { TokenService } from "@/lib/services/TokenServices";
 import { Tokens } from "@/interfaces/models.interface";
@@ -23,10 +24,10 @@ export const SendView = ({slug}: {slug:string}) => {
     const [receiveAddress, setReceiveAddress] = useState<string>('');
     const [isAddressChecked,setIsAddressChecked] = useState<boolean>(false)
     const [amount,setAmount] = useState<number>(0)
-    const [userBalance, setUserBalance] = useState<number|undefined>(0)
+    const [userBalance, setUserBalance] = useState<number>(0)
     const [solFee,setSolFee] = useState<number|undefined>(0)
     const [hash,setHash] = useState<string|undefined>('')
-    const connection = new Connection(clusterApiUrl('devnet'))
+   
     //const router = useRouter()
     const { user } = useAuth()
     const scanner = useQRScanner()
@@ -34,24 +35,83 @@ export const SendView = ({slug}: {slug:string}) => {
       setReceiveAddress(event.target.value)
     }
     
-    //console.log(slug)
-    const getTokenInfo = async (slug:string) => {
+    const connection = new Connection(clusterApiUrl("devnet"), {
+      commitment: "confirmed",
+    });
+  
+    const getTokenInfo = async (slug: string) => {
       try {
-        console.log('token etails')
+       // setIsLoading(true);
+       // console.log('Fetching token info for slug:', slug);
         const response = await TokenService.getTokenBytoken_id(slug);
-       
-       if (response.data && Array.isArray(response.data)) {
-         setTokenInfo(response.data);
-         console.log(response,'anan ne')
-       } else {
-         console.error('Invalid token data received:', response);
-         setTokenInfo([]); // Set to empty array if data is invalid
-       }
-     } catch (error) {
-       console.error('Failed to fetch tokens:', error);
-       setTokenInfo([]); // Set to empty array on error
-     }
+        //console.log('Token info response:', response);
+  
+        if (response?.data && Array.isArray(response.data)) {
+          setTokenInfo(response.data);
+          console.log('Token info set:', response.data);
+          return response.data
+        } else {
+          console.error("Invalid token data received:", response);
+          setTokenInfo([]);
+        }
+      } catch (error) {
+        console.error("Failed to fetch tokens:", error);
+        setTokenInfo([]);
+      } finally {
+    //    setIsLoading(false);
+    //alert('done')
+      }
+    };
+  
+  
+  
+  
+  
+  const fetchBalances = async (address: string) => {
+  try {
+    //console.log('gettin bal')
+    console.log(tokenInfo[0],'shineee')
+    if (slug[0] === "solana") {
+      if (!user) return;
+      let userPubKey: PublicKey;
+      try {
+        userPubKey = new PublicKey(user.publicKey);
+      } catch (error) {
+        throw new Error("Invalid sender address");
+      }
+  
+      const balance = await connection.getBalance(userPubKey);
+      setUserBalance(balance);
+      //console.log(balance,'hhhhh');
+    } else {
+      //console.log('spl ne waannan',address,)
+      if (!user) return;
+      const balance = await getSplTokenBalance(
+        connection,
+        address,
+        user.publicKey
+      );
+      console.log(balance);
+      
+      setUserBalance(balance);
+      
     }
+  } catch (error: unknown) {
+    if (error instanceof Error) console.log(error.message);
+  }
+  };
+  
+  const fetch = async () => {
+  try {
+    const tokenDetails = await getTokenInfo(slug);
+    if(!tokenDetails) return
+    const balance = fetchBalances(tokenDetails[0]?.address)
+    console.log(balance)
+  } catch (error) {
+    console.log(error)
+  }
+  
+  }
     const router = useRouter()
     const scan = () => {
       try {
@@ -70,23 +130,7 @@ export const SendView = ({slug}: {slug:string}) => {
         console.log(error)
       }
     }
-    const getUserBalance = async () => {
-      try {
-        if(slug[0] === 'solana') {
-          if(!user) return
-          const  data = await fetchSolPriceB({user: user?.publicKey})
-          setUserBalance(data?.balance)
-        } else {
-          if(!user) return
-          const data = await getSplTokenBalance(connection,slug[0],user.publicKey)
-          setUserBalance(data)
-        }
-          
-      } catch (error) {
-        if(error instanceof Error)
-        console.log(error.message)
-      }
-    }
+   
     const handleTransfer = async () => {
       try {
         if (slug[0] === 'solana') {
@@ -151,9 +195,7 @@ export const SendView = ({slug}: {slug:string}) => {
       }
     }
     useEffect(() => {
-      getUserBalance()
-      if(slug[0] === 'solana') return
-      getTokenInfo(slug[0])
+     fetch()
     },[])
     return(
     
@@ -197,7 +239,7 @@ export const SendView = ({slug}: {slug:string}) => {
               </div>
               <div className="bg-black/0 rounded-2xl w-[150px] border border-white h-9">
                 <p className="text-white text-center py-1.5">
-                  {`$${userBalance?.toString().slice(0,4)}`}
+                  {`$${slug[0] === 'solana' ? SolConverter(userBalance) : userBalance}`}
                 </p>
               </div>
             </div>
@@ -213,7 +255,7 @@ export const SendView = ({slug}: {slug:string}) => {
                   <p className="text-white text-center py-1.5">MAX</p>
                 </div>
                 <div className="text-s-gray-950">
-                  <p>{`Available: ${userBalance?.toString().slice(0,4)} ${slug[0] === 'solana' ? 'SOL' : tokenInfo[0]?.ticker}`}</p>
+                  <p>{`Available: ${slug[0] === 'solana' ? SolConverter(userBalance) : userBalance } ${slug[0] === 'solana' ? 'SOL' : tokenInfo[0]?.ticker}`}</p>
                 </div>
               </div>
               <div className="mt-10 w-[100%] ml-auto mr-auto">

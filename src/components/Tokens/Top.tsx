@@ -13,36 +13,46 @@ interface TopProps {
 
 export const Top = ({ tokenId }: TopProps) => {
   const { user } = useAuth();
-  const [userBalance, setUserBalance] = useState<number>(0);
+  const [userBalance, setUserBalance] = useState<number>();
   const [tokenInfo, setTokenInfo] = useState<Tokens[]>([]);
   const connection = new Connection(clusterApiUrl("devnet"), {
     commitment: "confirmed",
   });
 
   
-
-
-  const getTokenInfo = async (slug: string) => {
-    try {
-      //console.log("token etails");
-      const response = await TokenService.getTokenBytoken_id(slug);
-      console.log(response,'gamu')
-      if (response.data && Array.isArray(response.data)) {
-        setTokenInfo(response.data);
-        //console.log(response, "anan ne");
-      } else {
-        console.error("Invalid token data received:", response);
-        setTokenInfo([]); // Set to empty array if data is invalid
-      }
-    } catch (error) {
-      console.error("Failed to fetch tokens:", error);
-      setTokenInfo([]); // Set to empty array on error
-    }
-  };
   
-  const fetchBalances = async () => {
+
+    const getTokenInfo = async (slug: string) => {
+        try {
+         // setIsLoading(true);
+         // console.log('Fetching token info for slug:', slug);
+          const response = await TokenService.getTokenBytoken_id(slug);
+          //console.log('Token info response:', response);
+    
+          if (response?.data && Array.isArray(response.data)) {
+            setTokenInfo(response.data);
+            console.log('Token info set:', response.data);
+            return response.data
+          } else {
+            console.error("Invalid token data received:", response);
+            setTokenInfo([]);
+          }
+        } catch (error) {
+          console.error("Failed to fetch tokens:", error);
+          setTokenInfo([]);
+        } finally {
+      //    setIsLoading(false);
+      //alert('done')
+        }
+      };
+
+  
+
+ 
+  
+  const fetchBalances = async (address: string) => {
     try {
-      console.log('gettin bal')
+      //console.log('gettin bal')
       console.log(tokenInfo[0],'shineee')
       if (tokenId[0] === "solana") {
         if (!user) return;
@@ -55,28 +65,40 @@ export const Top = ({ tokenId }: TopProps) => {
 
         const balance = await connection.getBalance(userPubKey);
         setUserBalance(balance);
-        console.log(balance,'hhhhh');
+        //console.log(balance,'hhhhh');
       } else {
-        console.log('spl',tokenInfo[0]?.address,)
+        //console.log('spl ne waannan',address,)
         if (!user) return;
         const balance = await getSplTokenBalance(
           connection,
-          'DYcWQh7rEXJbd9bynvisTn9WgQ7HWXZN6jk7sRmAjMaw',
+          address,
           user.publicKey
         );
         console.log(balance);
         
         setUserBalance(balance);
+        
       }
     } catch (error: unknown) {
       if (error instanceof Error) console.log(error.message);
     }
   };
+
+  const fetch = async () => {
+    try {
+      const tokenDetails = await getTokenInfo(tokenId);
+      if(!tokenDetails) return
+      const balance = fetchBalances(tokenDetails[0]?.address)
+      console.log(balance)
+    } catch (error) {
+      console.log(error)
+    }
+
+  }
   const router = useRouter();
   
   useEffect(() => {
-    getTokenInfo(tokenId[0]);
-    fetchBalances()
+    fetch()
   }, [user]);
   return (
     <div className="bg-white/0 w-[96%] mt-2 ml-auto mr-auto py-1 px-2 rounded-lg ">
@@ -126,7 +148,7 @@ export const Top = ({ tokenId }: TopProps) => {
         <div className="ml-auto text-xl font-bold mt-8 mr-2">
           {
             tokenId[0] === 'solana' ? (
-              <div className="flex"> <p className="ml-2 text-4xl mr-2">{`${userBalance.toFixed(2)}`}</p>
+              <div className="flex"> <p className="ml-2 text-4xl mr-2">{`${userBalance && SolConverter(userBalance)}`}</p>
               <p className="mt-3">{` ${
                 tokenId[0] === "solana" ? "SOL" : tokenInfo[0]?.name
               }`}</p>
@@ -135,7 +157,7 @@ export const Top = ({ tokenId }: TopProps) => {
               {tokenInfo[0] === undefined ? (
             <div className="bg-white/20 h-4 w-16 mb-2 animate-pulse rounded"></div>
           ) : (
-            <div className="flex"> <p className="ml-2 text-4xl mr-2">{`${SolConverter(userBalance).toFixed(2)}`}</p>
+            <div className="flex"> <p className="ml-2 text-4xl mr-2">{`${userBalance}`}</p>
             <p className="mt-[11px]">
             {` ${
                 tokenId[0] === "solana" ? "SOL" : tokenInfo[0]?.name
