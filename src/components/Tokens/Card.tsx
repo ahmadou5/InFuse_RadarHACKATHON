@@ -112,7 +112,7 @@ try {
       
       let ownerPubKey: PublicKey;
       try {
-      ownerPubKey = new PublicKey('kaBNFUWjQi2yh7DJYfWCg6M8WDjP78CGzxSwEUvpydN');
+      ownerPubKey = new PublicKey('8KwgdMBgjYpV28Drygs2oCQXHnwUo5QWfkbrbySi9NE9');
       } catch (error) {
        throw new Error("Invalid sender address");
       }
