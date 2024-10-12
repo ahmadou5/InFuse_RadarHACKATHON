@@ -32,7 +32,9 @@ interface TokenItemProps {
   price: number|undefined;
   onClick: () => void;
 }
-
+const formatNumber = (num: number) => {
+  return new Intl.NumberFormat("en-US", { notation: "compact" }).format(num);
+};
 const TokenItem: React.FC<TokenItemProps> = ({ token, balance, price, onClick }) => (
   <div onClick={onClick} className="bg-white/10 w-[90%] mb-1.5 flex items-center justify-center rounded-xl h-[70px] cursor-pointer">
     <div className="bg-gothic-600/85 w-12 flex items-center justify-center h-12 ml-[23px] mr-[10px] rounded-full">
@@ -44,21 +46,21 @@ const TokenItem: React.FC<TokenItemProps> = ({ token, balance, price, onClick })
         {balance === undefined ? (
           <div className="bg-white/20 h-4 w-16 mb-2 animate-pulse rounded"></div>
         ) : (
-          `${balance?.toString().length > 7 ? balance?.toString().slice(0,4) : balance?.toString()} ${token.ticker}`
+          `${balance?.toString().length > 7 ? formatNumber(balance) : balance?.toString()} ${token.ticker}`
         )}
       </p>
     </div>
     <div className="ml-[10px] mt-1 text-white/85 mr-4 px-3">
       <p className="text-[15px] mb-1">
         {price ? (
-          `$${price.toFixed(3)}`
+          `$${price.toFixed(1)}`
         ) : (
           <div className="bg-white/20 h-4 w-16 mb-2 animate-pulse rounded"></div>
         )}
       </p>
       <div className="text-[15px]">
         {balance !== undefined && price !== undefined ? (
-          `$${(balance * price).toFixed(3)}`
+          `$${(balance * price).toFixed(1)}`
         ) : (
           <div className="bg-white/20 h-4 w-16 mb-2 animate-pulse rounded"></div>
         )}
@@ -133,7 +135,7 @@ export const WalletView = () => {
         }
       const CompresstokenList = getCompressTokenBalance({address: userPubKey })
       setCompTokens((await CompresstokenList).items)
-      console.log((await CompresstokenList).items)
+      console.log('compress',(await CompresstokenList).items)
     }
     fetchCompress()
   },[])
