@@ -48,8 +48,8 @@ export async function createAndMintToken({
     const payer = Keypair.fromSeed(seedBytes);
 
   // Airdrop some SOL to the wallet for transaction fees
-  const airdropSignature = await connection.requestAirdrop(payer.publicKey, 5000000000);
-  await connection.confirmTransaction(airdropSignature);
+  //const airdropSignature = await connection.requestAirdrop(payer.publicKey, 5000000000);
+  //wait connection.confirmTransaction(airdropSignature);
 
   // Generate a new keypair for the mint account
   const mintKeypair = Keypair.generate();
