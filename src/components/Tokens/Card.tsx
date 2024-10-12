@@ -137,7 +137,7 @@ try {
       else {
         setIsFirst(true)
         setIsLoading(false)
-        toast.error(`Error: ${result?.data?.toString().includes('max usage') ? 'RPC ERROR: Max usage try again later' : 'Only Mint Authority Can Compress'}`)
+        toast.error(`Error: ${result?.data?.toString().includes('max usage') ? 'JSON RPC' : 'Not Mint Authority.'}`)
       }
       console.log(result)
     } catch (error: unknown) {

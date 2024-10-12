@@ -11,6 +11,7 @@ import {
   createMint, mintTo,
   CompressedTokenProgram, 
   selectMinCompressedTokenAccountsForTransfer 
+  
 } from "@lightprotocol/compressed-token";
 import { createAssociatedTokenAccount } from "@solana/spl-token";
 import { Keypair, PublicKey, PublicKeyData,  } from "@solana/web3.js";
@@ -200,6 +201,29 @@ export const getCompressTokenHistory = async ({Owner}:compressBalanceProps) => {
     return { signatures, parsedTransaction }
 }
 
+
+export async function fetchCompressedTokens(address: string) {
+  // Connect to Solana mainnet
+  
+
+
+
+
+  // Convert address string to PublicKey
+  const publicKey = new PublicKey(address);
+
+  try {
+    // Fetch compressed token accounts
+    const tokenAccounts = connection.getCompressedTokenAccountsByOwner(publicKey);
+
+    // Log the results
+    console.log('Compressed Tokens:',tokenAccounts);
+    return tokenAccounts;
+  } catch (error: unknown) {
+    if(error instanceof Error) console.error('Error fetching compressed tokens:', error.message);
+    throw error;
+  }
+}
 
 // test minnt functions    
 export const testMint = async ({Owner}:compressBalanceProps) => {

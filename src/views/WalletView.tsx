@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import { ParsedTokenAccount, WithCursor } from "@lightprotocol/stateless.js";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import {  getSolPrice, getTokenPrices } from "@/lib/helper.lib";
@@ -7,21 +8,18 @@ import { Connection, LAMPORTS_PER_SOL, PublicKey, clusterApiUrl } from "@solana/
 import { Menu } from "@/components/Menu/Menu";
 import { useQRScanner } from "@telegram-apps/sdk-react";
 import { getSplTokenBalance } from "@/lib/solana.lib";
-import { getCompressTokenBalance } from "@/lib/compressed.lib";
+import { fetchCompressedTokens} from "@/lib/compressed.lib";
 import { TokenService } from "@/lib/services/TokenServices";
 import { Tokens } from "@/interfaces/models.interface";
 import {calculateWalletTotals}  from "@/lib/helper.lib";
 
 
 
-interface comToken {
- balance: number ; mint: PublicKey;
-}[]
 
 interface TokenPrices {
   [ticker: string]: number;
 }
-type CompressTokenList = comToken[]
+
 
 
 
@@ -80,14 +78,14 @@ export const WalletView = () => {
   const [tokenPrices, setTokenPrices] = useState<TokenPrices>({});
   const [solBalance,setSolBalance] = useState<number|undefined>()
   const [solPrice,setSolPrice] = useState<number|undefined>()
-  const [compTokens,setCompTokens] = useState<CompressTokenList>([])
+  const [compTokens,setCompTokens] = useState<WithCursor<ParsedTokenAccount[]>>()
   const [tokens,setTokens] = useState<Tokens[]>([]);
   const { user} = useAuth()
   const [activeTab, setActiveTab] = useState("tokens");
   const router = useRouter()
   const connection = new Connection(clusterApiUrl('devnet'), { commitment: 'confirmed' });
   const scanner = useQRScanner(false)
-  console.log(scanner)
+  //console.log(scanner)
   const [walletTotals, setWalletTotals] = useState<WalletTotals>({
     totalValue: 0,
     solValue: 0,
@@ -126,16 +124,12 @@ export const WalletView = () => {
  
   useEffect(() => {
     const fetchCompress = async () => {
-      if(!user) return;
-      let userPubKey: PublicKey;
-        try {
-          userPubKey = new PublicKey(user.publicKey);
-        } catch (error) {
-          throw new Error("Invalid sender address");
-        }
-      const CompresstokenList = getCompressTokenBalance({address: userPubKey })
-      setCompTokens((await CompresstokenList).items)
-      console.log('compress',(await CompresstokenList).items)
+      console.log('fetching compress')
+      //if(!user) return;
+     
+      const CompresstokenList = await fetchCompressedTokens('BDytB9ZFAbDWjLahKY9EU5TRdzSgY5okiDaZproRSLw1')
+      setCompTokens(CompresstokenList)
+      console.log('compress',CompresstokenList)
     }
     fetchCompress()
   },[])
@@ -300,14 +294,7 @@ export const WalletView = () => {
         ) : (
           <>
           {
-            compTokens.length > 0 ? 
-            <>{
-              compTokens.map((token,i) => (
-                <div key={i}>
-                  {token.balance}
-                </div>
-              ))
-            }</> : 'You have not Compress Token yet'
+            compTokens
           }
           </>
         )}
