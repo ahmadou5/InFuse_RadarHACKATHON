@@ -118,7 +118,7 @@ try {
       }
       let addressPubKey: PublicKey;
       try {
-      addressPubKey = new PublicKey('DYcWQh7rEXJbd9bynvisTn9WgQ7HWXZN6jk7sRmAjMaw');
+      addressPubKey = new PublicKey('9rNhiAx49gHKjqDUGmenQnrSZ5UBtB7vYyn9bjVr5X65');
       } catch (error) {
        throw new Error("Invalid sender Receiverrr");
       }
@@ -136,7 +136,7 @@ try {
       },5000)
       else {
         setIsFirst(true)
-        setIsLoading
+        setIsLoading(false)
         toast.error(`Error: ${result?.data}`)
       }
       console.log(result)
