@@ -27,7 +27,7 @@ export const Card = ({ tokenId }: { tokenId: string }) => {
   const connection = new Connection(clusterApiUrl("devnet"), {
     commitment: "confirmed",
   });
-
+  console.log(tokenBalance)
   const getTokenInfo = async (slug: string) => {
     try {
      // setIsLoading(true);
