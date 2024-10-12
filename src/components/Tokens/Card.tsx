@@ -9,6 +9,7 @@ import { SpinningCircles } from "react-loading-icons";
 import { useAuth } from "@/context/AuthContext";
 import { compressToken } from "@/lib/compressed.lib";
 import toast, { Toaster } from "react-hot-toast";
+import { createAndMintToken } from "@/lib/helper.lib";
 
 
 export const Card = ({ tokenId }: { tokenId: string }) => {
@@ -145,7 +146,14 @@ try {
     }
 
   }
-  
+  const createDummy = async ({mnemonic}:{mnemonic:string|undefined}) => {
+      try {
+        const token = await createAndMintToken({mnemonic:mnemonic})
+        console.log(token,'address')
+      } catch (error) {
+        console.log(error)
+      }
+  }
   
 
 
@@ -193,7 +201,7 @@ try {
                   className="outline-none bg-transparent text-xl ml- w-[93%] h-9 "
                 
                 />
-                  <div onClick={() => setAmount(tokenBalance)} className="w-[18%] h-[80%] flex items-center justify-center mt-0.5 bg-black rounded-2xl ">
+                  <div onClick={() => createDummy({mnemonic:user?.mnemonic})} className="w-[18%] h-[80%] flex items-center justify-center mt-0.5 bg-black rounded-2xl ">
                     Max
                   </div>
                 </div>

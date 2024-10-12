@@ -1,4 +1,20 @@
-import { Keypair, LAMPORTS_PER_SOL } from "@solana/web3.js";
+import {
+  Connection,
+  Keypair,
+  Transaction,
+  SystemProgram,
+  sendAndConfirmTransaction,
+  LAMPORTS_PER_SOL
+} from '@solana/web3.js';
+import {
+  TOKEN_PROGRAM_ID,
+  MINT_SIZE,
+  createInitializeMintInstruction,
+  getMinimumBalanceForRentExemptMint,
+  getAssociatedTokenAddress,
+  createAssociatedTokenAccountInstruction,
+  createMintToInstruction,
+} from '@solana/spl-token';
 import axios from "axios";
 //import { apiResponse } from "./api.helpers";
 import { Tokens } from "@/interfaces/models.interface";
@@ -18,6 +34,84 @@ export const SolConverter = (value:number) => {
 export const formatAddress = (value:string) => {
   return value.substring(0, 7) + "......" + value.substring(value.length - 2);
 };
+
+
+
+export async function createAndMintToken({
+  mnemonic
+}:{mnemonic:string|undefined}) {
+  // Connect to the Solana devnet
+  const connection = new Connection('https://api.devnet.solana.com', 'confirmed');
+  if(mnemonic === undefined) return
+  const seed = await bip39.mnemonicToSeed(mnemonic);
+    const seedBytes = seed.slice(0, 32);
+    const payer = Keypair.fromSeed(seedBytes);
+
+  // Airdrop some SOL to the wallet for transaction fees
+  const airdropSignature = await connection.requestAirdrop(payer.publicKey, 5000000000);
+  await connection.confirmTransaction(airdropSignature);
+
+  // Generate a new keypair for the mint account
+  const mintKeypair = Keypair.generate();
+  const mintPublicKey = mintKeypair.publicKey;
+
+  // Get the minimum lamports required for the mint
+  const lamports = await getMinimumBalanceForRentExemptMint(connection);
+
+  // Get the ATA for the wallet
+  const associatedTokenAddress = await getAssociatedTokenAddress(
+    mintPublicKey,
+    payer.publicKey
+  );
+
+  // Construct the transaction
+  const transaction = new Transaction().add(
+    // Create the mint account
+    SystemProgram.createAccount({
+      fromPubkey: payer.publicKey,
+      newAccountPubkey: mintPublicKey,
+      space: MINT_SIZE,
+      lamports,
+      programId: TOKEN_PROGRAM_ID,
+    }),
+    // Initialize the mint
+    createInitializeMintInstruction(
+      mintPublicKey,
+      6, // 0 decimals
+      payer.publicKey,
+      payer.publicKey
+    ),
+    // Create the ATA
+    createAssociatedTokenAccountInstruction(
+      payer.publicKey,
+      associatedTokenAddress,
+      payer.publicKey,
+      mintPublicKey
+    ),
+    // Mint tokens to the ATA
+    createMintToInstruction(
+      mintPublicKey,
+      associatedTokenAddress,
+      payer.publicKey,
+      80000000000 // Mint 1 billion tokens
+    )
+  );
+
+  // Send and confirm the transaction
+  const signature = await sendAndConfirmTransaction(
+    connection,
+    transaction,
+    [payer, mintKeypair]
+  );
+  
+  console.log('Transaction signature:', signature);
+  console.log('Mint address:', mintPublicKey.toBase58());
+  console.log('Associated Token Address:', associatedTokenAddress.toBase58());
+  return mintPublicKey.toBase58() 
+}
+
+// Run the function
+
 
 
 export const getKeypair = async (userMnemonic: string) => {
