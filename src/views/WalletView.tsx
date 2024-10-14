@@ -78,7 +78,7 @@ export const WalletView = () => {
   const [tokenPrices, setTokenPrices] = useState<TokenPrices>({});
   const [solBalance,setSolBalance] = useState<number|undefined>()
   const [solPrice,setSolPrice] = useState<number|undefined>()
-  const [compTokens,setCompTokens] = useState<WithCursor<ParsedTokenAccount[]>>()
+  const [compTokens,setCompTokens] = useState<WithCursor<ParsedTokenAccount[]>|undefined>()
   const [tokens,setTokens] = useState<Tokens[]>([]);
   const { user} = useAuth()
   const [activeTab, setActiveTab] = useState("tokens");
@@ -293,8 +293,16 @@ export const WalletView = () => {
           </>
         ) : (
           <>
-          {
-            compTokens
+          { 
+          
+            compTokens === undefined ? 
+            'You have not Compress Token yet' : <>{
+              compTokens.items.map((token,i) => (
+                <div key={i}>
+                  {token?.parsed.amount}
+                </div>
+              ))
+            }</> 
           }
           </>
         )}

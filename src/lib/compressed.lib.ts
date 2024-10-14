@@ -14,14 +14,14 @@ import {
   
 } from "@lightprotocol/compressed-token";
 import { createAssociatedTokenAccount } from "@solana/spl-token";
-import { Keypair, PublicKey, PublicKeyData,  } from "@solana/web3.js";
+import { Keypair, PublicKey, PublicKeyData,clusterApiUrl } from "@solana/web3.js";
 import { getKeypairFromPrivateKey } from "./helper.lib";
-import { ENV } from "./constant/env.constant";
+//import { ENV } from "./constant/env.constant";
 import { apiResponse } from "./api.helpers";
 
 
 /// Helius exposes Solana and compression RPC endpoints through a single URL
-const RPC_ENDPOINT = ENV.RPC
+const RPC_ENDPOINT = clusterApiUrl('devnet')
 const COMPRESSION_RPC_ENDPOINT = RPC_ENDPOINT;
 const connection: Rpc = createRpc(RPC_ENDPOINT, COMPRESSION_RPC_ENDPOINT)
 const MINT_KEYPAIR = Keypair.generate();

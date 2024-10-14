@@ -7,6 +7,7 @@ import { useAuth } from "@/context/AuthContext";
 import { TokenService } from "@/lib/services/TokenServices";
 import { GeneratePayLink } from "@/lib/Mercuryo.lib";
 import { SpinningCircles } from "react-loading-icons";
+import { useUtils } from "@telegram-apps/sdk-react";
 
 interface Provider {
   name: string;
@@ -60,9 +61,13 @@ export const RampView = ({slug}: {slug:string}) => {
   const [isLoading,setIsLoading] = useState<boolean>(false)
   const [isFirst, setIsFirst] = useState<boolean>(true);
   const [activeTab, setActiveTab] = useState<string>("Buy");
+  const [isValid, setIsValid] = useState<boolean>(false);
   const [amount, setAmount] = useState<number>(0);
   //const [userBalance, setUserBalance] = useState<number>(0);
+
+  const utils = useUtils()
   const [tokenInfo, setTokenInfo] = useState<Tokens[]>([]);
+  const [LinkStr,setLinkStr] = useState<string>('')
   const { user } = useAuth()
   const handleGenLink =  async (slug: string) => {
     try {
@@ -74,13 +79,11 @@ export const RampView = ({slug}: {slug:string}) => {
         type: 'buy',
         userAddress: user?.publicKey
        })
+      if(Link === undefined) return
+      setLinkStr(Link)
       console.log(Link)
-      setIsLoading(true)
-      setInterval(() => {
-        if(!Link) return
-        router.push(Link)
-        setIsLoading(false)
-      }, 3000);
+      //setIsLoading(true)
+      
       } else { 
         if(!user) return
         const Link = GeneratePayLink({
@@ -90,15 +93,11 @@ export const RampView = ({slug}: {slug:string}) => {
         userAddress: user?.publicKey
       })
       console.log(Link)
-      setIsLoading(true)
-      setInterval(() => {
-        if(!Link) return
-        window.open(Link)
-        setIsLoading(false)
-      }, 3000);
+      if(Link === undefined) return
+      setLinkStr(Link)
       }
     } catch (error) {
-      
+      console.log(error)
     }
   }
   const getTokenInfo = async (slug: string) => {
@@ -232,9 +231,26 @@ export const RampView = ({slug}: {slug:string}) => {
                 <div onClick={() => setAmount(500)} className="ml-8 mr-auto bg-white/10 flex items-center justify-center rounded-2xl h-9 w-[24%]">$500</div>
               </div>
               <div className="mt-[0px] w-[100%]">
-              <div onClick={() => handleGenLink(slug[0]) } className="w-[98%] ml-auto mr-auto py-1 border border-[#448cff]/60 rounded-xl bg-black/50 h-14 flex items-center">
-              <div className="ml-auto mr-auto">{isLoading ? <SpinningCircles className="h-5 w-5"/> : 'Continue'}</div>
+                {
+                  isValid ? <div onClick={() => {
+                    //handleGenLink(slug[0])
+                    setIsLoading(true)
+                    console.log(LinkStr)
+                    utils.openLink(LinkStr, {tryInstantView: true}) 
+                    setTimeout(() => {
+                      setIsLoading(false)
+                      setIsValid(false)
+                    },6000)
+                    }} className="w-[98%] ml-auto mr-auto py-1 border border-[#448cff]/60 rounded-xl bg-black/50 h-14 flex items-center">
+                  <div className="ml-auto mr-auto">{isLoading ? <SpinningCircles className="h-5 w-5"/> : 'Continue'}</div>
+                </div> : <div onClick={() => {
+                  handleGenLink(slug[0])
+                  setIsValid(true)
+                } } className="w-[98%] ml-auto mr-auto py-1 border border-[#448cff]/60 rounded-xl bg-black/50 h-14 flex items-center">
+              <div className="ml-auto mr-auto">Validate</div>
             </div>
+                }
+              
               </div>
             </div>
           </div>

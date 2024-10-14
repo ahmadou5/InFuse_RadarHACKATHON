@@ -25,10 +25,12 @@ export const GeneratePayLink = ({
   type: string;
 }) => {
   try {
-    const secret = "3333eecret";
+    
+    const secret = 'secret';
 
-    const input = `${userAddress}${secret}`;
-    const signature = crypto.createHash("sha512").update(input).digest("hex");
+    // Generate the signature using sha512
+    const signatureInput = `${userAddress}${secret}`;
+    const signature = crypto.createHash('sha512').update(signatureInput).digest('hex');
 
     console.log(signature);
 

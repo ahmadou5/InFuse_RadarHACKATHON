@@ -112,13 +112,13 @@ try {
       
       let ownerPubKey: PublicKey;
       try {
-      ownerPubKey = new PublicKey('8KwgdMBgjYpV28Drygs2oCQXHnwUo5QWfkbrbySi9NE9');
+      ownerPubKey = new PublicKey('6uZvGkPYoLZRcsXZPFLrWnFKJVJ9XgsGM8vHozuJqovd');
       } catch (error) {
        throw new Error("Invalid sender address");
       }
       let addressPubKey: PublicKey;
       try {
-      addressPubKey = new PublicKey('9rNhiAx49gHKjqDUGmenQnrSZ5UBtB7vYyn9bjVr5X65');
+      addressPubKey = new PublicKey('FD8QhL1FSZF9GTBWJsAPmwhk1Tp1UhLmkXUAZeksyT5A');
       } catch (error) {
        throw new Error("Invalid sender Receiverrr");
       }
