@@ -115,7 +115,7 @@ try {
       if(!tokenDetails) return
       let ownerPubKey: PublicKey;
       try {
-      ownerPubKey = new PublicKey(tokenDetails[0]?.owner);
+      ownerPubKey = new PublicKey(tokenDetails[0]?.Owner);
       } catch (error) {
        throw new Error("Invalid sender address");
       }
