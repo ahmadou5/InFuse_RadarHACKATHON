@@ -168,9 +168,10 @@ try {
   }, []);
   return (
     <div className="w-[100%] min-h-screen flex items-center justify-center inset-0 bg-opacity-100 z-[99999999] h-auto backdrop-blur-sm fixed">
-      <div className="h-[350px] rounded-3xl  w-[94%] bg-white/30">
+      <div className="h-[390px] rounded-3xl  w-[94%] bg-white/30">
         {isFirst ? (
           <>
+          <div onClick={() => setIsFirst(false)} className="h-12 w-12 bwhite">X</div>
             <div className="w-[98%] ml-auto py-3 px-2 mr-auto ">
               {tokenInfo[0] === undefined ? (
                 <></>

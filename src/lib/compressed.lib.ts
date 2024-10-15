@@ -122,6 +122,7 @@ export const compressToken = async ({
       amount:amount,
       mint:tokenAddress,
     });
+    console.log(compressTx,' transaction')
     return apiResponse(true, 'compressed', compressTx)
     
   } catch (error: unknown) {
