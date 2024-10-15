@@ -110,15 +110,18 @@ try {
       if(!user) return
       setIsLoading(true)
       
+      const tokenDetails = await getTokenInfo(tokenId);
+
+      if(!tokenDetails) return
       let ownerPubKey: PublicKey;
       try {
-      ownerPubKey = new PublicKey('6uZvGkPYoLZRcsXZPFLrWnFKJVJ9XgsGM8vHozuJqovd');
+      ownerPubKey = new PublicKey(user.publicKey);
       } catch (error) {
        throw new Error("Invalid sender address");
       }
       let addressPubKey: PublicKey;
       try {
-      addressPubKey = new PublicKey('CLS15hmcMN7zbiCyh8mSyf5zBerK4jnnPGixMM7YB2wn');
+      addressPubKey = new PublicKey(tokenDetails[0]?.address);
       } catch (error) {
        throw new Error("Invalid sender Receiverrr");
       }
