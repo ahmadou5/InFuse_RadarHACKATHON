@@ -5,12 +5,13 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react"
 import {  useQRScanner } from "@telegram-apps/sdk-react";
 import {getSplTokenBalance, handleSendSol}  from "@/lib/solana.lib";
-import { formatAddress } from "@/lib/helper.lib";
+import { formatAddress, getSolPrice } from "@/lib/helper.lib";
 import { SpinningCircles } from "react-loading-icons";
 //import { PublicKey} from "@solana/web3.js";
 import { SolConverter } from "@/lib/helper.lib";
 import { SendSplToken } from "@/lib/spl.lib";
 import Link from "next/link";
+import { getTokenPrice } from "@/lib/helper.lib";
 //import { fetchSolPriceB } from "@/lib/solana.lib";
 import { useAuth } from "@/context/AuthContext";
 import { TokenService } from "@/lib/services/TokenServices";
@@ -66,7 +67,20 @@ export const SendView = ({slug}: {slug:string}) => {
   
   
   
-  
+  const fetchPrice = async (token: string) => {
+    try {
+      
+      if(token[0] === 'solana') {
+        const price = await getSolPrice(token[0])
+        console.log(price)
+      } else {
+        const price = await getTokenPrice(token[0])
+        console.log(price)
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  }
   const fetchBalances = async (address: string) => {
   try {
     //console.log('gettin bal')
@@ -106,7 +120,8 @@ export const SendView = ({slug}: {slug:string}) => {
     const tokenDetails = await getTokenInfo(slug);
     if(!tokenDetails) return
     const balance = fetchBalances(tokenDetails[0]?.address)
-    console.log(balance)
+    const price = fetchPrice(slug)
+    console.log(balance,'ewewewewe', price, 'price')
   } catch (error) {
     console.log(error)
   }
