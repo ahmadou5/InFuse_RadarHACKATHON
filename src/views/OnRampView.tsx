@@ -95,21 +95,22 @@ export const RampView = ({ slug }: { slug: string }) => {
   const { user } = useAuth();
   const handleGenLink = async (slug: string) => {
     try {
-      if (slug[0] === "solana") {
+      if (slug === "solana") {
         if (!user) return;
-        const Link = GeneratePayLink({
+        const Link = await GeneratePayLink({
           tokenName: "SOL",
           amount: amount,
           type: "buy",
           userAddress: user?.publicKey,
         });
         if (Link === undefined) return;
+        
+        //console.log(Link);
         setLinkStr(Link);
-        console.log(Link);
         //setIsLoading(true)
       } else {
         if (!user) return;
-        const Link = GeneratePayLink({
+        const Link = await GeneratePayLink({
           tokenName: tokenInfo[0].ticker,
           amount: amount,
           type: "buy",
