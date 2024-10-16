@@ -32,7 +32,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${inter.className} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${inter.className} ${geistMono.variable} antialiased`} suppressContentEditableWarning
       >
       <TelegramProvider>
         <AuthContextProvider>

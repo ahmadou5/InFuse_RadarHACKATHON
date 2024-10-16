@@ -1,6 +1,9 @@
+import axios from "axios";
 import { ENV } from "./constant/env.constant";
 import crypto from "crypto";
-const baseUrl = "https://exchange.mercuryo.io/?";
+
+const rateUrl = 'https://api.mercuryo.io/v1.6/public/rates?'
+const baseUrl = "https://exchange.mercuryo.io?";
 
 interface params {
   widget_id: string | undefined;
@@ -11,6 +14,15 @@ interface params {
   fiat_currency: string;
   address: string;
   signature: string | undefined;
+}
+
+interface rateParams {
+  widget_id: string | undefined;
+  use_partner_fee: boolean;
+  use_fee: boolean;
+  flatten_result: boolean;
+  is_amount_without_fee: boolean;
+  network: string;
 }
 
 export const GeneratePayLink = ({
@@ -62,6 +74,29 @@ export const GeneratePayLink = ({
 };
 
 //https://exchange.mercuryo.io/?062b011a-cad3-4890-85cb-c43f53dff6ea&amount=20&currency=usdt&network=SOLANA
+export const getRate = async () => {
+  try {
+    const params:rateParams = {
+        widget_id: ENV.WIDGET_ID,
+        use_partner_fee: true,
+        use_fee: true,
+        flatten_result: true,
+        is_amount_without_fee: true,
+        network: 'SOLANA'
+    }
+    const encodedParams = Object.entries(params)
+      .map(
+        ([key, value]) =>
+          `${encodeURIComponent(key)}=${encodeURIComponent(value)}`
+      )
+      .join("&");
+    const price = await axios.get(`${rateUrl}?${encodedParams}`)
+    console.log(price,'prices')
+  } catch (error) {
+    
+  }
+}
+
 
 export const generateSignature = (publicKey: string) => {
   try {
