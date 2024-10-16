@@ -90,6 +90,7 @@ export const RampView = ({ slug }: { slug: string }) => {
   };
 
   const utils = useUtils();
+  const [priceLoading,setPriceLoading] = useState<boolean>(false)
   const [tokenInfo, setTokenInfo] = useState<Tokens[]>([]);
   const [LinkStr, setLinkStr] = useState<string>("");
   const { user } = useAuth();
@@ -146,13 +147,16 @@ export const RampView = ({ slug }: { slug: string }) => {
     try {
      
       if (token === "solana") {
+        setPriceLoading(true)
         const priceSol = await getSolPrice('solana');
         setPrice(priceSol)
+        setPriceLoading(false)
         console.log(priceSol);
       } else {
-        
+        setPriceLoading(true)
         const priceT = await getTokenPrice(token);
         setPrice(priceT);
+        setPriceLoading(false)
         console.log(priceT);
       }
     } catch (error) {
@@ -258,9 +262,12 @@ export const RampView = ({ slug }: { slug: string }) => {
                       ? "/assets/sol.png"
                       : tokenInfo[0]?.logoUrl
                   }
-                  className="h-8 rounded-full mr-2 w-8"
+                  className="h-10 rounded-full mr-2 w-10"
                 />
-                <p
+                {
+                  priceLoading ? <div className="bg-white/20 h-4 w-16 mb-2 animate-pulse rounded"></div>
+                   : 
+                  <p
 
                   ref={pRef}
                   className="text-white max-w-xs outline-none text-5xl"
@@ -270,6 +277,8 @@ export const RampView = ({ slug }: { slug: string }) => {
                   inputMode="numeric"
                   suppressContentEditableWarning
                 ></p>
+                }
+                
                 {/* <inputborer
                   type="number"
                   id="pin"
@@ -288,9 +297,13 @@ export const RampView = ({ slug }: { slug: string }) => {
                 {/**<p className="mt-5 text-2xl font-light ml-1 mr-auto">$</p> **/}
               </div>
               <div className="bg-black/0 rounded-2xl w-[150px] ml-auto mr-auto mt-12 mb-[90px] flex  items-center justify-center h-9">
-                <p className="text-white text-3xl text-center py-0.5">
+                {
+                  priceLoading ? <div className="bg-white/20 h-4 w-6 mb-2 animate-pulse rounded"></div>
+                  :
+                   <p className="text-white text-3xl text-center py-0.5">
                   {`$${amount * price}`}
                 </p>
+                }
               </div>
               <div className="mb-[80px] w-[100%] flex items-center justify-center">
                 <div
