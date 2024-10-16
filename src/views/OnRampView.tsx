@@ -160,7 +160,7 @@ export const RampView = ({ slug }: { slug: string }) => {
 
   const fetch = async () => {
     try {
-      const price = fetchPrice(slug);
+      const price = fetchPrice(slug[0]);
       console.log(price, "price thoug");
     } catch (error) {
       console.log(error);
