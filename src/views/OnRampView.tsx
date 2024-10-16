@@ -144,17 +144,19 @@ export const RampView = ({ slug }: { slug: string }) => {
   };
   const fetchPrice = async (token: string) => {
     try {
-      if (token[0] === "solana") {
-        const price = await getSolPrice('solana');
-        setPrice(price)
-        console.log(price);
+     
+      if (token === "solana") {
+        const priceSol = await getSolPrice('solana');
+        setPrice(priceSol)
+        console.log(priceSol);
       } else {
-        const price = await getTokenPrice(token[0]);
-        setPrice(price);
-        console.log(price);
+        
+        const priceT = await getTokenPrice(token);
+        setPrice(priceT);
+        console.log(priceT);
       }
     } catch (error) {
-      console.log(error);
+      console.log(error, 'fetch error');
     }
   };
 
@@ -170,7 +172,7 @@ export const RampView = ({ slug }: { slug: string }) => {
   useEffect(() => {
     fetch();
     getTokenInfo(slug);
-    console.log(slug);
+    //console.log(slug);
   }, []);
   return (
     <div className=" px-1 py-3  bg-red-600/0 h-[85%] flex flex-col rounded-xl w-[100%] ml-auto mr-auto">
