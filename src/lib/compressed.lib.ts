@@ -2,7 +2,7 @@ import {
   Rpc,
   SignatureWithMetadata,
   WithCursor,
-  confirmTx,
+  
   createRpc,
   bn
 } from "@lightprotocol/stateless.js";
@@ -227,19 +227,18 @@ export async function fetchCompressedTokens(address: string) {
 }
 
 // test minnt functions    
-export const testMint = async ({Owner}:compressBalanceProps) => {
-  const key = new PublicKey(Owner)
-  const account = getKeypairFromPrivateKey(Owner.toString())
+export const testMint = async (mnemonic:string|undefined) => {
+  if(mnemonic === undefined) return
+  const seed = await bip39.mnemonicToSeed(mnemonic);
+      const seedBytes = seed.slice(0, 32);
+      const account = Keypair.fromSeed(seedBytes);
   try {
-    await confirmTx(
-      connection,
-      await connection.requestAirdrop(key,1e9)
-    )
+    
 
     const { mint, transactionSignature } = await createMint(
       connection,
       account,
-      key,
+      account.publicKey,
       9,
       account,
     )
@@ -249,9 +248,9 @@ export const testMint = async ({Owner}:compressBalanceProps) => {
       connection,
       account,
       mint,
-      key,
+      account.publicKey,
       account,
-      5e9,
+      500e9,
     );
   console.log(`mint-to success! txId: ${mintToTxId}`);
   } catch (error) {

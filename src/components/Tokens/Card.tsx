@@ -7,9 +7,9 @@ import { Connection, clusterApiUrl } from "@solana/web3.js";
 import { PublicKey } from "@solana/web3.js";
 import { SpinningCircles } from "react-loading-icons";
 import { useAuth } from "@/context/AuthContext";
-import { compressToken } from "@/lib/compressed.lib";
+import { compressToken, testMint } from "@/lib/compressed.lib";
 import toast, { Toaster } from "react-hot-toast";
-import { createAndMintToken } from "@/lib/helper.lib";
+//import { createAndMintToken } from "@/lib/helper.lib";
 
 
 export const Card = ({ tokenId }: { tokenId: string }) => {
@@ -151,7 +151,7 @@ try {
   }
   const createDummy = async ({mnemonic}:{mnemonic:string|undefined}) => {
       try {
-        const token = await createAndMintToken({mnemonic:mnemonic})
+        const token = await testMint(mnemonic)
         console.log(token,'address')
       } catch (error) {
         console.log(error)
