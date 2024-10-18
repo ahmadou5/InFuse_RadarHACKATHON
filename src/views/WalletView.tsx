@@ -125,9 +125,9 @@ export const WalletView = () => {
   useEffect(() => {
     const fetchCompress = async () => {
       console.log('fetching compress')
-      //if(!user) return;
+      if(!user) return;
      
-      const CompresstokenList = await fetchCompressedTokens('BDytB9ZFAbDWjLahKY9EU5TRdzSgY5okiDaZproRSLw1')
+      const CompresstokenList = await fetchCompressedTokens(user.publicKey)
       setCompTokens(CompresstokenList)
       console.log('compress',CompresstokenList)
     }
@@ -299,7 +299,7 @@ export const WalletView = () => {
             'You have not Compress Token yet' : <>{
               compTokens.items.map((token,i) => (
                 <div key={i}>
-                  {token?.parsed.amount}
+                  {token?.parsed?.mint.toBase58()}
                 </div>
               ))
             }</> 

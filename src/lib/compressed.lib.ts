@@ -17,6 +17,8 @@ import {
   Keypair,
   PublicKey,
   PublicKeyData,
+  Transaction,
+  sendAndConfirmTransaction
   //clusterApiUrl,
 } from "@solana/web3.js";
 import { getKeypairFromPrivateKey } from "./helper.lib";
@@ -79,6 +81,7 @@ export const decompressToken = async ({
       recentValidityProof: proof.compressedProof,
     });
     console.log(decompressIx);
+
   } catch (error) {
     if (error instanceof Error) console.log(error.message);
   }
@@ -104,51 +107,73 @@ export const compressToken = async ({
     //const account = getKeypairFromPrivateKey(userAddress.toString())
     const tokenAddress = new PublicKey(splAddress);
     const tokenAuth = new PublicKey(owner);
-    const ata = await createAssociatedTokenAccount(
-      connection,
-      account,
-      tokenAddress,
-      tokenAuth
-    );
+    console.log("mun wuce0");
+    //const instructions = []
 
-    const compressedTokenAccountsWithCursor =
+
+console.log('mun wuce2')
+  // 1. Fetch the latest compressed token account state
+  const compressedTokenAccounts =
       await connection.getCompressedTokenAccountsByOwner(account.publicKey, {
-        mint,
+          mint,
       });
+  const other = compressedTokenAccounts.items
+  // 2. Select accounts to transfer from based on the transfer amount
+  const [inputAccounts] = selectMinCompressedTokenAccountsForTransfer(
+      other,
+      amount,
+  );
 
-      const compressedTokenAccounts = compressedTokenAccountsWithCursor.items;
-
-    // 2. Select accounts to transfer from based on the transfer amount
-    const [inputAccounts] = selectMinCompressedTokenAccountsForTransfer(
-      compressedTokenAccounts,
-      amount
-    );
-
-    // 3. Fetch recent validity proof
-    const proof = await connection.getValidityProof(
-      inputAccounts.map((account) => bn(account.compressedAccount.hash))
-    );
-
+  // 3. Fetch recent validity proof
+  const proof = await connection.getValidityProof(
+      inputAccounts.map(account => bn(account.compressedAccount.hash)),
+  );
+    
     // 4. Create the decompress instruction
-    const decompressIx = await CompressedTokenProgram.decompress({
+    const decompressTx = await CompressedTokenProgram.decompress({
       payer: account.publicKey,
       inputCompressedTokenAccounts: inputAccounts,
-      toAddress: ata,
+      toAddress: account.publicKey,
       amount,
       recentInputStateRootIndices: proof.rootIndices,
       recentValidityProof: proof.compressedProof,
-    });
-    console.log("mun wuce1");
-    const compressTx = await CompressedTokenProgram.compress({
+  });
+
+  console.log(decompressTx,'gdggdgdgdgdg')
+
+  // 5. Create the compress instruction
+  const compressTx = await CompressedTokenProgram.compress({
       payer: account.publicKey,
       owner: tokenAuth,
-      source: ata,
+      source: account.publicKey,
       toAddress: account.publicKey,
       amount: amount,
-      mint: tokenAddress,
-    });
-    console.log(compressTx, decompressIx, " transaction");
-    return apiResponse(true, "compressed", compressTx);
+      mint:tokenAddress
+  });
+    console.log("mun wuce2");
+    console.log(compressTx,decompressTx, 'instructions')
+    
+    
+    const transaction = new Transaction()
+      transaction.feePayer = account.publicKey
+  
+      transaction.add(compressTx)
+  
+      // set the end user as the fee payer
+      transaction.feePayer = account.publicKey
+    
+      transaction.recentBlockhash = (
+        await connection.getLatestBlockhash()
+      ).blockhash
+      const transactionSignature = await sendAndConfirmTransaction(
+        connection,
+        transaction,
+        [
+          account, // payer, owner
+        ]
+      );
+        console.log(compressTx, " transaction");
+    return apiResponse(true, "compressed", transactionSignature);
   } catch (error: unknown) {
     if (error instanceof Error)
       return apiResponse(false, "failed to compress", error.message);
@@ -167,7 +192,7 @@ export const getCompressTokenBalance = async ({
 }) => {
   const balance = await connection.getCompressedTokenBalancesByOwner(address);
   console.log("done");
-  return balance;
+  return balance.items;
 };
 
 export const transferCompressedTokens = async ({
@@ -254,17 +279,19 @@ export async function fetchCompressedTokens(address: string) {
 
 // test minnt functions
 export const testMint = async (mnemonic: string | undefined) => {
+  //console.log('started',mnemonic)
   if (mnemonic === undefined) return;
   const seed = await bip39.mnemonicToSeed(mnemonic);
   const seedBytes = seed.slice(0, 32);
   const account = Keypair.fromSeed(seedBytes);
   try {
+    console.log('passed')
     const { mint, transactionSignature } = await createMint(
       connection,
       account,
       account.publicKey,
       9,
-      account
+      
     );
     console.log(`create-mint success! txId: ${transactionSignature}`);
 
@@ -276,8 +303,10 @@ export const testMint = async (mnemonic: string | undefined) => {
       account,
       500e9
     );
+    
+
     console.log(`mint-to success! txId: ${mintToTxId}`);
   } catch (error) {
-    if (error instanceof Error) console.log(error.message);
+    if (error instanceof Error) console.log('error',error.message,'message');
   }
 };
