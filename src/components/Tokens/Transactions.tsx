@@ -1,13 +1,15 @@
-import { GetUserTransaction } from "@/lib/solana.lib"
+import { GetUserSentTransaction, GetUserReceiveTransaction } from "@/lib/solana.lib"
 import { Connection, clusterApiUrl,PublicKey } from "@solana/web3.js"
 import { useAuth } from "@/context/AuthContext"
 import { TransactionDetails } from "@/interfaces/models.interface"
 import { useEffect, useState } from "react"
+import { ENV } from "@/lib/constant/env.constant"
 import { ArrowUp01, ArrowDown01,  } from "lucide-react"
 import { formatAddress } from "@/lib/helper.lib"
 export const Transactions = ({tokenId}:{tokenId: string}) => {
   const [userReceiveTxn, setUserReceiveTxn] = useState<TransactionDetails[]|undefined>([])
-  const connection = new Connection(clusterApiUrl('devnet'))
+  const [userSentTxn, setUserSentTxn] = useState<TransactionDetails[]|undefined>([])
+  const connection = new Connection(`${ENV === undefined ? clusterApiUrl('devnet') : ENV.RPC}`,{commitment: 'confirmed'})
   const [activeTab, setActiveTab] = useState("Received");
   const { user } = useAuth()
     const getUserReceiveTx = async () => {
@@ -21,7 +23,9 @@ export const Transactions = ({tokenId}:{tokenId: string}) => {
             } catch (error) {
              throw new Error("Invalid sender address");
             }
-            const trx = await GetUserTransaction(connection, senderPubKey)
+            const trx2 = await GetUserSentTransaction(connection, senderPubKey)
+            const trx = await GetUserReceiveTransaction(connection, senderPubKey)
+            setUserSentTxn(trx2)
             setUserReceiveTxn(trx)
             console.log(trx)
           } else {
@@ -87,12 +91,12 @@ export const Transactions = ({tokenId}:{tokenId: string}) => {
               : 
               <> 
                {
-                !userReceiveTxn  ? <>
+                !userSentTxn  ? <>
                 <div className="w-[50%] ml-auto mr-auto h-12 flex items-center justify-center">
                   <p>No recent Transaction</p>
                 </div>
                 </> :
-                  userReceiveTxn.map((txn,i) => (
+                  userSentTxn.map((txn,i) => (
                   <div className="h-20 rounded-2xl w-[99%] mt-1 mb-1 ml-auto mr-auto bg-white/5" key={i}>
                     <div className="flex py-2 px-1">
                       <div className="w-[20%] flex text-sm py-2 flex-col items-center justify-center">
