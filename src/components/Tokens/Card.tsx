@@ -7,7 +7,7 @@ import { Connection, clusterApiUrl } from "@solana/web3.js";
 import { PublicKey } from "@solana/web3.js";
 import { SpinningCircles } from "react-loading-icons";
 import { useAuth } from "@/context/AuthContext";
-import { compressToken, testMint } from "@/lib/compressed.lib";
+import { compressToken } from "@/lib/compressed.lib";
 import toast, { Toaster } from "react-hot-toast";
 import { createAndMintToken } from "@/lib/helper.lib";
 
@@ -140,7 +140,7 @@ try {
       else {
         setIsFirst(true)
         setIsLoading(false)
-        toast.error(`Error: ${result?.data?.toString().includes('max usage') ? 'JSON RPC' : 'Not Mint Authority.'}`)
+        toast.error(`Error: ${result?.data?.toString()}`)
       }
       console.log(result)
     } catch (error: unknown) {

@@ -117,7 +117,10 @@ console.log('mun wuce2')
       await connection.getCompressedTokenAccountsByOwner(account.publicKey, {
           mint,
       });
+  console.log(compressedTokenAccounts,'all')
   const other = compressedTokenAccounts.items
+
+  console.log(other,'all other')
   // 2. Select accounts to transfer from based on the transfer amount
   const [inputAccounts] = selectMinCompressedTokenAccountsForTransfer(
       other,

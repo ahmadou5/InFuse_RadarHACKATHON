@@ -299,7 +299,7 @@ export const WalletView = () => {
             'You have not Compress Token yet' : <>{
               compTokens.items.map((token,i) => (
                 <div key={i}>
-                  {token?.parsed?.mint.toBase58()}
+                  {token?.parsed?.mint.toString().slice(0,5)}
                 </div>
               ))
             }</> 

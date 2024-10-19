@@ -1,5 +1,6 @@
 'use client'
-import { CustomQRCode } from "@/components/QrGenerator"
+import StyledQRCode from "@/components/QrGenerator"
+
 import { Copy } from "lucide-react"
 //import { useState } from "react"
 import { useRouter } from "next/navigation"
@@ -24,9 +25,9 @@ export const ReceiveModal = () => {
                <div className="w-[100%] font-light text-[19px] mb-1 text-white text-center h-auto bg-slate-50/0 rounded-xl py-2 px-2">
                  <p>Send SOL and SPL tokens only to this address, or you might lose your funds</p>
                </div>
-               <div className="w-[98%] mt-1 ml-auto mr-auto h-[290px] py-3 px-2 flex flex-col items-center justify-center rounded-2xl bg-white/90">
+               <div className="w-[98%] mt-1 ml-auto mr-auto h-[290px] py-3 px-2 flex flex-col items-center justify-center rounded-2xl bg-white/0">
                 <div className="w-[100%] p-0 h-[100%] flex items-center justify-center">
-                   <CustomQRCode logo="" value={user?.publicKey}/>
+                   <StyledQRCode logo="/assets/show.png" data={user?.publicKey}/>
                 </div>
                </div>
                <div>
