@@ -39,7 +39,7 @@ const StyledQRCode: React.FC<StyledQRCodeProps> = ({
               ],
               rotation: 2.35,
             },
-            type: 'dots',
+            type: 'extra-rounded',
           },
           imageOptions: {
             crossOrigin: 'anonymous',

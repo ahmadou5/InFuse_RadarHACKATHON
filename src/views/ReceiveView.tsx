@@ -19,13 +19,13 @@ export const ReceiveModal = () => {
     
     return(
     <div className="inset-0 fixed bg-black bg-opacity-100 w-[100%] z-[99999999] min-h-screen h-auto backdrop-blur-sm flex ">
-        <div className="w-[100%] py-4 px-4 bg-white/15 rounded-t-3xl h-auto mt-[70px]">
+        <div className="w-[100%] py-4 px-4 bg-white/15/0 rounded-t-3xl h-auto mt-[50px]">
             
             <div className="mt-1 px-2 py-3 bg-red-600/0 h-[85%] flex flex-col rounded-xl w-[99%] ml-auto mr-auto">
                <div className="w-[100%] font-light text-[19px] mb-1 text-white text-center h-auto bg-slate-50/0 rounded-xl py-2 px-2">
                  <p>Send SOL and SPL tokens only to this address, or you might lose your funds</p>
                </div>
-               <div className="w-[98%] mt-1 ml-auto mr-auto h-[290px] py-3 px-2 flex flex-col items-center justify-center rounded-2xl bg-white/0">
+               <div className="w-[98%] mt-16 ml-auto mr-auto h-[290px] py-3 px-2 flex flex-col items-center justify-center rounded-2xl bg-white/0">
                 <div className="w-[100%] p-0 h-[100%] flex items-center justify-center">
                    <StyledQRCode logo="/assets/show.png" data={user?.publicKey}/>
                 </div>
