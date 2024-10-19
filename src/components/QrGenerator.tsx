@@ -29,7 +29,7 @@ const StyledQRCode: React.FC<StyledQRCodeProps> = ({
         const options: Options = {
           width: size,
           height: size,
-          image: logo,
+          image: 'https://in-fuse-radar-hackathon.vercel.app/assets/show.png',
           dotsOptions: {
             gradient: {
               type: 'linear',
