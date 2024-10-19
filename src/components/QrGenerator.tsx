@@ -68,6 +68,7 @@ const StyledQRCode: React.FC<StyledQRCodeProps> = ({
       qrCode.update({
         data: data,
         width: size,
+        image: logo,
         height: size,
       });
     }
