@@ -6,7 +6,7 @@ export const SettingView = () => {
     const router = useRouter()
     return(<div className="bg-gothic-950/0 mt-1 flex bg-slate-600/0 py-2 text-white/70 mb-2 flex-col items-center justify-center w-[100%] h-auto">
       <div className=" bg-slate-50/0 mb-[20px] w-[100%] px-2 flex  ">
-             <div onClick={() => router.back()}  className="bg-white/5 flex items-center justify-center w-11 rounded-full ml-1 mr-auto h-10">
+             <div onClick={() => router.push('/wallet')}  className="bg-white/5 flex items-center justify-center w-11 rounded-full ml-1 mr-auto h-10">
              <ArrowLeft  className="font-bold text-xl"/>
              </div>
              <div className="ml-auto mt-1.5 mr-[45%]">

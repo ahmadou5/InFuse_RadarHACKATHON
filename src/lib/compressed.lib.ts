@@ -18,16 +18,15 @@ import {
   PublicKey,
   PublicKeyData,
   Transaction,
-  sendAndConfirmTransaction
+  sendAndConfirmTransaction,
   //clusterApiUrl,
 } from "@solana/web3.js";
 import { getKeypairFromPrivateKey } from "./helper.lib";
 import { ENV } from "./constant/env.constant";
 import { apiResponse } from "./api.helpers";
 
-
 /// Helius exposes Solana and compression RPC endpoints through a single URL
-const RPC_ENDPOINT = ENV.RPC
+const RPC_ENDPOINT = ENV.RPC;
 const COMPRESSION_RPC_ENDPOINT = RPC_ENDPOINT;
 const connection: Rpc = createRpc(RPC_ENDPOINT, COMPRESSION_RPC_ENDPOINT);
 const MINT_KEYPAIR = Keypair.generate();
@@ -81,7 +80,6 @@ export const decompressToken = async ({
       recentValidityProof: proof.compressedProof,
     });
     console.log(decompressIx);
-
   } catch (error) {
     if (error instanceof Error) console.log(error.message);
   }
@@ -108,74 +106,82 @@ export const compressToken = async ({
     const tokenAddress = new PublicKey(splAddress);
     const tokenAuth = new PublicKey(owner);
     console.log("mun wuce0");
-    //const instructions = []
+    //const instructions = [];
+    // 0. Create an associated token account for the user if it doesn't exist
+    console.log("before ata");
+    const ata = await createAssociatedTokenAccount(
+      connection,
+      account,
+      tokenAddress,
+      account.publicKey
+    );
+    console.log(ata, "here");
+    //instructions.push(ata)
+    // 0. Create an associated token account for the user if it doesn't exist
 
-
-console.log('mun wuce2')
-  // 1. Fetch the latest compressed token account state
-  const compressedTokenAccounts =
+    // 1. Fetch the latest compressed token account state
+    const compressedTokenAccounts =
       await connection.getCompressedTokenAccountsByOwner(account.publicKey, {
-          mint,
+        mint,
       });
-  console.log(compressedTokenAccounts,'all')
-  const other = compressedTokenAccounts.items
 
-  console.log(other,'all other')
-  // 2. Select accounts to transfer from based on the transfer amount
-  const [inputAccounts] = selectMinCompressedTokenAccountsForTransfer(
-      other,
-      amount,
-  );
+    // 2. Select accounts to transfer from based on the transfer amount
+    const [inputAccounts] = selectMinCompressedTokenAccountsForTransfer(
+      compressedTokenAccounts.items,
+      amount
+    );
 
-  // 3. Fetch recent validity proof
-  const proof = await connection.getValidityProof(
-      inputAccounts.map(account => bn(account.compressedAccount.hash)),
-  );
-    
+    // 3. Fetch recent validity proof
+    const proof = await connection.getValidityProof(
+      inputAccounts.map((account) => bn(account.compressedAccount.hash))
+    );
+
+    console.log("mun wuce2");
+    // 1. Fetch the latest compressed token account state
+    const instructions = [];
     // 4. Create the decompress instruction
     const decompressTx = await CompressedTokenProgram.decompress({
       payer: account.publicKey,
       inputCompressedTokenAccounts: inputAccounts,
-      toAddress: account.publicKey,
+      toAddress: ata,
       amount,
       recentInputStateRootIndices: proof.rootIndices,
       recentValidityProof: proof.compressedProof,
-  });
+    });
+    instructions.push(decompressTx);
+    console.log(decompressTx, "gdggdgdgdgdg");
 
-  console.log(decompressTx,'gdggdgdgdgdg')
-
-  // 5. Create the compress instruction
-  const compressTx = await CompressedTokenProgram.compress({
+    // 5. Create the compress instruction
+    const compressTx = await CompressedTokenProgram.compress({
       payer: account.publicKey,
       owner: tokenAuth,
-      source: account.publicKey,
+      source: ata,
       toAddress: account.publicKey,
       amount: amount,
-      mint:tokenAddress
-  });
+      mint: tokenAddress,
+    });
     console.log("mun wuce2");
-    console.log(compressTx,decompressTx, 'instructions')
-    
-    
-    const transaction = new Transaction()
-      transaction.feePayer = account.publicKey
-  
-      transaction.add(compressTx)
-  
-      // set the end user as the fee payer
-      transaction.feePayer = account.publicKey
-    
-      transaction.recentBlockhash = (
-        await connection.getLatestBlockhash()
-      ).blockhash
-      const transactionSignature = await sendAndConfirmTransaction(
-        connection,
-        transaction,
-        [
-          account, // payer, owner
-        ]
-      );
-        console.log(compressTx, " transaction");
+    console.log(compressTx, decompressTx, "instructions");
+    instructions.push(compressTx);
+    const transaction = new Transaction();
+    transaction.feePayer = account.publicKey;
+
+    transaction.add(...instructions);
+
+    // set the end user as the fee payer
+    transaction.feePayer = account.publicKey;
+
+    transaction.recentBlockhash = (
+      await connection.getLatestBlockhash()
+    ).blockhash;
+    const transactionSignature = await sendAndConfirmTransaction(
+      connection,
+      transaction,
+      [
+        account, // payer, owner
+      ]
+    );
+    console.log(compressTx, " transaction");
     return apiResponse(true, "compressed", transactionSignature);
   } catch (error: unknown) {
     if (error instanceof Error)
@@ -288,13 +294,12 @@ export const testMint = async (mnemonic: string | undefined) => {
   const seedBytes = seed.slice(0, 32);
   const account = Keypair.fromSeed(seedBytes);
   try {
-    console.log('passed')
+    console.log("passed");
     const { mint, transactionSignature } = await createMint(
       connection,
       account,
       account.publicKey,
-      9,
-      
+      9
     );
     console.log(`create-mint success! txId: ${transactionSignature}`);
 
@@ -306,10 +311,9 @@ export const testMint = async (mnemonic: string | undefined) => {
       account,
       500e9
     );
-    
 
     console.log(`mint-to success! txId: ${mintToTxId}`);
   } catch (error) {
-    if (error instanceof Error) console.log('error',error.message,'message');
+    if (error instanceof Error) console.log("error", error.message, "message");
   }
 };
