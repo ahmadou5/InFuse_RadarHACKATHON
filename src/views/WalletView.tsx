@@ -384,6 +384,7 @@ export const WalletView = () => {
                 token_id: "solana",
                 address: "",
                 owner: "",
+                compress_address: "",
                 logoUrl:
                   "https://solana-wallet-orcin.vercel.app/assets/5426.png",
               }}
