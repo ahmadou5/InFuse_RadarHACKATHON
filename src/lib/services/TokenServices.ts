@@ -1,72 +1,79 @@
 import { apiResponse } from "../api.helpers";
 import { supabaseClient } from "../supabase_client.utils";
 
-
-
-
-
 export class TokenService {
-    
-   static async getTokenByAddress(address: string) { 
+  static async getTokenByAddress(address: string) {
     try {
-        const { data:tokens, error} = await supabaseClient
-        .from('Token')
-        .select('*')
-        .eq('address', address)
+      const { data: tokens, error } = await supabaseClient
+        .from("Token")
+        .select("*")
+        .eq("address", address);
 
-        if (error)
-          return apiResponse(false, error?.message, error)
-        return apiResponse(true, 'get tokens', tokens )
+      if (error) return apiResponse(false, error?.message, error);
+      return apiResponse(true, "get tokens", tokens);
     } catch (error: unknown) {
-        if (error instanceof Error) {
-            return apiResponse(false, 'failed token error', error.message )
-          } else {
-            throw new Error('An unknown error occurred while fetching tokens');
-          }
-        
+      if (error instanceof Error) {
+        return apiResponse(false, "failed token error", error.message);
+      } else {
+        throw new Error("An unknown error occurred while fetching tokens");
+      }
     }
+  }
 
-   }
-
-   static async getTokenBytoken_id(id: string) { 
+  static async getTokenBytoken_id(id: string) {
     try {
-        const { data:tokens, error} = await supabaseClient
-        .from('Token')
-        .select('*')
-        .eq('token_id', id)
+      const { data: tokens, error } = await supabaseClient
+        .from("Token")
+        .select("*")
+        .eq("token_id", id);
 
-        if (error)
-          return apiResponse(false, error?.message, error)
-        return apiResponse(true, 'get tokens by ID', tokens )
+      if (error) return apiResponse(false, error?.message, error);
+      return apiResponse(true, "get tokens by ID", tokens);
     } catch (error: unknown) {
-        if (error instanceof Error) {
-            return apiResponse(false, 'failed token error', error.message )
-          } else {
-            throw new Error('An unknown error occurred while fetching tokens');
-          }
-        
+      if (error instanceof Error) {
+        return apiResponse(false, "failed token error", error.message);
+      } else {
+        throw new Error("An unknown error occurred while fetching tokens");
+      }
     }
+  }
 
-   }
-   
-   static async getTokens() { 
+  static async getCompressToken(address: string) {
     try {
-        const { data:tokens, error} = await supabaseClient
-        .from('Token')
-        .select('*')
-      
-        if (error)
-          return apiResponse(false, error?.message, error)
-        return apiResponse(true, 'get all tokens', tokens )
-    } catch (error: unknown) {
-        if (error instanceof Error) {
-            return apiResponse(false, 'failed token error', error.message )
-          } else {
-            throw new Error('An unknown error occurred while fetching tokens');
-          }
-        
-    }
+      const { data: tokens, error } = await supabaseClient
+        .from("Token")
+        .select("*")
+        .eq("compress_address", address);
 
-   }
-   
+      if (error) return apiResponse(false, error?.message, error);
+      return apiResponse(true, "get Compress tokens by address", tokens);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        return apiResponse(
+          false,
+          "failed to fetch compress details",
+          error.message
+        );
+      } else {
+        throw new Error("An unknown error occurred while fetching tokens");
+      }
+    }
+  }
+
+  static async getTokens() {
+    try {
+      const { data: tokens, error } = await supabaseClient
+        .from("Token")
+        .select("*");
+
+      if (error) return apiResponse(false, error?.message, error);
+      return apiResponse(true, "get all tokens", tokens);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        return apiResponse(false, "failed token error", error.message);
+      } else {
+        throw new Error("An unknown error occurred while fetching tokens");
+      }
+    }
+  }
 }

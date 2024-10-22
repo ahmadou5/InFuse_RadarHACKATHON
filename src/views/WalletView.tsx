@@ -23,9 +23,8 @@ interface TokenPrices {
 }
 
 interface CompressTokenItemProps {
-  token: Tokens;
-  balance: number | undefined;
-  price: number | undefined;
+  address: string;
+
   onClick: () => void;
 }
 
@@ -39,54 +38,69 @@ const formatNumber = (num: number) => {
   return new Intl.NumberFormat("en-US", { notation: "compact" }).format(num);
 };
 const CompressTokenItem: React.FC<CompressTokenItemProps> = ({
-  token,
-  balance,
-  price,
+  address,
   onClick,
-}) => (
-  <div
-    onClick={onClick}
-    className="bg-white/10 w-[90%] mb-1.5 flex items-center justify-center rounded-xl h-[70px] cursor-pointer"
-  >
-    <div className="bg-gothic-600/85 w-12 flex items-center justify-center h-12 ml-[23px] mr-[10px] rounded-full">
-      <img
-        src={token.logoUrl}
-        alt={token.name}
-        className="text-white/90 w-full h-full rounded-full"
-      />
-    </div>
-    <div className="ml-[5px] text-white/85 mr-auto px-3">
-      <p className="text-sm font-bold mb-1">{token.name}</p>
-      <p className="text-sm">
-        {balance === undefined ? (
-          <div className="bg-white/20 h-4 w-16 mb-2 animate-pulse rounded"></div>
-        ) : (
-          `${
-            balance?.toString().length > 7
-              ? formatNumber(balance)
-              : balance?.toString()
-          } ${token.ticker}`
-        )}
-      </p>
-    </div>
-    <div className="ml-[10px] mt-1 text-white/85 mr-4 px-3">
-      <p className="text-[15px] mb-1">
-        {price ? (
-          `$${price.toFixed(1)}`
-        ) : (
-          <div className="bg-white/20 h-4 w-16 mb-2 animate-pulse rounded"></div>
-        )}
-      </p>
-      <div className="text-[15px]">
-        {balance !== undefined && price !== undefined ? (
-          `$${(balance * price).toFixed(1)}`
-        ) : (
-          <div className="bg-white/20 h-4 w-16 mb-2 animate-pulse rounded"></div>
-        )}
+}) => {
+  const [tokenInfo, setTokenInfo] = useState<Tokens[]>([]);
+  const getTokenInfo = async (slug: string) => {
+    try {
+      // setIsLoading(true);
+      // console.log('Fetching token info for slug:', slug);
+      const response = await TokenService.getCompressToken(slug);
+      //console.log('Token info response:', response);
+
+      if (response?.data && Array.isArray(response.data)) {
+        setTokenInfo(response.data);
+        console.log("Token info set:", response.data);
+        return response.data;
+      } else {
+        console.error("Invalid token data received:", response);
+        setTokenInfo([]);
+      }
+    } catch (error) {
+      console.error("Failed to fetch tokens:", error);
+      setTokenInfo([]);
+    } finally {
+      //    setIsLoading(false);
+      //alert('done')
+    }
+  };
+  useEffect(() => {
+    getTokenInfo(address);
+  }, []);
+  //alert(address);
+  return (
+    <div
+      onClick={onClick}
+      className="bg-white/10 w-[90%] mb-1.5 flex items-center justify-center rounded-xl h-[70px] cursor-pointer"
+    >
+      <div className="bg-gothic-600/85 w-12 flex items-center justify-center h-12 ml-[23px] mr-[10px] rounded-full">
+        <img
+          src={tokenInfo[0].logoUrl}
+          alt={tokenInfo[0].name}
+          className="text-white/90 w-full h-full rounded-full"
+        />
       </div>
+      <div className="ml-[5px] text-white/85 mr-auto px-3"></div>
+      {/** <div className="ml-[10px] mt-1 text-white/85 mr-4 px-3">
+        <p className="text-[15px] mb-1">
+          {price ? (
+            `$${price.toFixed(1)}`
+          ) : (
+            <div className="bg-white/20 h-4 w-16 mb-2 animate-pulse rounded"></div>
+          )}
+        </p>
+        <div className="text-[15px]">
+          {balance !== undefined && price !== undefined ? (
+            `$${(balance * price).toFixed(1)}`
+          ) : (
+            <div className="bg-white/20 h-4 w-16 mb-2 animate-pulse rounded"></div>
+          )}
+        </div>
+      </div>  */}
     </div>
-  </div>
-);
+  );
+};
 
 const TokenItem: React.FC<TokenItemProps> = ({
   token,
@@ -396,9 +410,7 @@ export const WalletView = () => {
                 {compTokens.items.map((token, i) => (
                   <CompressTokenItem
                     key={i}
-                    token={token?.compressedAccount?.address}
-                    balance={token.parsed.amount}
-                    price={2}
+                    address={token.parsed.mint.toString()}
                     onClick={() => alert(token.parsed.mint.toString())}
                   />
                 ))}
