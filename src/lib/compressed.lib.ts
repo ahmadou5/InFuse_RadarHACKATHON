@@ -181,18 +181,14 @@ export const compressToken = async ({
       recentInputStateRootIndices: proof.rootIndices,
       recentValidityProof: proof.compressedProof,
     });
-    //instructions.push(decompressTx);
+    instructions.push(decompressTx);
     //console.log(decompressTx, "gdggdgdgdgdg");
     const TokenPool = await CompressedTokenProgram.createTokenPool({
       mint: tokenAddress,
       feePayer: account.publicKey,
     });
 
-    if (TokenPool.programId) {
-      console.log("exist");
-    } else {
-      instructions.push(TokenPool);
-    }
+    instructions.push(TokenPool);
 
     // 5. Create the compress instruction
     const compressTx = await CompressedTokenProgram.compress({
