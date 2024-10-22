@@ -83,7 +83,7 @@ const CompressTokenItem: React.FC<CompressTokenItemProps> = ({
         />
       </div>
       <div className="ml-[5px] text-white/85 mr-auto px-3">
-        <p className="text-sm font-bold mb-1">{`c${tokenInfo[0].name}`}</p>
+        <p className="text-sm font-bold mb-1">{`c${tokenInfo[0]?.name}`}</p>
       </div>
       {/** <p className="text-sm">
         {balance === undefined ? (
