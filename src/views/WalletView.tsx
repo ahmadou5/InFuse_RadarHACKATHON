@@ -404,17 +404,18 @@ export const WalletView = () => {
           </>
         ) : (
           <>
-            {compTokens === undefined ? (
+            {compTokens?.items.length === 0 ? (
               "You have not Compress Token yet"
             ) : (
               <>
-                {compTokens.items.map((token, i) => (
-                  <CompressTokenItem
-                    key={i}
-                    address={token.parsed.mint.toString()}
-                    onClick={() => alert(token.parsed.mint.toString())}
-                  />
-                ))}
+                {compTokens &&
+                  compTokens.items.map((token, i) => (
+                    <CompressTokenItem
+                      key={i}
+                      address={token.parsed.mint.toString()}
+                      onClick={() => alert(token.parsed.mint.toString())}
+                    />
+                  ))}
               </>
             )}
           </>

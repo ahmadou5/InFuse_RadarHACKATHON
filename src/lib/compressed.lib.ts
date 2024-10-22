@@ -121,7 +121,7 @@ export const compressToken = async ({
     const tokenAuth = new PublicKey(owner);
     const tokenDecimal = await getTokenDecimals(tokenAddress);
     let transferAmount = parseFloat(amount.toString());
-    transferAmount = parseInt(transferAmount.toFixed(tokenDecimal));
+    //transferAmount = parseInt(transferAmount.toFixed(tokenDecimal));
     transferAmount = transferAmount * Math.pow(10, tokenDecimal);
     console.log("mun wuce0");
     //const instructions = [];
