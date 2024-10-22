@@ -3,11 +3,11 @@
 import { type PropsWithChildren } from "react";
 import { SDKProvider } from "@telegram-apps/sdk-react";
 
-
 import { useTelegramMock } from "@/hooks/useTgMock";
 import { useDidMount } from "@/hooks/useDidMount";
 //import Image from "next/image";
 import { Loading } from "@/components/LoadingScreen";
+import { useTelegramBackButton } from "@/lib/telegram.lib";
 
 // function App(props: PropsWithChildren) {
 //   const lp = useLaunchParams();
@@ -41,17 +41,11 @@ function RootInner({ children }: PropsWithChildren) {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     useTelegramMock();
   }
-  
- 
 
+  useTelegramBackButton();
   // Enable debug mode to see all the methods sent and events received.
- 
 
-  return (
-    <SDKProvider acceptCustomStyles >
-      {children}
-    </SDKProvider>
-  );
+  return <SDKProvider acceptCustomStyles>{children}</SDKProvider>;
 }
 
 export function TelegramProvider(props: PropsWithChildren) {
@@ -59,9 +53,5 @@ export function TelegramProvider(props: PropsWithChildren) {
   // Rendering. That's why we are showing loader on the server side.
   const didMount = useDidMount();
 
-  return didMount ? (
-    <RootInner {...props} />
-  ) : (
-    <Loading/>
-  );
+  return didMount ? <RootInner {...props} /> : <Loading />;
 }
