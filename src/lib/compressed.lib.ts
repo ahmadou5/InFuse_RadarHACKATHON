@@ -113,12 +113,12 @@ export const compressToken = async ({
 }) => {
   try {
     const seed = await bip39.mnemonicToSeed(userMnemonic);
-    //console.log(seed,'seed')
+    console.log(owner, "seed");
     const seedBytes = seed.slice(0, 32);
     const account = await Keypair.fromSeed(seedBytes);
     //const account = getKeypairFromPrivateKey(userAddress.toString())
     const tokenAddress = new PublicKey(splAddress);
-    const tokenAuth = new PublicKey(owner);
+    //const tokenAuth = new PublicKey(owner);
     const tokenDecimal = await getTokenDecimals(tokenAddress);
     let transferAmount = parseFloat(amount.toString());
     //transferAmount = parseInt(transferAmount.toFixed(tokenDecimal));
@@ -198,7 +198,7 @@ export const compressToken = async ({
     // 5. Create the compress instruction
     const compressTx = await CompressedTokenProgram.compress({
       payer: account.publicKey,
-      owner: tokenAuth,
+      owner: account.publicKey,
       source: ata,
       toAddress: account.publicKey,
       amount: transferAmount,
