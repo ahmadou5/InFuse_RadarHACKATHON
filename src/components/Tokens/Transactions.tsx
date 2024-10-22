@@ -1,25 +1,36 @@
-import {
-  GetUserSentTransaction,
-  GetUserReceiveTransaction,
-} from "@/lib/solana.lib";
-import { Connection, clusterApiUrl, PublicKey } from "@solana/web3.js";
+import { getSolanaTransactions } from "@/lib/solana.lib";
+//import { Connection, clusterApiUrl, PublicKey } from "@solana/web3.js";
 import { useAuth } from "@/context/AuthContext";
-import { TransactionDetails } from "@/interfaces/models.interface";
+//import { TransactionDetails } from "@/interfaces/models.interface";
 import { useEffect, useState } from "react";
 import { ENV } from "@/lib/constant/env.constant";
 import { ArrowUp01, ArrowDown01 } from "lucide-react";
 import { formatAddress } from "@/lib/helper.lib";
+//import { LAMPORTS_PER_SOL } from "@solana/web3.js";
+
+export interface TransactionData {
+  signature: string;
+  timestamp: number | null;
+  slot: number;
+  fee: number;
+  amount: {
+    lamports: number;
+    sol: number;
+    formatted: string;
+  };
+  type: "receive" | "send";
+  fromAddress: string;
+  toAddress: string;
+  status: "success" | "failed";
+}
+
+type TransactionDataArray = Array<TransactionData>;
 export const Transactions = ({ tokenId }: { tokenId: string }) => {
-  const [userReceiveTxn, setUserReceiveTxn] = useState<
-    TransactionDetails[] | undefined
-  >([]);
-  const [userSentTxn, setUserSentTxn] = useState<
-    TransactionDetails[] | undefined
-  >([]);
-  const connection = new Connection(
-    `${ENV === undefined ? clusterApiUrl("devnet") : ENV.RPC}`,
-    { commitment: "confirmed" }
+  const [userReceiveTxn, setUserReceiveTxn] = useState<TransactionDataArray>(
+    []
   );
+  const [userSentTxn, setUserSentTxn] = useState<TransactionDataArray>([]);
+
   const [activeTab, setActiveTab] = useState("Received");
   const { user } = useAuth();
   const getUserTx = async () => {
@@ -27,17 +38,14 @@ export const Transactions = ({ tokenId }: { tokenId: string }) => {
       if (tokenId[0] === "solana") {
         if (!user) return;
         console.log("what the f");
-        let senderPubKey: PublicKey;
-        try {
-          senderPubKey = new PublicKey(user.publicKey);
-        } catch (error) {
-          throw new Error("Invalid sender address");
-        }
-        const trx2 = await GetUserSentTransaction(connection, senderPubKey);
-        const trx = await GetUserReceiveTransaction(connection, senderPubKey);
-        setUserSentTxn(trx2);
-        setUserReceiveTxn(trx);
-        console.log(trx, trx2);
+
+        const trx = await getSolanaTransactions(user.publicKey, {
+          limit: 100 | 0,
+          cluster: ENV.RPC,
+        });
+        setUserSentTxn(trx.filters.sent());
+        setUserReceiveTxn(trx.filters.received());
+        console.log(trx.transactions);
       } else {
         //spl tranactions later on
       }
@@ -87,15 +95,15 @@ export const Transactions = ({ tokenId }: { tokenId: string }) => {
                         <div className="flex py-2 px-1">
                           <div className="w-[20%] flex text-sm py-2 flex-col items-center justify-center">
                             <ArrowDown01 />
-                            <p>{txn.direction}</p>
+                            <p>{txn?.type}</p>
                           </div>
                           <div className="w-[45%] flex items-center justify-center">
                             <p className="ml-auto mr-auto">
-                              {formatAddress(txn.signature)}
+                              {formatAddress(txn?.signature)}
                             </p>
                           </div>
                           <div className="w-[35%] flex text-sm items-center justify-center">
-                            {txn.fee}
+                            {txn.amount.formatted}
                           </div>
                         </div>
                       </div>
@@ -111,6 +119,7 @@ export const Transactions = ({ tokenId }: { tokenId: string }) => {
                       </div>
                     </>
                   ) : (
+                    userSentTxn &&
                     userSentTxn.map((txn, i) => (
                       <div
                         className="h-20 rounded-2xl w-[99%] mt-1 mb-1 ml-auto mr-auto bg-white/5"
@@ -119,15 +128,15 @@ export const Transactions = ({ tokenId }: { tokenId: string }) => {
                         <div className="flex py-2 px-1">
                           <div className="w-[20%] flex text-sm py-2 flex-col items-center justify-center">
                             <ArrowUp01 />
-                            <p>{txn.direction}</p>
+                            <p>{txn?.type}</p>
                           </div>
                           <div className="w-[45%] flex items-center justify-center">
                             <p className="ml-auto mr-auto">
-                              {formatAddress(txn.signature)}
+                              {formatAddress(txn?.signature)}
                             </p>
                           </div>
                           <div className="w-[35%] flex text-sm items-center justify-center">
-                            {txn.fee}
+                            {txn?.amount.formatted}
                           </div>
                         </div>
                       </div>

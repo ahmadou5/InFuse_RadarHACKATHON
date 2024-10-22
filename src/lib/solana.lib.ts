@@ -10,6 +10,7 @@ import {
   sendAndConfirmTransaction,
   SystemProgram,
   Transaction,
+  ConfirmedSignatureInfo,
 } from "@solana/web3.js";
 import { createTransferInstruction } from "@solana/spl-token";
 import { getAssociatedTokenAddress } from "@solana/spl-token";
@@ -17,6 +18,202 @@ import * as bip39 from "bip39";
 import { GenerateSeed, getSolPrice } from "./helper.lib";
 import { TransactionDetails } from "@/interfaces/models.interface";
 import bs58 from "bs58";
+
+// Constants
+
+export interface TransactionOptions {
+  cluster?: string;
+  limit?: number;
+}
+
+export interface TransactionData {
+  signature: string;
+  timestamp: number | null;
+  slot: number;
+  fee: number;
+  amount: {
+    lamports: number;
+    sol: number;
+    formatted: string;
+  };
+  type: "receive" | "send";
+  fromAddress: string;
+  toAddress: string;
+  status: "success" | "failed";
+}
+
+export type TransactionDataArray = TransactionData[];
+
+export interface FilterFunctions {
+  received: () => TransactionDataArray;
+  sent: () => TransactionDataArray;
+  dateRange: (
+    startDate: string | Date,
+    endDate: string | Date
+  ) => TransactionDataArray;
+  amountGreaterThan: (amount: number) => TransactionDataArray;
+}
+
+export interface TransactionResult {
+  transactions: TransactionDataArray;
+  filters: FilterFunctions;
+}
+
+export class TransactionError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "TransactionError";
+  }
+}
+
+function formatSolAmount(lamports: number): string {
+  const sol = Math.abs(lamports) / LAMPORTS_PER_SOL;
+  if (sol >= 1) {
+    return sol.toFixed(9).replace(/\.?0+$/, "");
+  } else {
+    return sol.toFixed(9);
+  }
+}
+
+export async function getSolanaTransactions(
+  address: string,
+  options: TransactionOptions = {}
+): Promise<TransactionResult> {
+  try {
+    const connection = new Connection(
+      options.cluster || "https://api.mainnet-beta.solana.com",
+      "confirmed"
+    );
+
+    let pubKey: PublicKey;
+    try {
+      pubKey = new PublicKey(address);
+    } catch (error) {
+      throw new TransactionError(
+        `Invalid Solana address: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`
+      );
+    }
+
+    const signatures: Array<ConfirmedSignatureInfo> =
+      await connection.getSignaturesForAddress(pubKey, {
+        limit: options.limit || 100,
+      });
+
+    const transactions: Array<TransactionData | unknown> = await Promise.all(
+      signatures.map(async (sig) => {
+        try {
+          const tx = await connection.getTransaction(sig.signature, {
+            maxSupportedTransactionVersion: 0,
+          });
+
+          if (!tx || !tx.meta) return null;
+
+          const accountKeys = tx.transaction.message.staticAccountKeys;
+          const fromAddress = accountKeys[0]?.toBase58() || "";
+          const toAddress = accountKeys[1]?.toBase58() || "";
+
+          const isReceiver = fromAddress !== address;
+
+          // Calculate amount changes for the relevant address
+          let relevantIndex: number;
+          if (isReceiver) {
+            // If receiving, look for our address in postBalances
+            relevantIndex = accountKeys.findIndex(
+              (key) => key.toBase58() === address
+            );
+          } else {
+            // If sending, we're the first account (index 0)
+            relevantIndex = 0;
+          }
+
+          if (relevantIndex === -1) return null;
+
+          const preBalance = tx.meta.preBalances[relevantIndex] || 0;
+          const postBalance = tx.meta.postBalances[relevantIndex] || 0;
+
+          // Calculate the raw amount change in lamports
+          let lamportChange = postBalance - preBalance;
+
+          // For send transactions, add the fee to the amount
+          if (!isReceiver && tx.meta.fee) {
+            lamportChange += tx.meta.fee;
+          }
+
+          // Ensure amount is negative for sends and positive for receives
+          const finalLamportAmount = isReceiver
+            ? Math.abs(lamportChange)
+            : -Math.abs(lamportChange);
+
+          return {
+            signature: sig.signature,
+            timestamp: tx.blockTime,
+            slot: tx.slot,
+            fee: tx.meta.fee || 0,
+            amount: {
+              lamports: finalLamportAmount,
+              sol: finalLamportAmount / LAMPORTS_PER_SOL,
+              formatted: formatSolAmount(finalLamportAmount),
+            },
+            type: isReceiver ? "receive" : "send",
+            fromAddress,
+            toAddress,
+            status: tx.meta.err ? "failed" : "success",
+          };
+        } catch (error) {
+          console.error(
+            `Error processing transaction ${sig.signature}:`,
+            error
+          );
+          return null;
+        }
+      })
+    );
+
+    const validTransactions: TransactionDataArray = transactions.filter(
+      (tx): tx is TransactionData => tx !== null
+    );
+
+    const filterFunctions: FilterFunctions = {
+      received: () => validTransactions.filter((tx) => tx.type === "receive"),
+
+      sent: () => validTransactions.filter((tx) => tx.type === "send"),
+
+      dateRange: (startDate: string | Date, endDate: string | Date) => {
+        const start = new Date(startDate).getTime() / 1000;
+        const end = new Date(endDate).getTime() / 1000;
+        return validTransactions.filter(
+          (tx) =>
+            tx.timestamp !== null &&
+            tx.timestamp >= start &&
+            tx.timestamp <= end
+        );
+      },
+
+      amountGreaterThan: (amount: number) => {
+        const lamports = amount * LAMPORTS_PER_SOL;
+        return validTransactions.filter(
+          (tx) => Math.abs(tx.amount.lamports) > lamports
+        );
+      },
+    };
+
+    return {
+      transactions: validTransactions,
+      filters: filterFunctions,
+    };
+  } catch (error) {
+    if (error instanceof TransactionError) {
+      throw error;
+    }
+    throw new TransactionError(
+      `Error fetching transactions: ${
+        error instanceof Error ? error.message : "Unknown error"
+      }`
+    );
+  }
+}
 
 interface HandleSendSolParams {
   receiveAddress: string;
