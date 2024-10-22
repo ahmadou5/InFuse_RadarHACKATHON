@@ -139,7 +139,7 @@ export const compressToken = async ({
 
     const instructions = [];
 
-    if (!ifexists || !ifexists.data) {
+    if (!ifexists) {
       const createATAiX = createAssociatedTokenAccountInstruction(
         account.publicKey,
         ata,
