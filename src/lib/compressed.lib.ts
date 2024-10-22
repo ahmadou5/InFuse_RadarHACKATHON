@@ -153,12 +153,12 @@ export const compressToken = async ({
 
     //instructions.push(ata)
     // 0. Create an associated token account for the user if it doesn't exist
-    console.log(ata.toString(), "ata");
+    //console.log(ata.toString(), "ata");
     // 1. Fetch the latest compressed token account state
 
     const compressedTokenAccounts =
       await connection.getCompressedTokenAccountsByOwner(account.publicKey);
-    console.log(compressedTokenAccounts.items, "items");
+    // console.log(compressedTokenAccounts.items, "items");
     // 2. Select accounts to transfer from based on the transfer amount
     const [inputAccounts] = selectMinCompressedTokenAccountsForTransfer(
       compressedTokenAccounts.items,
@@ -170,7 +170,7 @@ export const compressToken = async ({
       inputAccounts.map((account) => bn(account.compressedAccount.hash))
     );
 
-    console.log("mun wuce2", proof);
+    //console.log("mun wuce2", proof);
     // 1. Fetch the latest compressed token account state
     //const instructions = [];
     // 4. Create the decompress instruction
@@ -198,7 +198,7 @@ export const compressToken = async ({
     // 5. Create the compress instruction
     const compressTx = await CompressedTokenProgram.compress({
       payer: account.publicKey,
-      owner: tokenAuth,
+      owner: account.publicKey,
       source: ata,
       toAddress: account.publicKey,
       amount: transferAmount,
