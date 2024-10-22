@@ -66,8 +66,9 @@ export const decompressToken = async ({
       tokenAddress,
       account.publicKey
     );
-    // const tokenDecimal = getTokenDecimals(tokenAddress)
+    const tokenDecimal = getTokenDecimals(tokenAddress);
     // 1. Fetch the latest compressed token account state
+    console.log(tokenDecimal);
     const compressedTokenAccounts =
       await connection.getCompressedTokenAccountsByOwner(account.publicKey, {
         mint,
@@ -119,10 +120,8 @@ export const compressToken = async ({
     //const account = getKeypairFromPrivateKey(userAddress.toString())
     const tokenAddress = new PublicKey(splAddress);
     //const tokenAuth = new PublicKey(owner);
-    const tokenDecimal = await getTokenDecimals(tokenAddress);
-    let transferAmount = parseFloat(amount.toString());
-    //transferAmount = parseInt(transferAmount.toFixed(tokenDecimal));
-    transferAmount = transferAmount * Math.pow(10, tokenDecimal);
+    //const tokenDecimal = await getTokenDecimals(tokenAddress);
+
     console.log("mun wuce0");
     //const instructions = [];
     // 0. Create an associated token account for the user if it doesn't exist
@@ -162,7 +161,7 @@ export const compressToken = async ({
     // 2. Select accounts to transfer from based on the transfer amount
     const [inputAccounts] = selectMinCompressedTokenAccountsForTransfer(
       compressedTokenAccounts.items,
-      transferAmount
+      amount
     );
 
     // 3. Fetch recent validity proof
@@ -178,7 +177,7 @@ export const compressToken = async ({
       payer: account.publicKey,
       inputCompressedTokenAccounts: inputAccounts,
       toAddress: ata,
-      amount: transferAmount,
+      amount: amount,
       recentInputStateRootIndices: proof.rootIndices,
       recentValidityProof: proof.compressedProof,
     });
@@ -201,7 +200,7 @@ export const compressToken = async ({
       owner: account.publicKey,
       source: ata,
       toAddress: account.publicKey,
-      amount: transferAmount,
+      amount: amount,
       mint: tokenAddress,
     });
     console.log("mun wuce2");
