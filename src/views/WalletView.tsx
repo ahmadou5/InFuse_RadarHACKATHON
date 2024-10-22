@@ -81,7 +81,21 @@ const CompressTokenItem: React.FC<CompressTokenItemProps> = ({
           className="text-white/90 w-full h-full rounded-full"
         />
       </div>
-      <div className="ml-[5px] text-white/85 mr-auto px-3"></div>
+      <div className="ml-[5px] text-white/85 mr-auto px-3">
+        <p className="text-sm font-bold mb-1">{`c${tokenInfo[0].name}`}</p>
+      </div>
+      {/** <p className="text-sm">
+        {balance === undefined ? (
+            <div className="bg-white/20 h-4 w-16 mb-2 animate-pulse rounded"></div>
+          ) : (
+            `${
+              balance?.toString().length > 7
+                ? formatNumber(balance)
+                : balance?.toString()
+            } ${token.ticker}`
+          )}
+        </p>
+      </div> */}
       {/** <div className="ml-[10px] mt-1 text-white/85 mr-4 px-3">
         <p className="text-[15px] mb-1">
           {price ? (
