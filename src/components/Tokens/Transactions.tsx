@@ -6,6 +6,9 @@ import { useEffect, useState } from "react";
 import { ENV } from "@/lib/constant/env.constant";
 import { ArrowUp01, ArrowDown01 } from "lucide-react";
 import { formatAddress } from "@/lib/helper.lib";
+import { getSPLTokenTransactions } from "@/lib/spl.lib";
+import { Tokens } from "@/interfaces/models.interface";
+import { TokenService } from "@/lib/services/TokenServices";
 //import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 
 export interface TransactionData {
@@ -30,9 +33,32 @@ export const Transactions = ({ tokenId }: { tokenId: string }) => {
     []
   );
   const [userSentTxn, setUserSentTxn] = useState<TransactionDataArray>([]);
-
+  const [tokenInfo, setTokenInfo] = useState<Tokens[]>([]);
   const [activeTab, setActiveTab] = useState("Received");
   const { user } = useAuth();
+  const getTokenInfo = async (slug: string) => {
+    try {
+      // setIsLoading(true);
+      // console.log('Fetching token info for slug:', slug);
+      const response = await TokenService.getTokenBytoken_id(slug);
+      //console.log('Token info response:', response);
+
+      if (response?.data && Array.isArray(response.data)) {
+        setTokenInfo(response.data);
+        console.log("Token info set:", response.data);
+        return response.data;
+      } else {
+        console.error("Invalid token data received:", response);
+        setTokenInfo([]);
+      }
+    } catch (error) {
+      console.error("Failed to fetch tokens:", error);
+      setTokenInfo([]);
+    } finally {
+      //    setIsLoading(false);
+      //alert('done')
+    }
+  };
   const getUserTx = async () => {
     try {
       if (tokenId[0] === "solana") {
@@ -47,13 +73,20 @@ export const Transactions = ({ tokenId }: { tokenId: string }) => {
         setUserReceiveTxn(trx.filters.received());
         console.log(trx.transactions);
       } else {
-        //spl tranactions later on
+        if (!user) return;
+        const trx = await getSPLTokenTransactions(user.publicKey, {
+          limit: 100 | 0,
+          cluster: ENV.RPC,
+          mintAddress: tokenInfo[0].address,
+        });
+        console.log("spl data", trx);
       }
     } catch (error) {
       console.log(error);
     }
   };
   useEffect(() => {
+    getTokenInfo(tokenId);
     getUserTx();
   }, []);
   return (

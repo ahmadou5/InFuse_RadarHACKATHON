@@ -17,6 +17,7 @@ import { fetchCompressedTokens } from "@/lib/compressed.lib";
 import { TokenService } from "@/lib/services/TokenServices";
 import { Tokens } from "@/interfaces/models.interface";
 import { calculateWalletTotals } from "@/lib/helper.lib";
+import { useTelegramBackButton } from "@/lib/telegram.lib";
 
 interface TokenPrices {
   [ticker: string]: number;
@@ -208,7 +209,7 @@ export const WalletView = () => {
     );
     setWalletTotals(totals);
   }, [solBalance, solPrice, tokenBalances, tokenPrices, tokens]);
-
+  useTelegramBackButton();
   useEffect(() => {
     const fetchSolPrice = async () => {
       try {
