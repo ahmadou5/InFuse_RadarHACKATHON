@@ -118,7 +118,7 @@ export const compressToken = async ({
     const account = await Keypair.fromSeed(seedBytes);
     //const account = getKeypairFromPrivateKey(userAddress.toString())
     const tokenAddress = new PublicKey(splAddress);
-    //const tokenAuth = new PublicKey(owner);
+    const tokenAuth = new PublicKey(owner);
     const tokenDecimal = await getTokenDecimals(tokenAddress);
     let transferAmount = parseFloat(amount.toString());
     //transferAmount = parseInt(transferAmount.toFixed(tokenDecimal));
@@ -198,7 +198,7 @@ export const compressToken = async ({
     // 5. Create the compress instruction
     const compressTx = await CompressedTokenProgram.compress({
       payer: account.publicKey,
-      owner: account.publicKey,
+      owner: tokenAuth,
       source: ata,
       toAddress: account.publicKey,
       amount: transferAmount,
