@@ -17,9 +17,9 @@ export const Menu = () => {
       {/**for desktop view **/}
       <div
         
-        className=" w-[100%] ml-auto mr-auto rounded-xl py-2 bg-opacity-20 px-1.5 z-100 bg-black/5  fixed bottom-1 flex justify-center items-center"
+        className=" w-[100%] ml-auto mr-auto rounded-xl py-0.5  px-1.5 z-100 bg-black/30  bg-opacity-80  fixed bottom-0.5 flex justify-center items-center"
       >
-        <div className="lg:py-2.5 py-2 lg:px-2.5 px-1.5  mt- mb-auto ml-auto mr-auto w-[98%] flex flex-row  h-[90%]">
+        <div className="lg:py-2.5 py-2 lg:px-2.5 px-1.5  mt-  ml-auto mr-auto w-[98%] flex flex-row  h-[90%]">
           <div
             className={`h-12 ml-auto mr-auto bg-white/0 flex items-center justify-center`}
           >

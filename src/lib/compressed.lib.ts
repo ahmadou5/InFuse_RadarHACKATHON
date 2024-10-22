@@ -120,8 +120,10 @@ export const compressToken = async ({
     //const account = getKeypairFromPrivateKey(userAddress.toString())
     const tokenAddress = new PublicKey(splAddress);
     //const tokenAuth = new PublicKey(owner);
-    //const tokenDecimal = await getTokenDecimals(tokenAddress);
-
+    const tokenDecimal = await getTokenDecimals(tokenAddress);
+    let transferAmount = parseFloat(amount.toString());
+    transferAmount = parseInt(transferAmount.toFixed(tokenDecimal));
+    transferAmount = transferAmount * Math.pow(10, tokenDecimal);
     console.log("mun wuce0");
     //const instructions = [];
     // 0. Create an associated token account for the user if it doesn't exist
@@ -138,7 +140,7 @@ export const compressToken = async ({
 
     const instructions = [];
 
-    if (!ifexists) {
+    if (!ifexists || !ifexists.data) {
       const createATAiX = createAssociatedTokenAccountInstruction(
         account.publicKey,
         ata,
@@ -152,43 +154,26 @@ export const compressToken = async ({
 
     //instructions.push(ata)
     // 0. Create an associated token account for the user if it doesn't exist
-    //console.log(ata.toString(), "ata");
+    console.log(ata.toString(), "ata");
     // 1. Fetch the latest compressed token account state
 
-    const compressedTokenAccounts =
-      await connection.getCompressedTokenAccountsByOwner(account.publicKey);
-    // console.log(compressedTokenAccounts.items, "items");
     // 2. Select accounts to transfer from based on the transfer amount
-    const [inputAccounts] = selectMinCompressedTokenAccountsForTransfer(
-      compressedTokenAccounts.items,
-      amount
-    );
-
-    // 3. Fetch recent validity proof
-    const proof = await connection.getValidityProof(
-      inputAccounts.map((account) => bn(account.compressedAccount.hash))
-    );
 
     //console.log("mun wuce2", proof);
     // 1. Fetch the latest compressed token account state
     //const instructions = [];
     // 4. Create the decompress instruction
-    const decompressTx = await CompressedTokenProgram.decompress({
-      payer: account.publicKey,
-      inputCompressedTokenAccounts: inputAccounts,
-      toAddress: ata,
-      amount: amount,
-      recentInputStateRootIndices: proof.rootIndices,
-      recentValidityProof: proof.compressedProof,
-    });
-    instructions.push(decompressTx);
+
+    //instructions.push(decompressTx);
     //console.log(decompressTx, "gdggdgdgdgdg");
     const TokenPool = await CompressedTokenProgram.createTokenPool({
       mint: tokenAddress,
       feePayer: account.publicKey,
     });
-
-    instructions.push(TokenPool);
+    if (!TokenPool.programId) {
+      instructions.push(TokenPool);
+    } else {
+    }
 
     // 5. Create the compress instruction
     const compressTx = await CompressedTokenProgram.compress({
@@ -196,11 +181,11 @@ export const compressToken = async ({
       owner: account.publicKey,
       source: ata,
       toAddress: account.publicKey,
-      amount: amount,
+      amount: transferAmount,
       mint: tokenAddress,
     });
     console.log("mun wuce2");
-    console.log(compressTx, decompressTx, "instructions");
+    console.log(compressTx, "instructions");
     instructions.push(compressTx);
     const transaction = new Transaction();
     transaction.feePayer = account.publicKey;
@@ -209,7 +194,7 @@ export const compressToken = async ({
 
     // set the end user as the fee payer
     transaction.feePayer = account.publicKey;
-
+    console.log(transaction.signatures);
     transaction.recentBlockhash = (
       await connection.getLatestBlockhash()
     ).blockhash;
