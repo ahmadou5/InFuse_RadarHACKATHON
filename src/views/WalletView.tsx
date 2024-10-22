@@ -76,8 +76,8 @@ const CompressTokenItem: React.FC<CompressTokenItemProps> = ({
     >
       <div className="bg-gothic-600/85 w-12 flex items-center justify-center h-12 ml-[23px] mr-[10px] rounded-full">
         <img
-          src={tokenInfo[0].logoUrl}
-          alt={tokenInfo[0].name}
+          src={tokenInfo[0]?.logoUrl}
+          alt={tokenInfo[0]?.name}
           className="text-white/90 w-full h-full rounded-full"
         />
       </div>

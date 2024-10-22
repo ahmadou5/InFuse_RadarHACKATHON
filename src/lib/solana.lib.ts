@@ -11,13 +11,12 @@ import {
   SystemProgram,
   Transaction,
 } from "@solana/web3.js";
-import { createTransferInstruction,  } from "@solana/spl-token";
+import { createTransferInstruction } from "@solana/spl-token";
 import { getAssociatedTokenAddress } from "@solana/spl-token";
-import * as bip39 from 'bip39'
+import * as bip39 from "bip39";
 import { GenerateSeed, getSolPrice } from "./helper.lib";
 import { TransactionDetails } from "@/interfaces/models.interface";
-import  bs58 from "bs58";
-
+import bs58 from "bs58";
 
 interface HandleSendSolParams {
   receiveAddress: string;
@@ -25,17 +24,16 @@ interface HandleSendSolParams {
   amount: string | number;
 }
 
-
-
 export const handleSendSol = async ({
   receiveAddress,
   userMnemonic,
-  amount
+  amount,
 }: HandleSendSolParams) => {
   try {
     // Convert amount to number if it's a string
-    const numericAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
-    
+    const numericAmount =
+      typeof amount === "string" ? parseFloat(amount) : amount;
+
     // Validate amount
     if (isNaN(numericAmount) || numericAmount <= 0) {
       throw new Error("Invalid amount");
@@ -44,8 +42,8 @@ export const handleSendSol = async ({
     const seed = await bip39.mnemonicToSeed(userMnemonic);
     const seedBytes = seed.slice(0, 32);
     const account = Keypair.fromSeed(seedBytes);
-    
-    const connection = new Connection(clusterApiUrl('devnet'), "confirmed");
+
+    const connection = new Connection(clusterApiUrl("devnet"), "confirmed");
 
     const { blockhash } = await connection.getLatestBlockhash();
 
@@ -59,13 +57,9 @@ export const handleSendSol = async ({
 
     const instruction = SystemProgram.transfer({
       fromPubkey: account.publicKey,
-      toPubkey:receivePubKey,
+      toPubkey: receivePubKey,
       lamports: numericAmount * LAMPORTS_PER_SOL,
     });
-
-    
-    
-     
 
     const messageV0 = new TransactionMessage({
       payerKey: new PublicKey(account.publicKey),
@@ -74,30 +68,25 @@ export const handleSendSol = async ({
     }).compileToV0Message();
 
     const transaction = new VersionedTransaction(messageV0);
-     // Get the fee for the transaction
-    const fee = await connection.getFeeForMessage(
-      messageV0,
-      'confirmed'
-    );
-    
+    // Get the fee for the transaction
+    const fee = await connection.getFeeForMessage(messageV0, "confirmed");
+
     // Convert fee from lamports to SOL
-    if(fee === undefined) return
+    if (fee === undefined) return;
     const feeInSol = 0.0005;
 
-
     transaction.sign([account]);
-    
+
     const txid = await connection.sendTransaction(transaction);
     console.log(`Transaction ID: ${txid}`);
-    
+
     await connection.confirmTransaction(txid, "confirmed");
-    return {txid, feeInSol};
+    return { txid, feeInSol };
   } catch (error) {
     console.error("Error sending SOL:", error);
     return undefined;
   }
 };
-
 
 // Example usage
 export const sendNativeSol = async (
@@ -107,19 +96,19 @@ export const sendNativeSol = async (
     fromPubkey,
     toPubkey,
   }: {
-    amount: number
-    fromPubkey: PublicKey
-    toPubkey: PublicKey
+    amount: number;
+    fromPubkey: PublicKey;
+    toPubkey: PublicKey;
   }
 ) => {
   try {
     // ensure the receiving account will be rent exempt
     const minimumBalance = await connection.getMinimumBalanceForRentExemption(
       0 // note: simple accounts that just store native SOL have `0` bytes of data
-    )
+    );
 
     if (amount < minimumBalance) {
-      throw new Error(`account may not be rent exempt: ${toPubkey.toBase58()}`)
+      throw new Error(`account may not be rent exempt: ${toPubkey.toBase58()}`);
       // return Response.json({
       //   error: `account may not be rent exempt: ${toPubkey.toBase58()}`,
       // })
@@ -130,18 +119,18 @@ export const sendNativeSol = async (
       fromPubkey: fromPubkey,
       toPubkey: toPubkey,
       lamports: amount,
-    })
+    });
 
     // get the latest blockhash amd block height
     const { blockhash, lastValidBlockHeight } =
-      await connection.getLatestBlockhash()
+      await connection.getLatestBlockhash();
 
     // create a legacy transaction
     const transaction = new Transaction({
       feePayer: fromPubkey,
       blockhash,
       lastValidBlockHeight,
-    }).add(transferSolInstruction)
+    }).add(transferSolInstruction);
 
     // const transaction = new Transaction().add(
     //   SystemProgram.transfer({
@@ -158,29 +147,27 @@ export const sendNativeSol = async (
     //   await connection.getLatestBlockhash()
     // ).lastValidBlockHeight
 
-    return transaction
+    return transaction;
   } catch (error: unknown) {
-    if(error instanceof Error)throw new Error(error.message || 'Unknown error occurred')
+    if (error instanceof Error)
+      throw new Error(error.message || "Unknown error occurred");
   }
-}
+};
 
-export const transferSpl = async (
- 
-  {
-    mnemonicString,
-    splTokenAddress,
-    receiver,
-    amount,
-  }: {
-    mnemonicString: string;
-    splTokenAddress: PublicKeyData;
-    receiver: PublicKeyData;
-    amount: number;
-  }
-) => {
+export const transferSpl = async ({
+  mnemonicString,
+  splTokenAddress,
+  receiver,
+  amount,
+}: {
+  mnemonicString: string;
+  splTokenAddress: PublicKeyData;
+  receiver: PublicKeyData;
+  amount: number;
+}) => {
   try {
     const seed = await bip39.mnemonicToSeed(mnemonicString);
-     // console.log(seed,'seed')
+    // console.log(seed,'seed')
     const seedBytes = seed.slice(0, 32);
     const account = await Keypair.fromSeed(seedBytes);
     const connection = new Connection(clusterApiUrl("devnet"));
@@ -232,24 +219,24 @@ export async function getSplTokenBalance(
 ): Promise<number> {
   try {
     let tokenPublicKey: PublicKey;
-      try {
+    try {
       tokenPublicKey = new PublicKey(tokenAddress);
-      } catch (error) {
-       throw new Error("Invalid  address");
-      }
-      let userPublicKey: PublicKey;
-      try {
+    } catch (error) {
+      throw new Error("Invalid  address");
+    }
+    let userPublicKey: PublicKey;
+    try {
       userPublicKey = new PublicKey(userAddress);
-      } catch (error) {
-       throw new Error("Invalid sender address");
-      }
+    } catch (error) {
+      throw new Error("Invalid sender address");
+    }
 
     // Get the associated token account address
     const associatedTokenAddress = await getAssociatedTokenAddress(
       tokenPublicKey,
-      userPublicKey,
+      userPublicKey
     );
-    console.log(associatedTokenAddress,'addewss')
+    console.log(associatedTokenAddress, "addewss");
     // Check if the account exists
     const accountInfo = await connection.getAccountInfo(associatedTokenAddress);
 
@@ -257,12 +244,12 @@ export async function getSplTokenBalance(
       // Account doesn't exist, which means the balance is 0
       return 0;
     }
-    console.log(accountInfo,'info')
+    console.log(accountInfo, "info");
     // Fetch the token account info
     const tokenAccountInfo = await connection.getTokenAccountBalance(
       associatedTokenAddress
     );
-    console.log(tokenAccountInfo.value.amount)
+    console.log(tokenAccountInfo.value.amount);
     // Return the balance as a number
     return Number(tokenAccountInfo.value.uiAmount);
   } catch (error) {
@@ -313,7 +300,7 @@ export const GetUserReceiveTransaction = async (
         if (!tx)
           throw new Error(`Failed to fetch transaction ${sig.signature}`);
 
-        let direction: "sent" | "received" = "received";
+        let direction: "received" | "sent" = "received";
         let amount = 0;
 
         // Determine if the transaction is sent or received
@@ -353,8 +340,6 @@ export const GetUserReceiveTransaction = async (
       throw new Error(`Failed to fetch transaction ${error.message}`);
   }
 };
-
-
 
 export const GetUserSentTransaction = async (
   connection: Connection,
@@ -415,22 +400,21 @@ export const GetUserSentTransaction = async (
   }
 };
 
-
-
 export const fetchSolPriceB = async ({
-  user
-}:{user:string|undefined}) => {
-    try {
-      if(!user) {
-        return
-      }
-      const connection = new Connection(clusterApiUrl("devnet"));
-      const userAddress = new PublicKey(user)
-      const price = await getSolPrice('solana')
-      const balance = await connection.getBalance(userAddress)
-      return {price, balance};
-     
-    } catch (error) {
-      throw error
+  user,
+}: {
+  user: string | undefined;
+}) => {
+  try {
+    if (!user) {
+      return;
     }
+    const connection = new Connection(clusterApiUrl("devnet"));
+    const userAddress = new PublicKey(user);
+    const price = await getSolPrice("solana");
+    const balance = await connection.getBalance(userAddress);
+    return { price, balance };
+  } catch (error) {
+    throw error;
   }
+};
