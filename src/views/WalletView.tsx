@@ -76,13 +76,17 @@ const CompressTokenItem: React.FC<CompressTokenItemProps> = ({
       onClick={onClick}
       className="bg-white/10 w-[90%] mb-1.5 flex items-center justify-center rounded-xl h-[70px] cursor-pointer"
     >
-      <div className="bg-gothic-600/85 w-12 flex items-center justify-center h-12 ml-[23px] mr-[10px] rounded-full">
-        <img
-          src={tokenInfo[0]?.logoUrl}
-          alt={tokenInfo[0]?.name}
-          className="text-white/90 w-full h-full rounded-full"
-        />
-      </div>
+      {tokenInfo[0]?.logoUrl ? (
+        <div className="bg-gothic-600/85 w-12 flex items-center justify-center h-12 ml-[23px] mr-[10px] rounded-full">
+          <img
+            src={tokenInfo[0]?.logoUrl}
+            alt={tokenInfo[0]?.name}
+            className="text-white/90 w-full h-full rounded-full"
+          />
+        </div>
+      ) : (
+        <div className="bg-white/20 h-12 w-12 mb-2 animate-pulse rounded-full"></div>
+      )}
       <div className="ml-[5px] text-white/85 mr-auto px-3">
         <p className="text-sm font-bold mb-1">{`c${tokenInfo[0]?.name}`}</p>
       </div>
@@ -90,11 +94,7 @@ const CompressTokenItem: React.FC<CompressTokenItemProps> = ({
         {balance === undefined ? (
           <div className="bg-white/20 h-4 w-16 mb-2 animate-pulse rounded"></div>
         ) : (
-          `${
-            balance?.toString().length > 7
-              ? formatNumber(balance)
-              : balance?.toString()
-          } ${tokenInfo[0].ticker}`
+          `${balance} ${tokenInfo[0].ticker}`
         )}
       </p>
 
