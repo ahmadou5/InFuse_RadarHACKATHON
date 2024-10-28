@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { ParsedTokenAccount, WithCursor } from "@lightprotocol/stateless.js";
+import { ParsedTokenAccount } from "@lightprotocol/stateless.js";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { getSolPrice, getTokenPrices } from "@/lib/helper.lib";
@@ -180,9 +180,7 @@ export const WalletView = () => {
   const [tokenPrices, setTokenPrices] = useState<TokenPrices>({});
   const [solBalance, setSolBalance] = useState<number | undefined>();
   const [solPrice, setSolPrice] = useState<number | undefined>();
-  const [compTokens, setCompTokens] = useState<
-    WithCursor<ParsedTokenAccount[]> | undefined
-  >();
+  const [compTokens, setCompTokens] = useState<ParsedTokenAccount[]>();
   const [tokens, setTokens] = useState<Tokens[]>([]);
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState("tokens");
@@ -234,7 +232,23 @@ export const WalletView = () => {
       if (!user) return;
 
       const CompresstokenList = await fetchCompressedTokens(user.publicKey);
-      setCompTokens(CompresstokenList);
+      const deduplicatedAccounts = CompresstokenList.items.reduce(
+        (acc, current) => {
+          const existingAccount = acc.find((item) =>
+            item.parsed.mint.equals(current.parsed.mint)
+          );
+          if (existingAccount) {
+            existingAccount.parsed.amount = existingAccount.parsed.amount.add(
+              current.parsed.amount
+            );
+          } else {
+            acc.push(current);
+          }
+          return acc;
+        },
+        [] as typeof CompresstokenList.items
+      );
+      setCompTokens(deduplicatedAccounts);
       console.log("compress", CompresstokenList);
     };
     fetchCompress();
@@ -419,16 +433,21 @@ export const WalletView = () => {
           </>
         ) : (
           <>
-            {compTokens?.items.length === 0 ? (
+            {compTokens?.length === 0 ? (
               "You have not Compress Token yet"
             ) : (
               <>
                 {compTokens &&
-                  compTokens.items.map((token, i) => (
+                  compTokens.map((token, i) => (
                     <CompressTokenItem
                       key={i}
                       address={token.parsed.mint.toString()}
-                      onClick={() => alert(token.parsed.mint.toString())}
+                      onClick={() => {
+                        alert(token.parsed.mint.toBase58());
+                        router.push(
+                          `/token/compress/${token.parsed.mint.toBase58()}`
+                        );
+                      }}
                     />
                   ))}
               </>

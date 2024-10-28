@@ -38,6 +38,24 @@ export class TokenService {
     }
   }
 
+  static async getTokenBytoken_compress(address: string) {
+    try {
+      const { data: tokens, error } = await supabaseClient
+        .from("Token")
+        .select("*")
+        .eq("compress_address", address);
+
+      if (error) return apiResponse(false, error?.message, error);
+      return apiResponse(true, "get tokens by ID", tokens);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        return apiResponse(false, "failed token error", error.message);
+      } else {
+        throw new Error("An unknown error occurred while fetching tokens");
+      }
+    }
+  }
+
   static async getCompressToken(address: string) {
     try {
       const { data: tokens, error } = await supabaseClient
