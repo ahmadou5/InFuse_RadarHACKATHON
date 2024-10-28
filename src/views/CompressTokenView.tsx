@@ -1,8 +1,8 @@
 "use client";
-import Chart from "@/components/Tokens/Chart";
+//import Chart from "@/components/Tokens/Chart";
 //import { Activities } from "@/components/Tokens/Activities";
-import { TokenDetails } from "@/components/Tokens/TokenDetails";
-import { Transactions } from "@/components/Tokens/Transactions";
+//import { TokenDetails } from "@/components/Tokens/TokenDetails";
+//import { Transactions } from "@/components/Tokens/Transactions";
 //import { Top } from "@/components/Tokens/Top";
 import { useMini } from "@/context/MiniContext";
 import { Card } from "@/components/Tokens/Card";
