@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { ParsedTokenAccount } from "@lightprotocol/stateless.js";
+import { BN254, ParsedTokenAccount } from "@lightprotocol/stateless.js";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { getSolPrice, getTokenPrices } from "@/lib/helper.lib";
@@ -25,7 +25,7 @@ interface TokenPrices {
 
 interface CompressTokenItemProps {
   address: string;
-
+  balance: BN254;
   onClick: () => void;
 }
 
@@ -40,6 +40,7 @@ const formatNumber = (num: number) => {
 };
 const CompressTokenItem: React.FC<CompressTokenItemProps> = ({
   address,
+  balance,
   onClick,
 }) => {
   const [tokenInfo, setTokenInfo] = useState<Tokens[]>([]);
@@ -85,18 +86,18 @@ const CompressTokenItem: React.FC<CompressTokenItemProps> = ({
       <div className="ml-[5px] text-white/85 mr-auto px-3">
         <p className="text-sm font-bold mb-1">{`c${tokenInfo[0]?.name}`}</p>
       </div>
-      {/** <p className="text-sm">
+      <p className="text-sm">
         {balance === undefined ? (
-            <div className="bg-white/20 h-4 w-16 mb-2 animate-pulse rounded"></div>
-          ) : (
-            `${
-              balance?.toString().length > 7
-                ? formatNumber(balance)
-                : balance?.toString()
-            } ${token.ticker}`
-          )}
-        </p>
-      </div> */}
+          <div className="bg-white/20 h-4 w-16 mb-2 animate-pulse rounded"></div>
+        ) : (
+          `${
+            balance?.toString().length > 7
+              ? formatNumber(balance)
+              : balance?.toString()
+          } ${tokenInfo[0].ticker}`
+        )}
+      </p>
+
       {/** <div className="ml-[10px] mt-1 text-white/85 mr-4 px-3">
         <p className="text-[15px] mb-1">
           {price ? (
@@ -442,6 +443,7 @@ export const WalletView = () => {
                     <CompressTokenItem
                       key={i}
                       address={token.parsed.mint.toString()}
+                      balance={token.parsed.amount}
                       onClick={() => {
                         alert(token.parsed.mint.toBase58());
                         router.push(
