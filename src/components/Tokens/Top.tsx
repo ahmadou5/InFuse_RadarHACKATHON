@@ -158,7 +158,7 @@ export const Top = ({ tokenId }: TopProps) => {
                 <div className="flex">
                   {" "}
                   <p className="ml-2 text-4xl mr-2">{`${
-                    userBalance === undefined ? (
+                    !userBalance ? (
                       <div className="bg-white/20 h-4 w-16 mb-2 animate-pulse rounded-lg"></div>
                     ) : (
                       userBalance?.toFixed(2)
