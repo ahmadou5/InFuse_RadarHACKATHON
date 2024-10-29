@@ -6,6 +6,7 @@ import { Tokens } from "@/interfaces/models.interface";
 import { Connection, clusterApiUrl, PublicKey } from "@solana/web3.js";
 import { SolConverter } from "@/lib/helper.lib";
 import { useAuth } from "@/context/AuthContext";
+import { BN } from "@coral-xyz/anchor";
 //import { getSplTokenBalance } from "@/lib/solana.lib";
 import { getCompressTokenBalance } from "@/lib/compressed.lib";
 interface TopProps {
@@ -14,7 +15,7 @@ interface TopProps {
 
 export const CTop = ({ tokenId }: TopProps) => {
   const { user } = useAuth();
-  const [userBalance, setUserBalance] = useState<number>();
+  const [userBalance, setUserBalance] = useState<BN>();
   const [tokenInfo, setTokenInfo] = useState<Tokens[]>([]);
   const connection = new Connection(clusterApiUrl("devnet"), {
     commitment: "confirmed",
@@ -63,13 +64,13 @@ export const CTop = ({ tokenId }: TopProps) => {
       } else {
         //console.log('spl ne waannan',address,)
         if (!user) return;
-        const balance = await getCompressTokenBalance({
+        const { balance }: BN = await getCompressTokenBalance({
           address: user.publicKey,
           mint: tokenId[1],
         });
         console.log(balance, "balance");
 
-        // setUserBalance(balance);
+        setUserBalance(balance);
       }
     } catch (error: unknown) {
       if (error instanceof Error) console.log(error.message);
