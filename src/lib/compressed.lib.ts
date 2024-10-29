@@ -220,10 +220,29 @@ interface compressBalanceProps {
 //get list of compress token owned by userAddress
 export const getCompressTokenBalance = async ({
   address,
+  mint,
 }: {
-  address: PublicKey;
+  address: string;
+  mint: string;
 }) => {
-  const balance = await connection.getCompressedTokenBalancesByOwner(address);
+  let userPubKey: PublicKey;
+  try {
+    userPubKey = new PublicKey(address);
+  } catch (error) {
+    throw new Error("Invalid sender address");
+  }
+  let mintPubKey: PublicKey;
+  try {
+    mintPubKey = new PublicKey(mint);
+  } catch (error) {
+    throw new Error("Invalid sender address");
+  }
+  const balance = await connection.getCompressedTokenBalancesByOwner(
+    userPubKey,
+    {
+      mint: mintPubKey,
+    }
+  );
   console.log("done");
   return balance.items;
 };
