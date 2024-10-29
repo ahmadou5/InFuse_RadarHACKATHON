@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { BN254, ParsedTokenAccount } from "@lightprotocol/stateless.js";
 import { useAuth } from "@/context/AuthContext";
+import { normalizeTokenAmount } from "helius-airship-core";
 import { useRouter } from "next/navigation";
 import { getSolPrice, getTokenPrices } from "@/lib/helper.lib";
 import {
@@ -443,7 +444,7 @@ export const WalletView = () => {
                     <CompressTokenItem
                       key={i}
                       address={token.parsed.mint.toString()}
-                      balance={token.parsed.amount}
+                      balance={normalizeTokenAmount(token.parsed.amount, 6)}
                       onClick={() => {
                         alert(token.parsed.mint.toBase58());
                         router.push(
