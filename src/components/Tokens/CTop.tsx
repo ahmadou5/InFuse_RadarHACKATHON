@@ -6,7 +6,7 @@ import { Tokens } from "@/interfaces/models.interface";
 import { Connection, clusterApiUrl, PublicKey } from "@solana/web3.js";
 import { SolConverter } from "@/lib/helper.lib";
 import { useAuth } from "@/context/AuthContext";
-import { getSplTokenBalance } from "@/lib/solana.lib";
+//import { getSplTokenBalance } from "@/lib/solana.lib";
 import { getCompressTokenBalance } from "@/lib/compressed.lib";
 interface TopProps {
   tokenId: string;
@@ -44,7 +44,7 @@ export const CTop = ({ tokenId }: TopProps) => {
     }
   };
 
-  const fetchBalances = async (address: string) => {
+  const fetchBalances = async () => {
     try {
       //console.log('gettin bal')
       console.log(tokenInfo[0], "shineee");
@@ -80,7 +80,7 @@ export const CTop = ({ tokenId }: TopProps) => {
     try {
       const tokenDetails = await getTokenInfo(tokenId[1]);
       if (!tokenDetails) return;
-      const balance = fetchBalances(tokenDetails[0]?.address);
+      const balance = fetchBalances();
       console.log(balance);
     } catch (error) {
       console.log(error);
