@@ -7,11 +7,18 @@ import { Connection, clusterApiUrl, PublicKey } from "@solana/web3.js";
 import { SolConverter } from "@/lib/helper.lib";
 import { useAuth } from "@/context/AuthContext";
 import { BN } from "@coral-xyz/anchor";
+import { normalizeTokenAmount } from "helius-airship-core";
 //import { getSplTokenBalance } from "@/lib/solana.lib";
 import { getCompressTokenBalance } from "@/lib/compressed.lib";
 interface TopProps {
   tokenId: string;
 }
+
+interface Token {
+  balance: BN;
+  mint: PublicKey;
+}
+[];
 
 export const CTop = ({ tokenId }: TopProps) => {
   const { user } = useAuth();
@@ -64,13 +71,13 @@ export const CTop = ({ tokenId }: TopProps) => {
       } else {
         //console.log('spl ne waannan',address,)
         if (!user) return;
-        const { balance }: BN = await getCompressTokenBalance({
+        const balance = await getCompressTokenBalance({
           address: user.publicKey,
           mint: tokenId[1],
         });
-        console.log(balance, "balance");
+        console.log(balance.items[0].balance, "balance");
 
-        setUserBalance(balance);
+        setUserBalance(normalizeTokenAmount(balance.items[0].balance, 6));
       }
     } catch (error: unknown) {
       if (error instanceof Error) console.log(error.message);

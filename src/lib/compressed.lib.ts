@@ -244,7 +244,7 @@ export const getCompressTokenBalance = async ({
     }
   );
   console.log("done");
-  return balance.items;
+  return balance;
 };
 
 export const transferCompressedTokens = async ({
