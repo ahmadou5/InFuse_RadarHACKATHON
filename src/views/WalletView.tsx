@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { BN254, ParsedTokenAccount } from "@lightprotocol/stateless.js";
 import { useAuth } from "@/context/AuthContext";
-import { normalizeTokenAmount } from "helius-airship-core";
+//import { normalizeTokenAmount } from "helius-airship-core";
 import { useRouter } from "next/navigation";
 import { getSolPrice, getTokenPrices } from "@/lib/helper.lib";
 import {
@@ -95,7 +95,7 @@ const CompressTokenItem: React.FC<CompressTokenItemProps> = ({
         {balance === undefined ? (
           <div className="bg-white/20 h-4 w-16 mb-2 animate-pulse rounded"></div>
         ) : (
-          `${balance} ${tokenInfo[0].ticker}`
+          `${balance.toString()} ${tokenInfo[0]?.ticker}`
         )}
       </p>
 
@@ -444,7 +444,7 @@ export const WalletView = () => {
                     <CompressTokenItem
                       key={i}
                       address={token.parsed.mint.toString()}
-                      balance={normalizeTokenAmount(token.parsed.amount, 6)}
+                      balance={token.parsed.amount}
                       onClick={() => {
                         alert(token.parsed.mint.toBase58());
                         router.push(
