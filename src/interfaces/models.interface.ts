@@ -19,6 +19,23 @@ export interface Tokens {
   compress_address: string;
 }
 
+export interface Native {
+  name: string;
+  address: string;
+  ticker: string;
+  logoUrl: string;
+  token_id: string;
+}
+
+export interface Network {
+  name: string;
+  mainnetrpcUrl: string | undefined;
+  testnetrpcUrl: string | undefined;
+  isEVM: boolean;
+  isTestNet: boolean;
+  native: Native | undefined;
+}
+
 export interface BlinkInterface {
   id: string;
   user_id: string;

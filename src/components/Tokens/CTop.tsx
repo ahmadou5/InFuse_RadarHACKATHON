@@ -14,14 +14,9 @@ interface TopProps {
   tokenId: string;
 }
 
-interface Token {
-  balance: BN;
-  mint: PublicKey;
-}
-[];
-
 export const CTop = ({ tokenId }: TopProps) => {
   const { user } = useAuth();
+  const [bLoading, setBLoading] = useState<boolean>(true);
   const [userBalance, setUserBalance] = useState<BN>();
   const [tokenInfo, setTokenInfo] = useState<Tokens[]>([]);
   const connection = new Connection(clusterApiUrl("devnet"), {
@@ -78,7 +73,9 @@ export const CTop = ({ tokenId }: TopProps) => {
         console.log(balance.items[0].balance, "balance");
 
         setUserBalance(normalizeTokenAmount(balance.items[0].balance, 6));
+        setUserBalance(normalizeTokenAmount(balance.items[0].balance, 6));
       }
+      setBLoading(false);
     } catch (error: unknown) {
       if (error instanceof Error) console.log(error.message);
     }
@@ -166,7 +163,7 @@ export const CTop = ({ tokenId }: TopProps) => {
                 <div className="flex">
                   {" "}
                   <p className="ml-2 text-4xl mr-2">{`${
-                    userBalance === undefined ? (
+                    bLoading ? (
                       <div className="bg-white/20 h-4 w-16 mb-2 animate-pulse rounded-lg"></div>
                     ) : (
                       userBalance?.toFixed(2)
