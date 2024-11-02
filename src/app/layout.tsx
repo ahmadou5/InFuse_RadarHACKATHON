@@ -5,6 +5,7 @@ import "./globals.css";
 import { TelegramProvider } from "@/provider/Telegram.Provider";
 import AuthContextProvider from "@/context/AuthContext";
 import { MiniContextProvider } from "@/context/MiniContext";
+import NetworkContextProvider from "@/context/NetworkContext";
 
 const inter = Montserrat({ subsets: ["latin"], weight: "400" });
 const geistSans = localFont({
@@ -35,9 +36,11 @@ export default function RootLayout({
         suppressContentEditableWarning
       >
         <TelegramProvider>
-          <AuthContextProvider>
-            <MiniContextProvider>{children}</MiniContextProvider>
-          </AuthContextProvider>
+          <NetworkContextProvider>
+            <AuthContextProvider>
+              <MiniContextProvider>{children}</MiniContextProvider>
+            </AuthContextProvider>
+          </NetworkContextProvider>
         </TelegramProvider>
       </body>
     </html>

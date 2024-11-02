@@ -29,8 +29,7 @@ export interface Native {
 
 export interface Network {
   name: string;
-  mainnetrpcUrl: string | undefined;
-  testnetrpcUrl: string | undefined;
+  rpcUrl: string | undefined;
   isEVM: boolean;
   isTestNet: boolean;
   native: Native | undefined;

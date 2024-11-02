@@ -1,34 +1,24 @@
-import { apiResponse } from "../api.helpers";
-import { supabaseClient } from "../supabase_client.utils";
+import { networkList } from "@/utils/networks.utils";
+//import { apiResponse } from "../api.helpers";
+//import { supabaseClient } from "../supabase_client.utils";
 
 export class NetworkServices {
   static async getAllNetworks() {
     try {
-      const { data, error } = await supabaseClient.from("Tokens").select("*");
-      if (data) {
-        return apiResponse(true, "Network Fetched Success", data![0]);
-      }
-      if (error) {
-        throw error;
-      }
+      const data = networkList;
+      return data;
     } catch (error: unknown) {
-      if (error instanceof Error)
-        return apiResponse(false, "Error Fetching Networs", error.message);
+      console.log(error);
     }
   }
   static async getSolana() {
     try {
-      const { data, error } = await supabaseClient
-        .from("Networks")
-        .select("*")
-        .eq("name", "solana");
+      const data = networkList[0];
       if (data) {
-        return apiResponse(true, "solana gotten", data![0]);
+        return data;
       }
-      if (error) throw error;
-    } catch (error: unknown) {
-      if (error instanceof Error)
-        return apiResponse(false, "failed", error.message);
+    } catch (error) {
+      console.log(error);
     }
   }
 }

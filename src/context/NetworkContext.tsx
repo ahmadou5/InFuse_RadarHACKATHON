@@ -2,27 +2,14 @@
 import { COOKIE_NETWORK_DATA_KEY } from "@/lib/constant/app.constant";
 import { NetworkContextType, ReactChildrenProps } from "@/interfaces";
 import { Network } from "@/interfaces/models.interface";
-import { ENV } from "@/lib/constant/env.constant";
+//import { ENV } from "@/lib/constant/env.constant";
 import CookiesService from "@/lib/cookie.lib";
 import { createContext, useContext, useState, useEffect } from "react";
 import { NetworkServices } from "@/lib/services/Network.service";
-
+import { networkList } from "@/utils/networks.utils";
 const initialNetworkState: NetworkContextType = {
   isActive: false,
-  network: {
-    name: "Solana",
-    native: {
-      name: "SOLANA",
-      address: "",
-      ticker: "SOL",
-      token_id: "solana",
-      logoUrl: "",
-    },
-    mainnetrpcUrl: "",
-    testnetrpcUrl: ENV.RPC,
-    isEVM: false,
-    isTestNet: true,
-  },
+  network: networkList[0],
   setActiveChain: (network: Network) => console.log(network),
 };
 
@@ -56,12 +43,12 @@ export default function NetworkContextProvider({
 
   const fetchNetwork = async () => {
     try {
-      const solana = await NetworkServices.getAllNetworks();
-      if (!solana?.success) {
+      const solana = await NetworkServices.getSolana();
+      if (!solana) {
         setNetwork(undefined);
       }
-      console.log(solana?.data);
-      setNetwork(solana?.data);
+      console.log(solana);
+      setNetwork(solana);
     } catch (error) {
       console.log(error);
     }
@@ -73,8 +60,7 @@ export default function NetworkContextProvider({
       native: network?.native || undefined,
       isTestNet: network?.isTestNet || false,
       isEVM: network?.isEVM || false,
-      testnetrpcUrl: network?.testnetrpcUrl || "",
-      mainnetrpcUrl: network?.mainnetrpcUrl || "",
+      rpcUrl: network?.rpcUrl || "",
     },
     setActiveChain: handleSetNetwork,
   };

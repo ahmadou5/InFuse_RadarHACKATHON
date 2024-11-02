@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { BN254, ParsedTokenAccount } from "@lightprotocol/stateless.js";
 import { useAuth } from "@/context/AuthContext";
 import { normalizeTokenAmount } from "helius-airship-core";
+import { useNetwork } from "@/context/NetworkContext";
 import { useRouter } from "next/navigation";
 import { getSolPrice, getTokenPrices } from "@/lib/helper.lib";
 import {
@@ -146,7 +147,7 @@ const TokenItem: React.FC<TokenItemProps> = ({
             balance?.toString().length > 7
               ? formatNumber(balance)
               : balance?.toString()
-          } ${token.ticker}`
+          } ${token.ticker?.toUpperCase()}`
         )}
       </p>
     </div>
@@ -185,6 +186,7 @@ export const WalletView = () => {
   const [compTokens, setCompTokens] = useState<ParsedTokenAccount[]>();
   const [tokens, setTokens] = useState<Tokens[]>([]);
   const { user } = useAuth();
+  const { network } = useNetwork();
   const [activeTab, setActiveTab] = useState("tokens");
   const router = useRouter();
   const connection = new Connection(clusterApiUrl("devnet"), {
@@ -410,13 +412,14 @@ export const WalletView = () => {
           <>
             <TokenItem
               token={{
-                name: "SOLANA",
-                ticker: "SOL",
-                token_id: "solana",
+                name: network?.native?.name || "",
+                ticker: network.native?.ticker || "",
+                token_id: network.native?.ticker || "",
                 address: "",
                 owner: "",
                 compress_address: "",
                 logoUrl:
+                  network.native?.logoUrl ||
                   "https://solana-wallet-orcin.vercel.app/assets/5426.png",
               }}
               balance={solBalance}
