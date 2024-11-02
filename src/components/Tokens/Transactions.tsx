@@ -45,7 +45,7 @@ export const Transactions = ({ tokenId }: { tokenId: string }) => {
 
         const trx = await getSolanaTransactions(user.publicKey, {
           limit: 100 | 0,
-          cluster: ENV.RPC,
+          cluster: ENV.SOL_DEVNET_RPC,
         });
         setUserSentTxn(trx.filters.sent());
         setUserReceiveTxn(trx.filters.received());
@@ -57,7 +57,7 @@ export const Transactions = ({ tokenId }: { tokenId: string }) => {
           //console.log(response.data[0].address);
           const trx = await getSPLTokenTransactions(user.publicKey, {
             limit: 100 | 0,
-            cluster: ENV.RPC,
+            cluster: ENV.SOL_DEVNET_RPC,
             mintAddress: response?.data[0]?.address,
           });
           console.log("spl data", trx);
