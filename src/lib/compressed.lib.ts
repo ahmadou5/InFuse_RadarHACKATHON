@@ -34,7 +34,7 @@ import {
 } from "@solana/spl-token";
 
 /// Helius exposes Solana and compression RPC endpoints through a single URL
-const RPC_ENDPOINT = ENV.RPC;
+const RPC_ENDPOINT = ENV.SOL_DEVNET_RPC;
 const COMPRESSION_RPC_ENDPOINT = RPC_ENDPOINT;
 const connection: Rpc = createRpc(RPC_ENDPOINT, COMPRESSION_RPC_ENDPOINT);
 const MINT_KEYPAIR = Keypair.generate();
