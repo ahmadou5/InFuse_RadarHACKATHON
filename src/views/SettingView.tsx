@@ -72,7 +72,7 @@ const PrivateKey = ({
   };
 
   return (
-    <div className="mt-[120px] p-6 rounded-lg max-w-md mx-auto">
+    <div className="mt-[70px] p-6 rounded-lg max-w-md mx-auto">
       {/* Warning Message */}
       <div className="bg-red-950/30 rounded-lg p-4 mb-6">
         <h2 className="text-red-500/40 font-bold text-center text-xl mb-2">
@@ -156,9 +156,9 @@ const RecoveryPhrase = ({
   const words = phrase.split(" ");
 
   return (
-    <div className="mt-[80px] p-6 rounded-lg max-w-md mx-auto">
+    <div className="mt-[50px] p-6 rounded-lg max-w-md mx-auto">
       {/* Warning Message */}
-      <div className="bg-red-950/25 rounded-lg p-4 mb-12">
+      <div className="bg-red-950/25 rounded-lg p-4 mb-6">
         <h2 className="text-red-500/40 font-bold text-center text-xl mb-2">
           Do <span className="underline">not</span> share your{" "}
           <span className="text-white/75">Secret Phrases!</span>
@@ -170,7 +170,7 @@ const RecoveryPhrase = ({
       </div>
 
       {/* Words Grid */}
-      <div className="grid grid-cols-2 gap-3 mb-6">
+      <div className="grid grid-cols-2 gap-3 mb-5">
         {words.map((word, index) => (
           <div
             key={index}
