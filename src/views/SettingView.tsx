@@ -1,5 +1,5 @@
 "use client";
-import { ArrowLeft, ChevronRight } from "lucide-react";
+import { ArrowLeft, ChevronRight, Circle, CheckCircle2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { networkList } from "@/utils/networks.utils";
@@ -12,8 +12,7 @@ export const SettingView = () => {
   const [connect, setConnect] = useState<boolean>(false);
   const [about, setAbout] = useState<boolean>(false);
   const [setting, setSetting] = useState<boolean>(true);
-
-  const { setActiveChain } = useNetwork();
+  const { setActiveChain, network } = useNetwork();
   const router = useRouter();
   return (
     <>
@@ -177,7 +176,7 @@ export const SettingView = () => {
                   .map((item, i) => (
                     <div
                       key={i}
-                      className="w-[98%] h-[60px] mt-1 mb-1 rounded-xl bg-slate-500/15 ml-auto mr-auto"
+                      className="w-[99%] h-[60px] mt-1 mb-1 rounded-xl bg-slate-500/15 ml-auto mr-auto"
                     >
                       <div className="w-[100%] py-2.5 px-5 flex">
                         <div className="flex">
@@ -188,10 +187,40 @@ export const SettingView = () => {
                             {item.name}
                           </p>
                         </div>
-                        <ChevronRight
+                        <div
+                          className="flex ml-auto mr-0.5 items-center bg-gray-200/10 rounded-full p-1 w-20 cursor-pointer"
                           onClick={() => setActiveChain(item)}
-                          className="text-xl  ml-auto mr-2 mt-1.5"
-                        />
+                        >
+                          <div
+                            className={`flex items-center justify-center w-full relative h-8 ${
+                              network.name === item.name
+                                ? ""
+                                : "flex-row-reverse"
+                            }`}
+                          >
+                            {/* Background slider */}
+                            <div
+                              className={`absolute w-1/2 h-full bg-white/30 rounded-full shadow-md transition-transform duration-200 ease-in-out
+            ${network.name === item.name ? "left-0" : "left-1/2"}`}
+                            />
+
+                            {/* Icons */}
+                            <div className="relative flex w-full">
+                              <div
+                                className={`flex-1 flex justify-center z-10 transition-colors duration-200 
+            ${network.name === item.name ? "text-green-500" : "text-gray-400"}`}
+                              >
+                                <CheckCircle2 className="w-5 h-5" />
+                              </div>
+                              <div
+                                className={`flex-1 flex justify-center z-10 transition-colors duration-200 
+            ${network.name === item.name ? "text-gray-500" : "text-gray-400"}`}
+                              >
+                                <Circle className="w-5 text-red-600/15 h-5" />
+                              </div>
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   ))}
