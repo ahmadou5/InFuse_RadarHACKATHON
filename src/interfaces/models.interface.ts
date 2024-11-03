@@ -5,6 +5,7 @@ export interface UserInterface {
   publicKey: string;
   privateKey: string;
   mnemonic: string;
+  email: string;
 }
 
 export interface Transaction {}

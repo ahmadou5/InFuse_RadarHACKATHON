@@ -4,8 +4,8 @@ import {
   Transaction,
   SystemProgram,
   sendAndConfirmTransaction,
-  LAMPORTS_PER_SOL
-} from '@solana/web3.js';
+  LAMPORTS_PER_SOL,
+} from "@solana/web3.js";
 import {
   TOKEN_PROGRAM_ID,
   MINT_SIZE,
@@ -14,38 +14,45 @@ import {
   getAssociatedTokenAddress,
   createAssociatedTokenAccountInstruction,
   createMintToInstruction,
-} from '@solana/spl-token';
+} from "@solana/spl-token";
 import axios from "axios";
 //import { apiResponse } from "./api.helpers";
 import { Tokens } from "@/interfaces/models.interface";
 import * as bip39 from "bip39";
-import bs58 from 'bs58'
+import bs58 from "bs58";
 
 interface SeedGenerationResult {
   seedArray: Uint8Array;
   mnemonic: string;
 }
 
-export const SolConverter = (value:number) => {
-  const converted = value/LAMPORTS_PER_SOL
+export const SolConverter = (value: number) => {
+  const converted = value / LAMPORTS_PER_SOL;
   return converted;
-}
+};
 
-export const formatAddress = (value:string) => {
+export const formatAddress = (value: string) => {
   return value.substring(0, 7) + "......" + value.substring(value.length - 2);
 };
 
-
+export const formatEmail = (value: string) => {
+  return value.substring(0, 4) + "...." + value.substring(value.length - 10);
+};
 
 export async function createAndMintToken({
-  mnemonic
-}:{mnemonic:string|undefined}) {
+  mnemonic,
+}: {
+  mnemonic: string | undefined;
+}) {
   // Connect to the Solana devnet
-  const connection = new Connection('https://api.devnet.solana.com', 'confirmed');
-  if(mnemonic === undefined) return
+  const connection = new Connection(
+    "https://api.devnet.solana.com",
+    "confirmed"
+  );
+  if (mnemonic === undefined) return;
   const seed = await bip39.mnemonicToSeed(mnemonic);
-    const seedBytes = seed.slice(0, 32);
-    const payer = Keypair.fromSeed(seedBytes);
+  const seedBytes = seed.slice(0, 32);
+  const payer = Keypair.fromSeed(seedBytes);
 
   // Airdrop some SOL to the wallet for transaction fees
   //const airdropSignature = await connection.requestAirdrop(payer.publicKey, 5000000000);
@@ -98,40 +105,36 @@ export async function createAndMintToken({
   );
 
   // Send and confirm the transaction
-  const signature = await sendAndConfirmTransaction(
-    connection,
-    transaction,
-    [payer, mintKeypair]
-  );
-  
-  console.log('Transaction signature:', signature);
-  console.log('Mint address:', mintPublicKey.toBase58());
-  console.log('Associated Token Address:', associatedTokenAddress.toBase58());
-  return mintPublicKey.toBase58() 
+  const signature = await sendAndConfirmTransaction(connection, transaction, [
+    payer,
+    mintKeypair,
+  ]);
+
+  console.log("Transaction signature:", signature);
+  console.log("Mint address:", mintPublicKey.toBase58());
+  console.log("Associated Token Address:", associatedTokenAddress.toBase58());
+  return mintPublicKey.toBase58();
 }
 
 // Run the function
 
-
-
 export const getKeypair = async (userMnemonic: string) => {
   try {
-   const seed = await bip39.mnemonicToSeed(userMnemonic);
-   //console.log(seed,'seed')
-   const seedBytes = seed.slice(0, 32);
-   const account = await Keypair.fromSeed(seedBytes);
-   return account as Keypair
+    const seed = await bip39.mnemonicToSeed(userMnemonic);
+    //console.log(seed,'seed')
+    const seedBytes = seed.slice(0, 32);
+    const account = await Keypair.fromSeed(seedBytes);
+    return account as Keypair;
   } catch (error) {
-     console.log(error,'keypayr get error')
+    console.log(error, "keypayr get error");
   }
- }
+};
 
- 
-export const getKeypairFromPrivateKey = (privateKeyString: string):Keypair => {
+export const getKeypairFromPrivateKey = (privateKeyString: string): Keypair => {
   // If the private key is in base58 format, decode it
   const privateKeyBytes = bs58.decode(privateKeyString);
   return Keypair.fromSecretKey(privateKeyBytes);
-}
+};
 export const GenerateSeed = async (): Promise<SeedGenerationResult> => {
   try {
     const mnemonic = bip39.generateMnemonic();
@@ -153,8 +156,6 @@ export const GenerateSeed = async (): Promise<SeedGenerationResult> => {
   }
 };
 
-
-
 interface WalletTotals {
   totalValue: number;
   solValue: number;
@@ -164,44 +165,45 @@ interface WalletTotals {
 export const calculateWalletTotals = (
   solBalance: number | undefined,
   solPrice: number | undefined,
-  tokenBalances: {[address: string]: number},
-  tokenPrices: {[ticker: string]: number},
+  tokenBalances: { [address: string]: number },
+  tokenPrices: { [ticker: string]: number },
   tokens: Tokens[]
 ): WalletTotals => {
   // Calculate SOL va
   // Calculate SOL value
   const solValue = (solBalance ?? 0) * (solPrice ?? 0);
-  
+
   // Calculate token values
   const tokenValue = tokens.reduce((total, token) => {
     const balance = tokenBalances[token.address] ?? 0;
     const price = tokenPrices[token.token_id] ?? 0;
-    return total + (balance * price);
+    return total + balance * price;
   }, 0);
-  
+
   // Calculate total value
   const totalValue = solValue + tokenValue;
-  
+
   return {
     totalValue,
     solValue,
-    tokenValue
+    tokenValue,
   };
 };
-
 
 // The improved getTokenPrice function
 export const getTokenPrice = async (tokenId: string): Promise<number> => {
   try {
     const baseUrl = "https://api.coingecko.com/api/v3/simple/price";
-    const response = await axios.get(`${baseUrl}?ids=${tokenId}&vs_currencies=usd`);
-    
+    const response = await axios.get(
+      `${baseUrl}?ids=${tokenId}&vs_currencies=usd`
+    );
+
     const price = response.data[tokenId]?.usd;
-    
-    if (typeof price !== 'number') {
-      throw new Error('Invalid price data received');
+
+    if (typeof price !== "number") {
+      throw new Error("Invalid price data received");
     }
-    
+
     return price;
   } catch (error) {
     //console.error('Error fetching token price:', error instanceof Error ? error.message : 'Unknown error');
@@ -212,14 +214,16 @@ export const getTokenPrice = async (tokenId: string): Promise<number> => {
 export const getSolPrice = async (tokenId: string): Promise<number> => {
   try {
     const baseUrl = "https://api.coingecko.com/api/v3/simple/price";
-    const response = await axios.get(`${baseUrl}?ids=${tokenId}&vs_currencies=usd`);
-    
+    const response = await axios.get(
+      `${baseUrl}?ids=${tokenId}&vs_currencies=usd`
+    );
+
     const price = response.data[tokenId]?.usd;
-    
-    if (typeof price !== 'number') {
-      throw new Error('Invalid sol price data received');
+
+    if (typeof price !== "number") {
+      throw new Error("Invalid sol price data received");
     }
-    
+
     return price;
   } catch (error) {
     //console.error('Error fetching token price:', error instanceof Error ? error.message : 'Unknown error');
@@ -228,7 +232,9 @@ export const getSolPrice = async (tokenId: string): Promise<number> => {
 };
 
 // New function to get prices for multiple tokens
-export const getTokenPrices = async (tokenIds: string[]): Promise<Map<string, number>> => {
+export const getTokenPrices = async (
+  tokenIds: string[]
+): Promise<Map<string, number>> => {
   const tokenPrices = new Map<string, number>();
 
   try {
