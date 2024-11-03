@@ -87,7 +87,7 @@ const PrivateKey = ({
 
       {/* Private Key Display */}
       <div className="bg-gray-900 rounded-2xl mt-[50px] py-7 px-5 mb-12">
-        <p className="text-white break-all font-mono text-lg">{`${phrase}`}</p>
+        <p className="text-white/70 break-all font-mono text-lg">{`${phrase}`}</p>
       </div>
 
       {/* Copy Button */}
