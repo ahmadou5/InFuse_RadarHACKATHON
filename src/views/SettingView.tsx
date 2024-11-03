@@ -504,7 +504,7 @@ export const SettingView = () => {
       )}
       {setting && (
         <>
-          <div className="bg-gothic-950/0 mt-0 flex bg-slate-600/0 py-2 text-white/70 mb-2 flex-col w-[100%] h-auto">
+          <div className="bg-gothic-950/0 mt-0 max-h-screen flex bg-slate-600/0 py-2 text-white/70 mb-2 flex-col w-[100%] h-auto">
             <div className="flex items-center justify-between px-4 py-3">
               <div
                 onClick={() => router.push("/wallet")}
