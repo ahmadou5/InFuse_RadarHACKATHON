@@ -72,7 +72,7 @@ const PrivateKey = ({
   };
 
   return (
-    <div className="mt-[70px] p-6 rounded-lg max-w-md mx-auto">
+    <div className="mt-[70px] max-h-screen p-6 rounded-lg max-w-md mx-auto">
       {/* Warning Message */}
       <div className="bg-red-950/30 rounded-lg p-4 mb-6">
         <h2 className="text-red-500/40 font-bold text-center text-xl mb-2">
@@ -156,7 +156,7 @@ const RecoveryPhrase = ({
   const words = phrase.split(" ");
 
   return (
-    <div className="mt-[20px] p-6 rounded-lg max-w-md mx-auto">
+    <div className="mt-[20px] p-6 max-h-screen rounded-lg max-w-md mx-auto">
       {/* Warning Message */}
       <div className="bg-red-950/25 rounded-lg p-4 mb-6">
         <h2 className="text-red-500/40 font-bold text-center text-lg mb-2">
