@@ -156,10 +156,10 @@ const RecoveryPhrase = ({
   const words = phrase.split(" ");
 
   return (
-    <div className="mt-[50px] p-6 rounded-lg max-w-md mx-auto">
+    <div className="mt-[20px] p-6 rounded-lg max-w-md mx-auto">
       {/* Warning Message */}
       <div className="bg-red-950/25 rounded-lg p-4 mb-6">
-        <h2 className="text-red-500/40 font-bold text-center text-xl mb-2">
+        <h2 className="text-red-500/40 font-bold text-center text-lg mb-2">
           Do <span className="underline">not</span> share your{" "}
           <span className="text-white/75">Secret Phrases!</span>
         </h2>
@@ -515,7 +515,7 @@ export const SettingView = () => {
               </div>
             </div>
 
-            <div className="w-[98%] mt-2 py-2 px-2 h-auto mb-20 rounded-md bg-black/0">
+            <div className="w-[98%] ml-auto mr-auto mt-2 py-2 px-2 h-auto mb-20 rounded-md bg-black/0">
               <div className="w-[97%] h-[60px] rounded-xl bg-slate-500/15 ml-auto mr-auto">
                 <div
                   onClick={() => {
@@ -614,7 +614,7 @@ export const SettingView = () => {
               <MoreVertical className="w-6 h-6" />
             </div>
 
-            <div className="w-[98%] mt-2 py-2 px-2 h-auto mb-20 rounded-md bg-black/0">
+            <div className="w-[98%] mt-2 py-2 px-2 ml-auto mr-auto h-auto mb-20 rounded-md bg-black/0">
               <div className="w-[97%] h-[60px] rounded-xl bg-slate-500/15 ml-auto mr-auto">
                 <div
                   onClick={() => setAccount(true)}
