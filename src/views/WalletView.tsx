@@ -189,7 +189,7 @@ export const WalletView = () => {
   const { network } = useNetwork();
   const [activeTab, setActiveTab] = useState("tokens");
   const router = useRouter();
-  const connection = new Connection(clusterApiUrl("devnet"), {
+  const connection = new Connection(network.rpcUrl || clusterApiUrl("devnet"), {
     commitment: "confirmed",
   });
   const scanner = useQRScanner(false);
@@ -363,7 +363,7 @@ export const WalletView = () => {
       <div className="bg-gothic-950/0 mt-3 flex items-center justify-center w-[100%] h-auto">
         <div className="bg-gothic-300/0 w-[90%] flex items-center justify-center rounded-3xl h-[100px]">
           <div
-            onClick={() => router.push(`/send/solana`)}
+            onClick={() => router.push(`/send/${network.name.toLowerCase()}`)}
             className="text-xl bg-white/10  border-[#448cff]/25 flex flex-col items-center justify-center rounded-3xl h-20 w-20 ml-auto mr-auto  text-white/60"
           >
             <img
@@ -381,7 +381,7 @@ export const WalletView = () => {
             />
           </div>
           <div
-            onClick={() => router.push("/ramp/solana")}
+            onClick={() => router.push(`/ramp/${network?.name?.toLowerCase()}`)}
             className="text-3xl  bg-white/10 flex flex-col items-center justify-center rounded-3xl h-20 w-20 ml-auto mr-auto  text-white/60"
           >
             <img
@@ -394,20 +394,32 @@ export const WalletView = () => {
 
       <div className="bg-gothic-950/0 mt-8 flex flex-col items-center justify-center w-[100%] h-auto">
         <div className="flex justify-around mb-6 bg-white/0 bg-opacity-10 rounded-xl p-1">
-          {["Tokens", "Compressed"].map((tab) => (
-            <button
-              key={tab}
-              className={`flex-1 py-2 px-6 w-[130px] rounded-xl ml-2 mr-2 text-sm font-medium ${
-                activeTab.toLowerCase() === tab.toLowerCase()
-                  ? "bg-white/10 bg-opacity-20 text-white"
-                  : "text-gray-400 hover:text-white"
-              }`}
-              onClick={() => setActiveTab(tab.toLowerCase())}
-            >
-              {tab}
-            </button>
-          ))}
+          {network.name === "SOLANA" &&
+            ["Tokens", "Compressed"].map((tab) => (
+              <button
+                key={tab}
+                className={`flex-1 py-2 px-6 w-[130px] rounded-xl ml-2 mr-2 text-sm font-medium ${
+                  activeTab.toLowerCase() === tab.toLowerCase()
+                    ? "bg-white/10 bg-opacity-20 text-white"
+                    : "text-gray-400 hover:text-white"
+                }`}
+                onClick={() => setActiveTab(tab.toLowerCase())}
+              >
+                {tab}
+              </button>
+            ))}
+          {network.name !== "SOLANA" &&
+            ["Tokens"].map((tab) => (
+              <button
+                key={tab}
+                className={`flex-1 py-2 px-6 w-[130px] rounded-xl ml-2 mr-2 text-sm font-medium "bg-white/10 bg-opacity-20 text-white"}`}
+                onClick={() => setActiveTab(tab.toLowerCase())}
+              >
+                {tab}
+              </button>
+            ))}
         </div>
+
         {activeTab === "tokens" ? (
           <>
             <TokenItem
@@ -424,7 +436,9 @@ export const WalletView = () => {
               }}
               balance={solBalance}
               price={solPrice}
-              onClick={() => router.push("/token/solana")}
+              onClick={() =>
+                router.push(`/token/${network.native?.name.toLowerCase()}`)
+              }
             />
             {tokens.map((token, i) => (
               <TokenItem

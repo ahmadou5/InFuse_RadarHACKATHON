@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { Tokens } from "@/interfaces/models.interface";
 import { TokenService } from "@/lib/services/TokenServices";
+import { useNetwork } from "@/context/NetworkContext";
+
 interface TokenProps {
   tokenId: string;
   tokenSymbol: string;
@@ -14,7 +16,8 @@ export const TokenDetails = ({ tokenId }: TokenProps) => {
     circulatingSupply: 0,
   });
   const [token1Info, setToken1Info] = useState<Tokens[]>([]);
-  
+  const { network } = useNetwork();
+
   const getTokenInfo = async (slug: string) => {
     try {
       //console.log("token etails");
@@ -54,7 +57,7 @@ export const TokenDetails = ({ tokenId }: TokenProps) => {
     };
 
     fetchTokenInfo();
-    getTokenInfo(tokenId)
+    getTokenInfo(tokenId);
   }, [tokenId]);
   return (
     <div className="w-[100%]">
@@ -85,7 +88,10 @@ export const TokenDetails = ({ tokenId }: TokenProps) => {
                 <div className="bg-white/20 h-4 w-16 mb-2 animate-pulse rounded"></div>
               ) : (
                 <span>
-                  {`${formatNumber(tokenInfo.circulatingSupply)}`} {tokenId[0] === 'solana' ? 'SOL' : token1Info[0]?.ticker}
+                  {`${formatNumber(tokenInfo.circulatingSupply)}`}{" "}
+                  {tokenId[0] === network.native?.name.toLowerCase()
+                    ? network.native?.ticker
+                    : token1Info[0]?.ticker}
                 </span>
               )}
             </div>

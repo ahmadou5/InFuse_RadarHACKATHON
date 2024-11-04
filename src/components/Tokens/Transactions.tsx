@@ -3,12 +3,14 @@ import { getSolanaTransactions } from "@/lib/solana.lib";
 import { useAuth } from "@/context/AuthContext";
 //import { TransactionDetails } from "@/interfaces/models.interface";
 import { useEffect, useState } from "react";
-import { ENV } from "@/lib/constant/env.constant";
+//import { ENV } from "@/lib/constant/env.constant";
 import { ArrowUp01, ArrowDown01 } from "lucide-react";
 import { formatAddress } from "@/lib/helper.lib";
 import { getSPLTokenTransactions } from "@/lib/spl.lib";
+
 //yimport { Tokens } from "@/interfaces/models.interface";
 import { TokenService } from "@/lib/services/TokenServices";
+import { useNetwork } from "@/context/NetworkContext";
 //import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 
 export interface TransactionData {
@@ -36,16 +38,16 @@ export const Transactions = ({ tokenId }: { tokenId: string }) => {
   //const [tokenInfo, setTokenInfo] = useState<Tokens[]>([]);
   const [activeTab, setActiveTab] = useState("Received");
   const { user } = useAuth();
-
+  const { network } = useNetwork();
   const getUserTx = async () => {
     try {
-      if (tokenId[0] === "solana") {
+      if (tokenId[0] === network.name.toLowerCase()) {
         if (!user) return;
         console.log("what the f");
 
         const trx = await getSolanaTransactions(user.publicKey, {
           limit: 100 | 0,
-          cluster: ENV.SOL_DEVNET_RPC,
+          cluster: network.rpcUrl,
         });
         setUserSentTxn(trx.filters.sent());
         setUserReceiveTxn(trx.filters.received());
@@ -57,7 +59,7 @@ export const Transactions = ({ tokenId }: { tokenId: string }) => {
           //console.log(response.data[0].address);
           const trx = await getSPLTokenTransactions(user.publicKey, {
             limit: 100 | 0,
-            cluster: ENV.SOL_DEVNET_RPC,
+            cluster: network.rpcUrl,
             mintAddress: response?.data[0]?.address,
           });
           console.log("spl data", trx);

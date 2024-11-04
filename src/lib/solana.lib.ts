@@ -18,6 +18,7 @@ import * as bip39 from "bip39";
 import { GenerateSeed, getSolPrice } from "./helper.lib";
 import { TransactionDetails } from "@/interfaces/models.interface";
 import bs58 from "bs58";
+//import { useNetwork } from "@/context/NetworkContext";
 
 // Constants
 
@@ -472,11 +473,19 @@ export const createSolanaWallet = async () => {
 };
 
 export const importSolanaWallet = async ({
-  seedPhrase,
+  privateKey,
 }: {
-  seedPhrase: string;
+  privateKey: string;
 }) => {
-  console.log(seedPhrase);
+  try {
+    const decode = bs58.decode(privateKey);
+    const account = await Keypair.fromSecretKey(decode);
+    publickey = account.publicKey.toString();
+    privateKey = account.publicKey;
+
+    return;
+  } catch (error) {}
+  console.log(privateKey);
 };
 
 export const GetUserReceiveTransaction = async (

@@ -1,5 +1,5 @@
 "use client";
-import { ArrowLeft, ChevronRight, Circle, CheckCircle2 } from "lucide-react";
+import { ChevronRight, Circle, CheckCircle2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { formatAddress, formatEmail } from "@/lib/helper.lib";
@@ -19,7 +19,7 @@ const ConnectedApps = ({
   setOld: React.Dispatch<React.SetStateAction<boolean>>;
 }) => {
   return (
-    <div className="flex flex-col w-[100%] h-screen text-white">
+    <div className="flex flex-col w-[100%] h-screen text-white/75">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3">
         <div
@@ -32,7 +32,6 @@ const ConnectedApps = ({
           <ChevronLeft className="w-6 h-6 mr-4" />
           <h1 className="text-xl font-medium">Connected Apps</h1>
         </div>
-        <MoreVertical className="w-6 h-6" />
       </div>
 
       {/* Connected Apps List */}
@@ -72,10 +71,10 @@ const PrivateKey = ({
   };
 
   return (
-    <div className="mt-[70px] max-h-screen p-6 rounded-lg max-w-md mx-auto">
+    <div className="mt-[20px] max-h-screen p-4 rounded-lg max-w-md mx-auto">
       {/* Warning Message */}
       <div className="bg-red-950/30 rounded-lg p-4 mb-6">
-        <h2 className="text-red-500/40 font-bold text-center text-xl mb-2">
+        <h2 className="text-red-500/40 font-bold text-center text-lg mb-2">
           Do <span className="underline">not</span> share your{" "}
           <span className="text-white/75">Private Key!</span>
         </h2>
@@ -86,7 +85,7 @@ const PrivateKey = ({
       </div>
 
       {/* Private Key Display */}
-      <div className="bg-gray-900 rounded-2xl mt-[50px] py-7 px-5 mb-12">
+      <div className="bg-gray-900 rounded-2xl mt-[40px] py-7 px-5 mb-12">
         <p className="text-white/70 break-all font-mono text-lg">{`${phrase}`}</p>
       </div>
 
@@ -158,7 +157,7 @@ const RecoveryPhrase = ({
   return (
     <div className="mt-[20px] p-6 max-h-screen rounded-lg max-w-md mx-auto">
       {/* Warning Message */}
-      <div className="bg-red-950/25 rounded-lg p-4 mb-6">
+      <div className="bg-red-950/25 rounded-lg p-4 mb-4">
         <h2 className="text-red-500/40 font-bold text-center text-lg mb-2">
           Do <span className="underline">not</span> share your{" "}
           <span className="text-white/75">Secret Phrases!</span>
@@ -170,7 +169,7 @@ const RecoveryPhrase = ({
       </div>
 
       {/* Words Grid */}
-      <div className="grid grid-cols-2 gap-3 mb-5">
+      <div className="grid grid-cols-2 gap-3 mb-4">
         {words.map((word, index) => (
           <div
             key={index}
@@ -243,6 +242,26 @@ export const SettingView = () => {
   const { setActiveChain, network } = useNetwork();
   const { user } = useAuth();
   const router = useRouter();
+
+  const handleSwitchTestnet = () => {
+    try {
+      if (!network.isTestNet) {
+        const testnet = networkList
+          .filter((network) => network.isTestNet === true)
+          .find((item) => item.name === network.name);
+        setActiveChain(testnet || network);
+        toast.success("Switched to devnet");
+      } else {
+        const mainnet = networkList
+          .filter((network) => network.isTestNet === false)
+          .find((item) => item.name === network.name);
+        setActiveChain(mainnet || network);
+        toast.success("Switch to mainnet");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
   return (
     <>
       {privateView && (
@@ -262,7 +281,7 @@ export const SettingView = () => {
       {about && (
         <>
           <div className="bg-gothic-950/0 mt-0 flex bg-slate-600/0 py-1 text-white/70 mb-2 flex-col  w-[100%] h-auto">
-            <div className="flex items-center justify-between px-4 py-3">
+            <div className="flex items-center justify-between px-4 py-2">
               <div
                 onClick={() => {
                   //setAccount(false);
@@ -274,7 +293,6 @@ export const SettingView = () => {
                 <ChevronLeft className="w-6 h-6 mr-4" />
                 <h1 className="text-xl font-medium">About</h1>
               </div>
-              <MoreVertical className="w-6 h-6" />
             </div>
 
             <div className="w-[98%] mt-2 py-2 px-2 h-auto mb-20 rounded-md bg-black/0">
@@ -294,8 +312,8 @@ export const SettingView = () => {
       {connect && <ConnectedApps setOld={setSetting} setView={setConnect} />}
       {networks && (
         <>
-          <div className="bg-gothic-950/0 mt-0 flex bg-slate-600/0 py-2 text-white/70 mb-2 flex-col  w-[100%] h-auto">
-            <div className="flex items-center justify-between px-4 py-3">
+          <div className="bg-gothic-950/0 mt-0 flex bg-slate-600/0 py-1 text-white/75 mb-1 flex-col  w-[100%] h-auto">
+            <div className="flex items-center justify-between px-4 py-2">
               <div
                 onClick={() => {
                   setNetworks(false);
@@ -306,7 +324,6 @@ export const SettingView = () => {
                 <ChevronLeft className="w-6 h-6 mr-4" />
                 <h1 className="text-xl font-medium">Active Networks</h1>
               </div>
-              <MoreVertical className="w-6 h-6" />
             </div>
 
             <div className="w-[98%] mt-2 py-2 px-2 h-auto mb-20 rounded-md bg-black/0">
@@ -370,66 +387,29 @@ export const SettingView = () => {
       )}
       {community && (
         <>
-          <div className="bg-gothic-950/0 mt-1 flex bg-slate-600/0 py-2 text-white/70 mb-2 flex-col items-center justify-center w-[100%] h-auto">
-            <div className=" bg-slate-50/0 mb-[20px] w-[100%] px-2 flex  ">
+          <div className="bg-gothic-950/0 mt-1 flex bg-slate-600/0 py-1 text-white/70 mb-1 flex-col w-[100%] h-auto">
+            <div className="flex items-center justify-between px-4 py-1">
               <div
                 onClick={() => {
                   setCommunity(false);
                   setSetting(true);
                 }}
-                className="bg-white/5 flex items-center justify-center w-11 rounded-full ml-1 mr-auto h-10"
+                className="flex items-center"
               >
-                <ArrowLeft className="font-bold text-xl" />
-              </div>
-              <div className="ml-auto mt-1.5 mr-[45%]">
-                <p className="text-white text-[16px] font-bold">Community</p>
+                <ChevronLeft className="w-6 h-6 mr-4" />
+                <h1 className="text-xl font-medium">Community</h1>
               </div>
             </div>
 
-            <div className="w-[98%] mt-2 py-2 px-2 h-auto mb-20 rounded-md bg-black/0">
+            <div className="w-[98%] mt-2 py-2 ml-auto mr-auto px-2 h-auto mb-20 rounded-md bg-black/0">
               <div className="w-[97%] h-[60px] rounded-xl bg-slate-500/15 ml-auto mr-auto">
                 <div
                   onClick={() => setAccount(true)}
                   className="w-[100%] py-4 px-5 flex"
                 >
-                  <p className="text-[18px] ">Account</p>
+                  <p className="text-[18px] ">X account</p>
                   <ChevronRight className="text-xl ml-auto mr-2 mt-0.5" />
                 </div>
-              </div>
-              <div className="w-[97%] h-[130px] mt-4 rounded-xl bg-slate-500/15 ml-auto mr-auto">
-                <div className="w-[100%] py-4 px-5 flex">
-                  <p className="text-[18px] ">Active Networks</p>
-                  <ChevronRight className="text-xl ml-auto mr-2 mt-0.5" />
-                </div>
-                <div className="h-0.5 w-[91%] mt-0.5 mb-0.5 ml-auto mr-auto bg-white/20"></div>
-                <div className="w-[100%] py-4 px-5 flex">
-                  <p className="text-[18px] ">Connected Apps</p>
-                  <ChevronRight className="text-xl ml-auto mr-2 mt-0.5" />
-                </div>
-              </div>
-              <div className="w-[97%] mt-4 h-[60px] rounded-xl bg-slate-500/15 ml-auto mr-auto">
-                <div className="w-[100%] py-4 px-5 flex">
-                  <p className="text-[18px] ">Developers Options</p>
-                  <ChevronRight className="text-xl ml-auto mr-2 mt-0.5" />
-                </div>
-              </div>
-              <div className="w-[97%] h-[130px] mt-4 rounded-xl bg-slate-500/15 ml-auto mr-auto">
-                <div className="w-[100%] py-4 px-5 flex">
-                  <p className="text-[18px] ">Community</p>
-                  <ChevronRight className="text-xl ml-auto mr-2 mt-0.5" />
-                </div>
-                <div className="h-0.5 w-[91%] mt-0.5 mb-0.5 ml-auto mr-auto bg-white/20"></div>
-                <div className="w-[100%] py-4 px-5 flex">
-                  <p className="text-[18px] ">About</p>
-                  <ChevronRight className="text-xl ml-auto mr-2 mt-0.5" />
-                </div>
-              </div>
-              <div className="flex flex-col mt-20 items-center justify-center">
-                <img src="/assets/show.png" className="h-12 w-12" />
-                <p className="text-[21px] text-white/95 font-semibold">
-                  InFuse Wallet
-                </p>
-                <p>version 1.8.8</p>
               </div>
             </div>
           </div>
@@ -437,75 +417,73 @@ export const SettingView = () => {
       )}
       {options && (
         <>
-          <div className="bg-gothic-950/0 mt-1 flex bg-slate-600/0 py-2 text-white/70 mb-2 flex-col items-center justify-center w-[100%] h-auto">
-            <div className=" bg-slate-50/0 mb-[20px] w-[100%] px-2 flex  ">
+          <div className="bg-gothic-950/0 mt-1 flex bg-slate-600/0 py-1 text-white/70 mb-1 flex-col w-[100%] h-auto">
+            <div className="flex items-center justify-between px-4 py-1">
               <div
                 onClick={() => {
                   setOptions(false);
                   setSetting(true);
                 }}
-                className="bg-white/5 flex items-center justify-center w-11 rounded-full ml-1 mr-auto h-10"
+                className="flex items-center"
               >
-                <ArrowLeft className="font-bold text-xl" />
-              </div>
-              <div className="ml-auto mt-1.5 mr-[45%]">
-                <p className="text-white text-[16px] font-bold">Option</p>
+                <ChevronLeft className="w-6 h-6 mr-4" />
+                <h1 className="text-xl font-medium">Developers option</h1>
               </div>
             </div>
 
-            <div className="w-[98%] mt-2 py-2 px-2 h-auto mb-20 rounded-md bg-black/0">
-              <div className="w-[97%] h-[60px] rounded-xl bg-slate-500/15 ml-auto mr-auto">
+            <div className="w-[98%] mt-2 py-1 ml-auto mr-auto px-2 h-auto mb-20 rounded-md bg-black/0">
+              <div className="w-[97%] h-[66px] rounded-xl bg-slate-500/15 ml-auto mr-auto">
                 <div
-                  onClick={() => setAccount(true)}
-                  className="w-[100%] py-4 px-5 flex"
+                  //onClick={() => setAccount(true)}
+                  className="w-[100%] py-2 px-4 flex"
                 >
-                  <p className="text-[18px] ">Account</p>
-                  <ChevronRight className="text-xl ml-auto mr-2 mt-0.5" />
+                  <p className="text-[18px] flex items-center justify-center ">
+                    Testnet Mode
+                  </p>
+                  {/** switcher */}
+                  <div
+                    className="flex ml-auto mr-0.5 justify-center items-center bg-gray-200/10 rounded-full p-2 w-20 cursor-pointer"
+                    onClick={() => handleSwitchTestnet()}
+                  >
+                    <div
+                      className={`flex items-center justify-center w-full relative h-8 ${
+                        network.isTestNet ? "" : "flex-row-reverse"
+                      }`}
+                    >
+                      {/* Background slider */}
+                      <div
+                        className={`absolute w-1/2 h-full bg-white/30 rounded-full shadow-md transition-transform duration-200 ease-in-out
+            ${network.isTestNet ? "left-0" : "left-1/2"}`}
+                      />
+
+                      {/* Icons */}
+                      <div className="relative flex w-full">
+                        <div
+                          className={`flex-1 flex justify-center z-10 transition-colors duration-200 
+            ${network.isTestNet ? "text-green-500" : "text-gray-400"}`}
+                        >
+                          <CheckCircle2 className="w-5 h-5" />
+                        </div>
+                        <div
+                          className={`flex-1 flex justify-center z-10 transition-colors duration-200 
+            ${network.isTestNet ? "text-gray-500" : "text-gray-400"}`}
+                        >
+                          <Circle className="w-5 text-red-600/15 h-5" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              </div>
-              <div className="w-[97%] h-[130px] mt-4 rounded-xl bg-slate-500/15 ml-auto mr-auto">
-                <div className="w-[100%] py-4 px-5 flex">
-                  <p className="text-[18px] ">Active Networks</p>
-                  <ChevronRight className="text-xl ml-auto mr-2 mt-0.5" />
-                </div>
-                <div className="h-0.5 w-[91%] mt-0.5 mb-0.5 ml-auto mr-auto bg-white/20"></div>
-                <div className="w-[100%] py-4 px-5 flex">
-                  <p className="text-[18px] ">Connected Apps</p>
-                  <ChevronRight className="text-xl ml-auto mr-2 mt-0.5" />
-                </div>
-              </div>
-              <div className="w-[97%] mt-4 h-[60px] rounded-xl bg-slate-500/15 ml-auto mr-auto">
-                <div className="w-[100%] py-4 px-5 flex">
-                  <p className="text-[18px] ">Developers Options</p>
-                  <ChevronRight className="text-xl ml-auto mr-2 mt-0.5" />
-                </div>
-              </div>
-              <div className="w-[97%] h-[130px] mt-4 rounded-xl bg-slate-500/15 ml-auto mr-auto">
-                <div className="w-[100%] py-4 px-5 flex">
-                  <p className="text-[18px] ">Community</p>
-                  <ChevronRight className="text-xl ml-auto mr-2 mt-0.5" />
-                </div>
-                <div className="h-0.5 w-[91%] mt-0.5 mb-0.5 ml-auto mr-auto bg-white/20"></div>
-                <div className="w-[100%] py-4 px-5 flex">
-                  <p className="text-[18px] ">About</p>
-                  <ChevronRight className="text-xl ml-auto mr-2 mt-0.5" />
-                </div>
-              </div>
-              <div className="flex flex-col mt-20 items-center justify-center">
-                <img src="/assets/show.png" className="h-12 w-12" />
-                <p className="text-[21px] text-white/95 font-semibold">
-                  InFuse Wallet
-                </p>
-                <p>version 1.8.8</p>
               </div>
             </div>
+            <Toaster />
           </div>
         </>
       )}
       {setting && (
         <>
-          <div className="bg-gothic-950/0 mt-0 max-h-screen flex bg-slate-600/0 py-2 text-white/70 mb-2 flex-col w-[100%] h-auto">
-            <div className="flex items-center justify-between px-4 py-3">
+          <div className="bg-gothic-950/0 mt-0 max-h-screen flex bg-slate-600/0 py-1 text-white/70 mb-2 flex-col w-[100%] h-auto">
+            <div className="flex items-center justify-between px-4 py-2">
               <div
                 onClick={() => router.push("/wallet")}
                 className="flex items-center"
@@ -599,8 +577,8 @@ export const SettingView = () => {
       )}
       {account && (
         <>
-          <div className="bg-gothic-950/0 mt-0 flex bg-slate-600/0 py-2 text-white/70 mb-2 flex-col w-[100%] h-auto">
-            <div className="flex items-center justify-between px-4 py-3">
+          <div className="bg-gothic-950/0 mt-0 flex bg-slate-600/0 py-1 text-white/70 mb-2 flex-col w-[100%] h-auto">
+            <div className="flex items-center justify-between px-4 py-2">
               <div
                 onClick={() => {
                   setAccount(false);
@@ -620,7 +598,7 @@ export const SettingView = () => {
                   onClick={() => setAccount(true)}
                   className="w-[100%] py-4 px-5 flex"
                 >
-                  <p className="text-[18px] ">Account Owner</p>
+                  <p className="text-[18px] ">Account</p>
                   <p className="flex text-white/30 text-[17px] ml-auto mr-2 items-center justify-center">
                     {user?.username?.toLowerCase() || ""}
                   </p>

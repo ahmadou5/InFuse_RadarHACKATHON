@@ -7,6 +7,7 @@ import { Connection, clusterApiUrl, PublicKey } from "@solana/web3.js";
 import { SolConverter } from "@/lib/helper.lib";
 import { useAuth } from "@/context/AuthContext";
 import { getSplTokenBalance } from "@/lib/solana.lib";
+import { useNetwork } from "@/context/NetworkContext";
 
 interface TopProps {
   tokenId: string;
@@ -14,9 +15,10 @@ interface TopProps {
 
 export const Top = ({ tokenId }: TopProps) => {
   const { user } = useAuth();
+  const { network } = useNetwork();
   const [userBalance, setUserBalance] = useState<number>();
   const [tokenInfo, setTokenInfo] = useState<Tokens[]>([]);
-  const connection = new Connection(clusterApiUrl("devnet"), {
+  const connection = new Connection(network.rpcUrl || clusterApiUrl("devnet"), {
     commitment: "confirmed",
   });
 
@@ -46,9 +48,9 @@ export const Top = ({ tokenId }: TopProps) => {
 
   const fetchBalances = async (address: string) => {
     try {
-      //console.log('gettin bal')
-      console.log(tokenInfo[0], "shineee");
-      if (tokenId[0] === "solana") {
+      console.log("gettin bal");
+      console.log(tokenId[0], "shineee");
+      if (tokenId[0] === network.native?.token_id) {
         if (!user) return;
         let userPubKey: PublicKey;
         try {
@@ -59,7 +61,7 @@ export const Top = ({ tokenId }: TopProps) => {
 
         const balance = await connection.getBalance(userPubKey);
         setUserBalance(balance);
-        //console.log(balance,'hhhhh');
+        console.log(balance, "hhhhh");
       } else {
         //console.log('spl ne waannan',address,)
         if (!user) return;
@@ -102,17 +104,19 @@ export const Top = ({ tokenId }: TopProps) => {
           <ArrowLeft className="font-bold text-xl" />
         </div>
         <div className="ml-auto text-lg mt-2 mr-[41%]">
-          {tokenId[0] === "solana" ? "SOLANA" : tokenInfo[0]?.name}
+          {tokenId[0] === network.native?.name.toLowerCase()
+            ? network.native.name
+            : tokenInfo[0]?.name}
         </div>
       </div>
       <div className=" bg-slate-50/0 mb-[20px] py-2 px-2 h-[80px] w-[100%] flex  ">
-        {tokenId[0] === "solana" ? (
+        {tokenId[0] === network.native?.name.toLowerCase() ? (
           <div className="bg-white/5 flex items-center ml-7 justify-center w-[70px] rounded-full h-[70px]">
             <img
               className="rounded-full w-[98%] h-[98%]"
               src={
-                tokenId[0] === "solana"
-                  ? "https://solana-wallet-orcin.vercel.app/assets/5426.png"
+                tokenId[0] === network.native?.name.toLowerCase()
+                  ? network.native?.logoUrl
                   : tokenInfo[0]?.logoUrl
               }
             />
@@ -126,8 +130,8 @@ export const Top = ({ tokenId }: TopProps) => {
                 <img
                   className="rounded-full w-[98%] h-[98%]"
                   src={
-                    tokenId === "solana"
-                      ? "https://solana-wallet-orcin.vercel.app/assets/5426.png"
+                    tokenId === network.native?.name.toLowerCase()
+                      ? network.native?.logoUrl
                       : tokenInfo[0]?.logoUrl
                   }
                 />
@@ -137,7 +141,7 @@ export const Top = ({ tokenId }: TopProps) => {
         )}
 
         <div className="ml-auto text-xl font-bold mt-8 mr-2">
-          {tokenId[0] === "solana" ? (
+          {tokenId[0] === network.native?.name.toLowerCase() ? (
             <div className="flex">
               {" "}
               <p className="ml-2 text-4xl mr-2">{`${
@@ -148,7 +152,9 @@ export const Top = ({ tokenId }: TopProps) => {
                 )
               }`}</p>
               <p className="mt-3">{` ${
-                tokenId[0] === "solana" ? "SOL" : tokenInfo[0]?.name
+                tokenId[0] === network.native?.name.toLowerCase()
+                  ? network.native?.ticker
+                  : tokenInfo[0]?.name
               }`}</p>
             </div>
           ) : (
@@ -166,7 +172,11 @@ export const Top = ({ tokenId }: TopProps) => {
                     )
                   }`}</p>
                   <p className="mt-[11px]">
-                    {` ${tokenId[0] === "solana" ? "SOL" : tokenInfo[0]?.name}`}
+                    {` ${
+                      tokenId[0] === network.native?.name.toLowerCase()
+                        ? network.native?.ticker
+                        : tokenInfo[0]?.name
+                    }`}
                   </p>
                 </div>
               )}

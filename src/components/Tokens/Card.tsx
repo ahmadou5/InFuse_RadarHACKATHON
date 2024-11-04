@@ -9,10 +9,13 @@ import { SpinningCircles } from "react-loading-icons";
 import { useAuth } from "@/context/AuthContext";
 import { compressToken } from "@/lib/compressed.lib";
 import toast, { Toaster } from "react-hot-toast";
+
 import { createAndMintToken } from "@/lib/helper.lib";
+import { useNetwork } from "@/context/NetworkContext";
 
 export const Card = ({ tokenId }: { tokenId: string }) => {
   const { user } = useAuth();
+  const { network } = useNetwork();
   const { setIsCompressed } = useMini();
   const [amount, setAmount] = useState<number>(0);
   //const [mintAu,setMintAu] = useState<string>('')
@@ -22,9 +25,12 @@ export const Card = ({ tokenId }: { tokenId: string }) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [tokenInfo, setTokenInfo] = useState<Tokens[]>([]);
 
-  const connection = new Connection(clusterApiUrl("devnet"), {
-    commitment: "confirmed",
-  });
+  const connection = new Connection(
+    !network.isEVM ? network.rpcUrl || "" : clusterApiUrl("devnet"),
+    {
+      commitment: "confirmed",
+    }
+  );
   console.log(tokenBalance);
   const getTokenInfo = async (slug: string) => {
     try {
