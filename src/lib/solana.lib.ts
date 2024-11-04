@@ -218,6 +218,7 @@ export async function getSolanaTransactions(
 
 interface HandleSendSolParams {
   receiveAddress: string;
+  connection: Connection;
   userMnemonic: string;
   amount: string | number;
 }
@@ -225,6 +226,7 @@ interface HandleSendSolParams {
 export const handleSendSol = async ({
   receiveAddress,
   userMnemonic,
+  connection,
   amount,
 }: HandleSendSolParams) => {
   try {
@@ -240,8 +242,6 @@ export const handleSendSol = async ({
     const seed = await bip39.mnemonicToSeed(userMnemonic);
     const seedBytes = seed.slice(0, 32);
     const account = Keypair.fromSeed(seedBytes);
-
-    const connection = new Connection(clusterApiUrl("devnet"), "confirmed");
 
     const { blockhash } = await connection.getLatestBlockhash();
 
@@ -477,14 +477,20 @@ export const importSolanaWallet = async ({
 }: {
   privateKey: string;
 }) => {
-  try {
+  {
+    /**try {
     const decode = bs58.decode(privateKey);
     const account = await Keypair.fromSecretKey(decode);
-    publickey = account.publicKey.toString();
-    privateKey = account.publicKey;
+    const publickey = account.publicKey.toString();
+    const privatekey = account.publicKey.toString();
+    
 
-    return;
-  } catch (error) {}
+    return { publickey, privatekey};
+  } catch (error) {
+    console.log(error)
+  }
+  **/
+  }
   console.log(privateKey);
 };
 
