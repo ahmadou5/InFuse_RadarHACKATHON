@@ -16,7 +16,7 @@ import { getTokenPrice } from "@/lib/helper.lib";
 import { useAuth } from "@/context/AuthContext";
 import { TokenService } from "@/lib/services/TokenServices";
 import { Tokens } from "@/interfaces/models.interface";
-
+import { useNetwork } from "@/context/NetworkContext";
 export const SendView = ({ slug }: { slug: string }) => {
   const [loading, setIsLoading] = useState<boolean>(false);
   const [isTxSuccess, setIsTxSuccess] = useState<boolean>(false);
@@ -30,16 +30,19 @@ export const SendView = ({ slug }: { slug: string }) => {
   const [hash, setHash] = useState<string | undefined>("");
   const amountRef = useRef<HTMLInputElement>(null);
 
-  //const router = useRouter()
+  const { network } = useNetwork();
   const { user } = useAuth();
   const scanner = useQRScanner();
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setReceiveAddress(event.target.value);
   };
 
-  const connection = new Connection(clusterApiUrl("devnet"), {
-    commitment: "confirmed",
-  });
+  const connection = new Connection(
+    network?.rpcUrl || clusterApiUrl("devnet"),
+    {
+      commitment: "confirmed",
+    }
+  );
 
   const getTokenInfo = async (slug: string) => {
     try {
@@ -160,6 +163,7 @@ export const SendView = ({ slug }: { slug: string }) => {
 
         console.log("Sending transaction...");
         const trx = await handleSendSol({
+          connection: connection,
           receiveAddress: receiveAddress,
           userMnemonic: mnemonic,
           amount: amount,
