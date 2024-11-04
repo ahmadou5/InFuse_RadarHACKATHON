@@ -16,6 +16,9 @@ export interface Tokens {
   ticker: string;
   logoUrl: string;
   token_id: string;
+  chain: string;
+  isEvm: boolean;
+  isMainnet: boolean;
   owner: string;
   compress_address: string;
 }
