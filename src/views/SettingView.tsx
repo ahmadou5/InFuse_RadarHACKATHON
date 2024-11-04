@@ -312,7 +312,7 @@ export const SettingView = () => {
             <div className="w-[98%] mt-2 py-2 px-2 h-auto mb-20 rounded-md bg-black/0">
               {networkList &&
                 networkList
-                  .filter((network) => network.isTestNet === false)
+                  .filter((network) => network.isTestNet === true)
                   .map((item, i) => (
                     <div
                       key={i}

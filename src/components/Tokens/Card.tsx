@@ -11,34 +11,32 @@ import { compressToken } from "@/lib/compressed.lib";
 import toast, { Toaster } from "react-hot-toast";
 import { createAndMintToken } from "@/lib/helper.lib";
 
-
 export const Card = ({ tokenId }: { tokenId: string }) => {
-  const {user} = useAuth()
+  const { user } = useAuth();
   const { setIsCompressed } = useMini();
-  const [amount,setAmount] = useState<number>(0)
+  const [amount, setAmount] = useState<number>(0);
   //const [mintAu,setMintAu] = useState<string>('')
   //const [mintAd,setMintAd] = useState<string>('')
-  const [tokenBalance,setTokenBalance] = useState<number>(0)
+  const [tokenBalance, setTokenBalance] = useState<number>(0);
   const [isFirst, setIsFirst] = useState<boolean>(true);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [tokenInfo, setTokenInfo] = useState<Tokens[]>([]);
-  
 
   const connection = new Connection(clusterApiUrl("devnet"), {
     commitment: "confirmed",
   });
-  console.log(tokenBalance)
+  console.log(tokenBalance);
   const getTokenInfo = async (slug: string) => {
     try {
-     // setIsLoading(true);
-     // console.log('Fetching token info for slug:', slug);
+      // setIsLoading(true);
+      // console.log('Fetching token info for slug:', slug);
       const response = await TokenService.getTokenBytoken_id(slug);
       //console.log('Token info response:', response);
 
       if (response?.data && Array.isArray(response.data)) {
         setTokenInfo(response.data);
-        console.log('Token info set:', response.data);
-        return response.data
+        console.log("Token info set:", response.data);
+        return response.data;
       } else {
         console.error("Invalid token data received:", response);
         setTokenInfo([]);
@@ -47,132 +45,128 @@ export const Card = ({ tokenId }: { tokenId: string }) => {
       console.error("Failed to fetch tokens:", error);
       setTokenInfo([]);
     } finally {
-  //    setIsLoading(false);
-  //alert('done')
+      //    setIsLoading(false);
+      //alert('done')
     }
   };
 
-
-
-
-
-const fetchBalances = async (address: string) => {
-try {
-  //console.log('gettin bal')
-  console.log(tokenInfo[0],'shineee')
-  if (tokenId[0] === "solana") {
-    if (!user) return;
-    let userPubKey: PublicKey;
+  const fetchBalances = async (address: string) => {
     try {
-      userPubKey = new PublicKey(user.publicKey);
-    } catch (error) {
-      throw new Error("Invalid sender address");
+      //console.log('gettin bal')
+      console.log(tokenInfo[0], "shineee");
+      if (tokenId[0] === "solana") {
+        if (!user) return;
+        let userPubKey: PublicKey;
+        try {
+          userPubKey = new PublicKey(user.publicKey);
+        } catch (error) {
+          throw new Error("Invalid sender address");
+        }
+
+        const balance = await connection.getBalance(userPubKey);
+        setTokenBalance(balance);
+        //console.log(balance,'hhhhh');
+      } else {
+        //console.log('spl ne waannan',address,)
+        if (!user) return;
+        const balance = await getSplTokenBalance(
+          connection,
+          address,
+          user.publicKey
+        );
+        console.log(balance);
+
+        setTokenBalance(balance);
+      }
+    } catch (error: unknown) {
+      if (error instanceof Error) console.log(error.message);
     }
+  };
 
-    const balance = await connection.getBalance(userPubKey);
-    setTokenBalance(balance);
-    //console.log(balance,'hhhhh');
-  } else {
-    //console.log('spl ne waannan',address,)
-    if (!user) return;
-    const balance = await getSplTokenBalance(
-      connection,
-      address,
-      user.publicKey
-    );
-    console.log(balance);
-    
-    setTokenBalance(balance);
-    
-  }
-} catch (error: unknown) {
-  if (error instanceof Error) console.log(error.message);
-}
-};
-
-const fetch = async () => {
-try {
-  const tokenDetails = await getTokenInfo(tokenId);
-  
-  if(!tokenDetails) return
-  //setMintAu(tokenDetails[0]?.owner)
-  //setMintAd(tokenDetails[0]?.address)
-  const balance = fetchBalances(tokenDetails[0]?.address)
-  console.log(balance)
-} catch (error) {
-  console.log(error)
-}
-
-}
-  
-  const handleCompression = async () => {
+  const fetch = async () => {
     try {
-      if(!user) return
-      setIsLoading(true)
-      
       const tokenDetails = await getTokenInfo(tokenId);
 
-      if(!tokenDetails) return
+      if (!tokenDetails) return;
+      //setMintAu(tokenDetails[0]?.owner)
+      //setMintAd(tokenDetails[0]?.address)
+      const balance = fetchBalances(tokenDetails[0]?.address);
+      console.log(balance);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleCompression = async () => {
+    try {
+      if (!user) return;
+      setIsLoading(true);
+
+      const tokenDetails = await getTokenInfo(tokenId);
+
+      if (!tokenDetails) return;
       let ownerPubKey: PublicKey;
       try {
-      ownerPubKey = new PublicKey(tokenDetails[0]?.Owner);
+        ownerPubKey = new PublicKey(tokenDetails[0]?.Owner);
       } catch (error) {
-       throw new Error("Invalid sender address");
+        throw new Error("Invalid sender address");
       }
       let addressPubKey: PublicKey;
       try {
-      addressPubKey = new PublicKey(tokenDetails[0]?.address);
+        addressPubKey = new PublicKey(tokenDetails[0]?.address);
       } catch (error) {
-       throw new Error("Invalid sender Receiverrr");
+        throw new Error("Invalid sender Receiverrr");
       }
+      toast.loading("Compressing");
+
       const result = await compressToken({
         userMnemonic: user.mnemonic,
         splAddress: addressPubKey,
         owner: ownerPubKey,
-        amount: amount
-      })
+        amount: amount,
+      });
 
-      if(result?.success)
-      setTimeout(() => {
-        setIsFirst(false)
-        toast.success('Compress Success')
-      },5000)
+      if (result?.success)
+        setTimeout(() => {
+          setIsFirst(false);
+          toast.success("Compress Success");
+        }, 5000);
       else {
-        setIsFirst(true)
-        setIsLoading(false)
-        toast.error(`Error: ${result?.data?.toString()}`)
+        setIsFirst(true);
+        setIsLoading(false);
+        toast.error(`Error: ${result?.data?.toString()}`);
       }
-      console.log(result)
+      console.log(result);
     } catch (error: unknown) {
-      if(error instanceof Error) toast.error(error.message)
-        setIsFirst(true)
+      if (error instanceof Error) toast.error(error.message);
+      setIsFirst(true);
     }
-
-  }
-  const createDummy = async ({mnemonic}:{mnemonic:string|undefined}) => {
-      try {
-        const token = await createAndMintToken({mnemonic:mnemonic})
-        //const token = await testMint(mnemonic)
-        console.log(token,'address')
-      } catch (error) {
-        console.log(error)
-      }
-  }
-  
-
-
- 
-
+  };
+  const createDummy = async ({
+    mnemonic,
+  }: {
+    mnemonic: string | undefined;
+  }) => {
+    try {
+      const token = await createAndMintToken({ mnemonic: mnemonic });
+      //const token = await testMint(mnemonic)
+      console.log(token, "address");
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   useEffect(() => {
-    fetch()
+    fetch();
   }, []);
   return (
     <div className="w-[100%] min-h-screen flex items-center justify-center inset-0 bg-opacity-100 z-[99999999] h-auto backdrop-blur-sm fixed">
       <div className="h-[390px] rounded-3xl  w-[94%] bg-white/30">
         {isFirst ? (
           <>
-          <div onClick={() => setIsFirst(false)} className="h-12 w-12 bwhite">X</div>
+            <div onClick={() => setIsFirst(false)} className="h-12 w-12 bwhite">
+              X
+            </div>
             <div className="w-[98%] ml-auto py-3 px-2 mr-auto ">
               {tokenInfo[0] === undefined ? (
                 <></>
@@ -191,22 +185,25 @@ try {
               </div>
               <div className=" bg-slate-50/0 mb-[20px] w-[100%] flex py-3 px-2 ">
                 <div className="border mt-7 flex items-center px-2 justify-center ml-auto mr-auto h-14 w-[98%] border-white/45 rounded-lg">
-                   <input
-                  type="number"
-                  id="pin"
-                  name="pin"
-                  value={amount}
-                  onChange={(e:React.ChangeEvent<HTMLInputElement>) => setAmount(e.target.valueAsNumber) }
-                  placeholder="Enter Amount"
-                  pattern="[0-9]*"
-                  inputMode="numeric"
-                  security='yes'
-                  maxLength={8}
-                  
-                  className="outline-none bg-transparent text-xl ml- w-[93%] h-9 "
-                
-                />
-                  <div onClick={() => createDummy({mnemonic:user?.mnemonic})} className="w-[18%] h-[80%] flex items-center justify-center mt-0.5 bg-black rounded-2xl ">
+                  <input
+                    type="number"
+                    id="pin"
+                    name="pin"
+                    value={amount}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                      setAmount(e.target.valueAsNumber)
+                    }
+                    placeholder="Enter Amount"
+                    pattern="[0-9]*"
+                    inputMode="numeric"
+                    security="yes"
+                    maxLength={8}
+                    className="outline-none bg-transparent text-xl ml- w-[93%] h-9 "
+                  />
+                  <div
+                    onClick={() => createDummy({ mnemonic: user?.mnemonic })}
+                    className="w-[18%] h-[80%] flex items-center justify-center mt-0.5 bg-black rounded-2xl "
+                  >
                     Max
                   </div>
                 </div>
@@ -217,13 +214,17 @@ try {
                 onClick={() => handleCompression()}
                 className="w-[98%] ml-auto mr-auto py-1 border border-[#448cff]/60 rounded-xl bg-black/50 h-14 flex items-center"
               >
-                {isLoading ? <SpinningCircles className="ml-auto mr-auto h-7 w-7" /> : <p className="ml-auto mr-auto">Continue</p>}
+                {isLoading ? (
+                  <SpinningCircles className="ml-auto mr-auto h-7 w-7" />
+                ) : (
+                  <p className="ml-auto mr-auto">Continue</p>
+                )}
               </div>
             </div>
           </>
         ) : (
           <>
-           <div className="w-[98%] ml-auto py-3 px-2 mr-auto ">
+            <div className="w-[98%] ml-auto py-3 px-2 mr-auto ">
               <div className=" bg-slate-50/0 mb-[20px] h-[200px] items-center justify-center w-[100%] flex py-3 px-2 ">
                 <img src="/assets/good.svg" className="h-[80%] w-[80%]" />
               </div>
@@ -239,7 +240,7 @@ try {
           </>
         )}
       </div>
-      <Toaster/>
+      <Toaster />
     </div>
   );
 };
