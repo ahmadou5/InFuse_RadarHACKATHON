@@ -1,5 +1,5 @@
 "use client";
-import { ArrowLeft, X } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
 import { Connection, PublicKey, clusterApiUrl } from "@solana/web3.js";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -215,15 +215,13 @@ export const SendView = ({ slug }: { slug: string }) => {
       {isAddressChecked ? (
         <>
           <div className=" py-3 px-2 bg-red-600/0 max-h-screen flex flex-col rounded-xl w-[99%] ml-auto mr-auto">
-            <div className=" bg-slate-50/0 mb-[5px] w-[100%] flex  ">
+            <div className="flex items-center justify-between px-2 py-1">
               <div
                 onClick={() => setIsAddressChecked(false)}
-                className="bg-white/5 flex items-center justify-center w-11 rounded-full ml-1 mr-auto h-10"
+                className="flex items-center"
               >
-                <ArrowLeft className="font-bold text-xl" />
-              </div>
-              <div className="ml-auto mt-0.5 mr-[45%]">
-                <p className="font-light text-xl">Send</p>
+                <ChevronLeft className="w-6 h-6 mr-4" />
+                <h1 className="text-xl font-medium">Send</h1>
               </div>
             </div>
             <div className="w-[100%] h-12 bg-slate-50/0 rounded-xl py-3 px-6">
@@ -250,15 +248,17 @@ export const SendView = ({ slug }: { slug: string }) => {
                   className="outline-none bg-transparent text-end text-3xl ml- w-[50%] h-[100%] "
                 />
                 <p className="mt-5 text-xl font-light ml-1 mr-auto">
-                  {slug[0] === "solana" ? "SOL" : tokenInfo[0]?.ticker}
+                  {slug[0] === network.native?.token_id
+                    ? network.native.ticker
+                    : tokenInfo[0]?.ticker}
                 </p>
               </div>
               <div className="bg-black/0 rounded-2xl w-[150px] border border-white h-9">
                 <p className="text-white text-center py-1.5">
                   {`$${
-                    slug[0] === "solana"
-                      ? (amount || 0) * 170
-                      : (amount || 0) * 2
+                    slug[0] === network.native?.token_id
+                      ? (amount || 0) * 170 //sol price tbd
+                      : (amount || 0) * 2 // token price  tbd
                   }`}
                 </p>
               </div>
@@ -281,7 +281,11 @@ export const SendView = ({ slug }: { slug: string }) => {
                     slug[0] === "solana"
                       ? SolConverter(userBalance)
                       : userBalance
-                  } ${slug[0] === "solana" ? "SOL" : tokenInfo[0]?.ticker}`}</p>
+                  } ${
+                    slug[0] === network.native?.token_id
+                      ? network.native.ticker
+                      : tokenInfo[0]?.ticker
+                  }`}</p>
                 </div>
               </div>
               <div className="mt-10 w-[100%] ml-auto mr-auto">
@@ -312,8 +316,8 @@ export const SendView = ({ slug }: { slug: string }) => {
                           <div className="flex mb-2 items-center justify-center">
                             <img
                               src={
-                                slug[0] === "solana"
-                                  ? "/assets/sol.png"
+                                slug[0] === network.native?.token_id
+                                  ? network.native.logoUrl
                                   : `${tokenInfo[0]?.logoUrl}`
                               }
                               className="w-[47px] h-[47px]"
@@ -321,8 +325,8 @@ export const SendView = ({ slug }: { slug: string }) => {
                           </div>
                           <div className="w-[90%]  ml-auto mr-auto py-1 px-3 flex  items-center justify-center bg-white/0 rounded-full h-9">
                             <p className="text-white/85 font-bold text-[32px] ml-auto mr-auto ">{`${amount} ${
-                              slug[0] === "solana"
-                                ? "SOL"
+                              slug[0] === network.native?.token_id
+                                ? network.native.ticker
                                 : `${tokenInfo[0]?.name}`
                             }`}</p>
                           </div>
@@ -339,7 +343,7 @@ export const SendView = ({ slug }: { slug: string }) => {
                             </div>
                             <div className="w-[100%] mt-1 mb-1 bg-black/15 h-10 py-2 px-2 rounded-2xl flex">
                               <div className="ml-2 mr-auto">Network</div>
-                              <div className="ml-auto mr-2">Solana</div>
+                              <div className="ml-auto mr-2">{network.name}</div>
                             </div>
                             <div className="w-[100%] mt-1 mb-1 bg-black/15 h-10 py-2 px-2 rounded-2xl flex">
                               <div className="ml-2 mr-auto">Fee</div>
@@ -437,17 +441,16 @@ export const SendView = ({ slug }: { slug: string }) => {
         <div className="mt-3 px-0.5 py-1 bg-red-600/0 h-[85%] flex flex-col rounded-xl w-[100%] ml-auto mr-auto">
           <div className="w-[100%] bg-white/0 px-2 flex flex-col border border-[#448cff]/0 justify-center items-center rounded-xl h-[370px]">
             <div className="w-[100%] py-0 px-0 h-[40%] bg-black/0">
-              <div className=" bg-slate-50/0 mb-[5px] w-[100%] flex  ">
+              <div className="flex items-center justify-between px-2 py-1">
                 <div
                   onClick={() => router.back()}
-                  className="bg-white/5 flex items-center justify-center w-11 rounded-full ml-1 mr-auto h-10"
+                  className="flex items-center"
                 >
-                  <X className="font-bold text-xl" />
-                </div>
-                <div className="ml-auto mt-1 mr-[145px]">
-                  <p className="font-light text-xl">Receipient</p>
+                  <ChevronLeft className="w-6 h-6 mr-4" />
+                  <h1 className="text-xl font-medium">Receipient</h1>
                 </div>
               </div>
+
               <div className="flex mt-[10px]">
                 <p className="mb-3 mt-0 mr-auto text-[16px] ml-3"></p>
                 <div className="mr-4 mt-8 h-8">

@@ -155,7 +155,7 @@ const RecoveryPhrase = ({
   const words = phrase.split(" ");
 
   return (
-    <div className="mt-[20px] p-6 max-h-screen rounded-lg max-w-md mx-auto">
+    <div className="mt-0 p-4 max-h-screen rounded-lg max-w-md mx-auto">
       {/* Warning Message */}
       <div className="bg-red-950/25 rounded-lg p-4 mb-4">
         <h2 className="text-red-500/40 font-bold text-center text-lg mb-2">
