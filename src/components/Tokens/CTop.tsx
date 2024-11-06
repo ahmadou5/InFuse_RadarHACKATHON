@@ -18,8 +18,7 @@ interface TopProps {
 export const CTop = ({ tokenId }: TopProps) => {
   const { user } = useAuth();
   const { network } = useNetwork();
-  const [bLoading, setBLoading] = useState<boolean>(true);
-  const [userBalance, setUserBalance] = useState<BN>();
+  const [userBalance, setUserBalance] = useState<BN | null>(null);
   const [tokenInfo, setTokenInfo] = useState<Tokens[]>([]);
   const connection = new Connection(network.rpcUrl || clusterApiUrl("devnet"), {
     commitment: "confirmed",
@@ -71,13 +70,13 @@ export const CTop = ({ tokenId }: TopProps) => {
         const balance = await getCompressTokenBalance({
           address: user.publicKey,
           mint: tokenId[1],
+          rpc: network.rpcUrl || "",
         });
         console.log(balance.items[0].balance, "balance");
 
         setUserBalance(normalizeTokenAmount(balance.items[0].balance, 6));
         setUserBalance(normalizeTokenAmount(balance.items[0].balance, 6));
       }
-      setBLoading(false);
     } catch (error: unknown) {
       if (error instanceof Error) console.log(error.message);
     }
@@ -104,9 +103,11 @@ export const CTop = ({ tokenId }: TopProps) => {
         <div onClick={() => router.back()} className="flex items-center">
           <ChevronLeft className="w-6 h-6 mr-4" />
           <h1 className="text-xl font-medium">
-            {tokenId[0] === network.native?.name.toLowerCase()
-              ? network.native.name
-              : tokenInfo[0]?.name}
+            {`c${
+              tokenId[0] === network.native?.name.toLowerCase()
+                ? network.native.name
+                : tokenInfo[0]?.name
+            }`}
           </h1>
         </div>
       </div>
@@ -147,7 +148,7 @@ export const CTop = ({ tokenId }: TopProps) => {
             <div className="flex">
               {" "}
               <p className="ml-2 text-4xl mr-2">{`${
-                userBalance === undefined ? (
+                userBalance === null ? (
                   <div className="bg-white/20 h-4 w-16 mb-2 animate-pulse rounded-xl"></div>
                 ) : (
                   SolConverter(userBalance).toFixed(2)
@@ -165,14 +166,10 @@ export const CTop = ({ tokenId }: TopProps) => {
                 <div className="flex">
                   {" "}
                   <p className="ml-2 text-4xl mr-2">{`${
-                    bLoading ? (
-                      <div className="bg-white/20 h-4 w-16 mb-2 animate-pulse rounded-lg"></div>
-                    ) : (
-                      userBalance?.toFixed(2)
-                    )
+                    userBalance === null ? "0.00" : userBalance?.toFixed(2)
                   }`}</p>
                   <p className="mt-[11px]">
-                    {` ${tokenId[0] === "solana" ? "SOL" : tokenInfo[0]?.name}`}
+                    {`c${tokenId[0] === "solana" ? "SOL" : tokenInfo[0]?.name}`}
                   </p>
                 </div>
               )}

@@ -1,8 +1,17 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip, TooltipProps } from 'recharts';
-import { Tokens } from '@/interfaces/models.interface';
-import { TokenService } from '@/lib/services/TokenServices';
-import { ArrowUpRight, ArrowDownRight } from 'lucide-react';
+import React, { useState, useEffect, useMemo } from "react";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  ResponsiveContainer,
+  Tooltip,
+  TooltipProps,
+} from "recharts";
+import { Tokens } from "@/interfaces/models.interface";
+import { TokenService } from "@/lib/services/TokenServices";
+import { ArrowUpRight, ArrowDownRight } from "lucide-react";
+import { useNetwork } from "@/context/NetworkContext";
 //import { useRouter } from 'next/navigation';
 
 interface ChartProps {
@@ -23,13 +32,19 @@ interface CustomTooltipProps extends TooltipProps<number, string> {
     payload: ChartDataPoint;
   }>;
 }
-const CustomTooltip: React.FC<CustomTooltipProps> = ({ tokenId, active, payload }) => {
+const CustomTooltip: React.FC<CustomTooltipProps> = ({
+  tokenId,
+  active,
+  payload,
+}) => {
   if (active && payload && payload.length) {
     return (
       <div className="bg-white/5 w-[150px] backdrop-blur-md p-2 rounded-2xl shadow-md">
         <p className="text-white">{`${tokenId}`}</p>
         <p className="text-white">{`$${payload[0].value.toFixed(7)}`}</p>
-        <p className="text-white text-xs">{new Date(payload[0].payload.date).toLocaleString()}</p>
+        <p className="text-white text-xs">
+          {new Date(payload[0].payload.date).toLocaleString()}
+        </p>
       </div>
     );
   }
@@ -37,8 +52,17 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({ tokenId, active, payload 
 };
 
 const fetchTokenData = async (tokenId: string, timeframe: string) => {
-  const baseUrl = 'https://api.coingecko.com/api/v3';
-  const days = timeframe === '1H' ? 1 : timeframe === '1D' ? 1 : timeframe === '1W' ? 7 : timeframe === '1M' ? 30 : 365;
+  const baseUrl = "https://api.coingecko.com/api/v3";
+  const days =
+    timeframe === "1H"
+      ? 1
+      : timeframe === "1D"
+      ? 1
+      : timeframe === "1W"
+      ? 7
+      : timeframe === "1M"
+      ? 30
+      : 365;
   const url = `${baseUrl}/coins/${tokenId}/market_chart?vs_currency=usd&days=${days}`;
 
   try {
@@ -49,34 +73,36 @@ const fetchTokenData = async (tokenId: string, timeframe: string) => {
       price: price,
     }));
   } catch (error) {
-    console.error('Error fetching token data:', error);
+    console.error("Error fetching token data:", error);
     return [];
   }
 };
 
 const Chart = ({ tokenId }: ChartProps) => {
-  const [timeframe, setTimeframe] = useState('1D');
-  const [chartData, setChartData] = useState<{ date: Date; price: number }[]>([]);
-  const [tokenInfo,setTokenInfo] =useState<Tokens[]>([]);
+  const [timeframe, setTimeframe] = useState("1D");
+  const [chartData, setChartData] = useState<{ date: Date; price: number }[]>(
+    []
+  );
+  const [tokenInfo, setTokenInfo] = useState<Tokens[]>([]);
+  const { network } = useNetwork();
 
-  
-  const getTokenInfo = async (slug:string) => {
+  const getTokenInfo = async (slug: string) => {
     try {
-      console.log('token etails')
+      console.log("token etails");
       const response = await TokenService.getTokenBytoken_id(slug);
-     
-     if (response.data && Array.isArray(response.data)) {
-       setTokenInfo(response.data);
-       console.log(response,'anan ne')
-     } else {
-       console.error('Invalid token data received:', response);
-       setTokenInfo([]); // Set to empty array if data is invalid
-     }
-   } catch (error) {
-     console.error('Failed to fetch tokens:', error);
-     setTokenInfo([]); // Set to empty array on error
-   }
-  }
+
+      if (response.data && Array.isArray(response.data)) {
+        setTokenInfo(response.data);
+        console.log(response, "anan ne");
+      } else {
+        console.error("Invalid token data received:", response);
+        setTokenInfo([]); // Set to empty array if data is invalid
+      }
+    } catch (error) {
+      console.error("Failed to fetch tokens:", error);
+      setTokenInfo([]); // Set to empty array on error
+    }
+  };
   useEffect(() => {
     const fetchData = async () => {
       const data = await fetchTokenData(tokenId, timeframe);
@@ -84,15 +110,18 @@ const Chart = ({ tokenId }: ChartProps) => {
     };
 
     fetchData();
-    getTokenInfo(tokenId)
+    getTokenInfo(tokenId);
   }, [tokenId, timeframe]);
 
-  const currentPrice = useMemo(() => chartData[chartData.length - 1]?.price || 0, [chartData]);
+  const currentPrice = useMemo(
+    () => chartData[chartData.length - 1]?.price || 0,
+    [chartData]
+  );
   const priceChange = useMemo(() => {
     if (chartData.length < 2) return 0;
     return currentPrice - chartData[0].price;
   }, [chartData, currentPrice]);
-  console.log(tokenInfo,'gggggggggggggggggggg')
+  console.log(tokenInfo, "gggggggggggggggggggg");
   const priceChangePercentage = useMemo(() => {
     if (chartData.length < 2) return 0;
     return (priceChange / chartData[0].price) * 100;
@@ -100,34 +129,54 @@ const Chart = ({ tokenId }: ChartProps) => {
 
   return (
     <div className="bg-white/0 w-[96%] mt-2 ml-auto mr-auto py-1 px-2 rounded-lg ">
-       
       <div className="flex justify-between ml-2 mr-2 items-baseline mb-8">
-        <span className="text-2xl  font-bold">{`$ ${currentPrice.toFixed(7)}`}</span>
-        <span className={`flex items-center ${priceChange >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-          {priceChange >= 0 ? <ArrowUpRight size={16} /> : <ArrowDownRight size={16} />}
-           ${Math.abs(priceChange).toFixed(2)} ({Math.abs(priceChangePercentage).toFixed(2)}%)
+        <span className="text-2xl  font-bold">{`$ ${currentPrice.toFixed(
+          7
+        )}`}</span>
+        <span
+          className={`flex items-center ${
+            priceChange >= 0 ? "text-green-500" : "text-red-500"
+          }`}
+        >
+          {priceChange >= 0 ? (
+            <ArrowUpRight size={16} />
+          ) : (
+            <ArrowDownRight size={16} />
+          )}
+          ${Math.abs(priceChange).toFixed(2)} (
+          {Math.abs(priceChangePercentage).toFixed(2)}%)
         </span>
       </div>
       <ResponsiveContainer width="100%" height={120}>
         <LineChart data={chartData}>
           <XAxis dataKey="date" hide />
-          <YAxis hide domain={['auto', 'auto']} />
-          <Tooltip content={<CustomTooltip tokenId={tokenId[0] === 'solana' ? 'SOLANA' : tokenInfo[0]?.name} />} />
-          <Line 
-            type="monotone" 
-            dataKey="price" 
-            stroke={priceChange >= 0 ? "#22c55e" : "#ef4444"} 
-            strokeWidth={2} 
-            dot={false} 
+          <YAxis hide domain={["auto", "auto"]} />
+          <Tooltip
+            content={
+              <CustomTooltip
+                tokenId={
+                  tokenId[0] === network.native?.name.toLowerCase()
+                    ? network.native.name
+                    : tokenInfo[0]?.name
+                }
+              />
+            }
+          />
+          <Line
+            type="monotone"
+            dataKey="price"
+            stroke={priceChange >= 0 ? "#22c55e" : "#ef4444"}
+            strokeWidth={2}
+            dot={false}
           />
         </LineChart>
       </ResponsiveContainer>
       <div className="flex justify-between mt-2 text-sm text-gray-500">
-        {[ '1D', '1W', '1M', 'All'].map((tf) => (
+        {["1D", "1W", "1M", "1Y"].map((tf) => (
           <button
             key={tf}
             onClick={() => setTimeframe(tf)}
-            className={`${timeframe === tf ? 'font-bold' : ''}`}
+            className={`${timeframe === tf ? "font-bold" : ""}`}
           >
             {tf}
           </button>

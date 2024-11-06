@@ -52,12 +52,17 @@ export const decompressToken = async ({
   splAddress,
   amount,
   userAddress,
+  rpc,
 }: {
   splAddress: PublicKeyData;
   amount: number;
   userAddress: PublicKeyData;
+  rpc: string;
 }) => {
   try {
+    const RPC_ENDPOINT = rpc;
+    const COMPRESSION_RPC_ENDPOINT = RPC_ENDPOINT;
+    const connection: Rpc = createRpc(RPC_ENDPOINT, COMPRESSION_RPC_ENDPOINT);
     const account = getKeypairFromPrivateKey(userAddress.toString());
     const tokenAddress = new PublicKey(splAddress);
     const ata = await createAssociatedTokenAccount(
@@ -106,13 +111,18 @@ export const compressToken = async ({
   owner,
   splAddress,
   amount,
+  rpc,
 }: {
   userMnemonic: string;
   owner: PublicKeyData;
   splAddress: PublicKeyData;
   amount: number;
+  rpc: string;
 }) => {
   try {
+    const RPC_ENDPOINT = rpc;
+    const COMPRESSION_RPC_ENDPOINT = RPC_ENDPOINT;
+    const connection: Rpc = createRpc(RPC_ENDPOINT, COMPRESSION_RPC_ENDPOINT);
     const seed = await bip39.mnemonicToSeed(userMnemonic);
     console.log(owner, "seed");
     const seedBytes = seed.slice(0, 32);
@@ -215,16 +225,22 @@ export const compressToken = async ({
 
 interface compressBalanceProps {
   Owner: PublicKeyData;
+  rpc: string;
 }
 
 //get list of compress token owned by userAddress
 export const getCompressTokenBalance = async ({
   address,
   mint,
+  rpc,
 }: {
   address: string;
   mint: string;
+  rpc: string;
 }) => {
+  const RPC_ENDPOINT = rpc;
+  const COMPRESSION_RPC_ENDPOINT = RPC_ENDPOINT;
+  const connection: Rpc = createRpc(RPC_ENDPOINT, COMPRESSION_RPC_ENDPOINT);
   let userPubKey: PublicKey;
   try {
     userPubKey = new PublicKey(address);
@@ -251,12 +267,17 @@ export const transferCompressedTokens = async ({
   amount,
   sender,
   receiver,
+  rpc,
 }: {
   amount: number;
   receiver: PublicKeyData;
   sender: PublicKeyData;
+  rpc: string;
 }) => {
   try {
+    const RPC_ENDPOINT = rpc;
+    const COMPRESSION_RPC_ENDPOINT = RPC_ENDPOINT;
+    const connection: Rpc = createRpc(RPC_ENDPOINT, COMPRESSION_RPC_ENDPOINT);
     const receiverKey = new PublicKey(receiver);
     const senderKey = new PublicKey(sender);
     // get the token account state
@@ -295,7 +316,12 @@ export const transferCompressedTokens = async ({
 // get list of history of users compressed tokens trx
 export const getCompressTokenHistory = async ({
   Owner,
+  rpc,
 }: compressBalanceProps) => {
+  const RPC_ENDPOINT = rpc;
+  const COMPRESSION_RPC_ENDPOINT = RPC_ENDPOINT;
+  const connection: Rpc = createRpc(RPC_ENDPOINT, COMPRESSION_RPC_ENDPOINT);
+
   const key = new PublicKey(Owner);
   const signatures: WithCursor<SignatureWithMetadata[]> =
     await connection.getCompressionSignaturesForOwner(key);
@@ -308,7 +334,16 @@ export const getCompressTokenHistory = async ({
   return { signatures, parsedTransaction };
 };
 
-export async function fetchCompressedTokens(address: string) {
+export async function fetchCompressedTokens({
+  address,
+  rpc,
+}: {
+  address: string;
+  rpc: string;
+}) {
+  const RPC_ENDPOINT = rpc;
+  const COMPRESSION_RPC_ENDPOINT = RPC_ENDPOINT;
+  const connection: Rpc = createRpc(RPC_ENDPOINT, COMPRESSION_RPC_ENDPOINT);
   // Connect to Solana mainnet
 
   // Convert address string to PublicKey

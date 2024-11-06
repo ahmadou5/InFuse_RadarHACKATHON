@@ -11,6 +11,7 @@ import {
 import { Tokens } from "@/interfaces/models.interface";
 import { TokenService } from "@/lib/services/TokenServices";
 import { ArrowUpRight, ArrowDownRight } from "lucide-react";
+import { useNetwork } from "@/context/NetworkContext";
 //import { useRouter } from 'next/navigation';
 
 interface ChartProps {
@@ -83,7 +84,7 @@ const CChart = ({ tokenId }: ChartProps) => {
     []
   );
   const [tokenInfo, setTokenInfo] = useState<Tokens[]>([]);
-
+  const { network } = useNetwork();
   const getTokenInfo = async (slug: string) => {
     try {
       // setIsLoading(true);
@@ -159,7 +160,9 @@ const CChart = ({ tokenId }: ChartProps) => {
             content={
               <CustomTooltip
                 tokenId={
-                  tokenId[0] === "solana" ? "SOLANA" : tokenInfo[0]?.name
+                  tokenId[0] === network.native?.name.toLowerCase()
+                    ? network.native.name
+                    : tokenInfo[0]?.name
                 }
               />
             }
@@ -174,7 +177,7 @@ const CChart = ({ tokenId }: ChartProps) => {
         </LineChart>
       </ResponsiveContainer>
       <div className="flex justify-between mt-2 text-sm text-gray-500">
-        {["1D", "1W", "1M", "All"].map((tf) => (
+        {["1D", "1W", "1M", "1Y"].map((tf) => (
           <button
             key={tf}
             onClick={() => setTimeframe(tf)}
