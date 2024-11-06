@@ -36,11 +36,7 @@ export const SendView = ({ slug }: { slug: string }) => {
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setReceiveAddress(event.target.value);
   };
-  if (slug.length === 2) {
-    if (!slug[1]) return;
-    setReceiveAddress(slug[1]);
-    alert("passed");
-  }
+
   const connection = new Connection(
     network?.rpcUrl || clusterApiUrl("devnet"),
     {
@@ -214,6 +210,11 @@ export const SendView = ({ slug }: { slug: string }) => {
   useEffect(() => {
     fetch();
   }, []);
+  if (slug.length === 2) {
+    if (!slug[1]) return;
+    setReceiveAddress(slug[1]);
+    alert("passed");
+  }
   return (
     <>
       {isAddressChecked ? (
