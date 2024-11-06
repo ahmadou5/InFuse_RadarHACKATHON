@@ -331,7 +331,7 @@ export const WalletView = () => {
           return;
         }
         //alert('in d middle')
-        //alert(content);
+        alert(` the address ${content}`);
         //setReceiveAddress(content)
         router.push(`/send/${network.native?.name.toLowerCase()}/${content}`);
       });
