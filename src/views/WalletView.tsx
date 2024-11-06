@@ -325,8 +325,15 @@ export const WalletView = () => {
 
   const scan = () => {
     try {
+      //alert('startes')
       scanner.open("Scan QR code").then((content) => {
-        console.log(content);
+        if (!content) {
+          return;
+        }
+        //alert('in d middle')
+        //alert(content);
+        //setReceiveAddress(content)
+        router.push(`/send/${network.native?.name.toLowerCase()}/${content}`);
       });
       console.log(scanner.isOpened); // true
     } catch (error) {

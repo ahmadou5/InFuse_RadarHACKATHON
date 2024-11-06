@@ -36,7 +36,10 @@ export const SendView = ({ slug }: { slug: string }) => {
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setReceiveAddress(event.target.value);
   };
-
+  if (slug.length === 2) {
+    alert(slug[1]);
+    setReceiveAddress(slug[1]);
+  }
   const connection = new Connection(
     network?.rpcUrl || clusterApiUrl("devnet"),
     {
@@ -70,7 +73,7 @@ export const SendView = ({ slug }: { slug: string }) => {
 
   const fetchPrice = async (token: string) => {
     try {
-      if (token[0] === "solana") {
+      if (token[0] === network.native?.name.toLowerCase()) {
         const price = await getSolPrice(token[0]);
         console.log(price);
       } else {
@@ -134,7 +137,7 @@ export const SendView = ({ slug }: { slug: string }) => {
           return;
         }
         //alert('in d middle')
-        alert(content);
+        //alert(content);
         //setReceiveAddress(content)
         setReceiveAddress(content);
       });
