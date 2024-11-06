@@ -37,7 +37,7 @@ export const SendView = ({ slug }: { slug: string }) => {
     setReceiveAddress(event.target.value);
   };
   if (slug.length === 2) {
-    //alert(slug[1]);
+    if (!slug[1]) return;
     setReceiveAddress(slug[1]);
     alert("passed");
   }
