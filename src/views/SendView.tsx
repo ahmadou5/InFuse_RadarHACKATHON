@@ -39,6 +39,7 @@ export const SendView = ({ slug }: { slug: string }) => {
   if (slug.length === 2) {
     //alert(slug[1]);
     setReceiveAddress(slug[1]);
+    alert("passed");
   }
   const connection = new Connection(
     network?.rpcUrl || clusterApiUrl("devnet"),
