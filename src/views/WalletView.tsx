@@ -5,7 +5,7 @@ import { useAuth } from "@/context/AuthContext";
 import { normalizeTokenAmount } from "helius-airship-core";
 import { useNetwork } from "@/context/NetworkContext";
 import { useRouter } from "next/navigation";
-import { getSolPrice, getTokenPrices } from "@/lib/helper.lib";
+import { getSolPrice, getTokenPrice, getTokenPrices } from "@/lib/helper.lib";
 import {
   Connection,
   LAMPORTS_PER_SOL,
@@ -46,6 +46,7 @@ const CompressTokenItem: React.FC<CompressTokenItemProps> = ({
   onClick,
 }) => {
   const [tokenInfo, setTokenInfo] = useState<Tokens[]>([]);
+  const [tokenPrice, setTokenPrices] = useState<number>();
   const getTokenInfo = async (slug: string) => {
     try {
       // setIsLoading(true);
@@ -55,6 +56,7 @@ const CompressTokenItem: React.FC<CompressTokenItemProps> = ({
 
       if (response?.data && Array.isArray(response.data)) {
         setTokenInfo(response.data);
+
         console.log("Token info set:", response.data);
         return response.data;
       } else {
@@ -69,8 +71,21 @@ const CompressTokenItem: React.FC<CompressTokenItemProps> = ({
       //alert('done')
     }
   };
+  const fetchPrices = async () => {
+    if (tokenInfo.length > 0) {
+      try {
+        const tickers = tokenInfo[0].token_id;
+        const prices = await getTokenPrice(tickers);
+        setTokenPrices(prices);
+      } catch (error) {
+        console.error("Failed to fetch token prices:", error);
+      }
+    }
+  };
+
   useEffect(() => {
     getTokenInfo(address);
+    fetchPrices();
   }, []);
   //alert(address);
   return (
@@ -87,7 +102,7 @@ const CompressTokenItem: React.FC<CompressTokenItemProps> = ({
           />
         </div>
       ) : (
-        <div className="bg-white/20 h-12 w-12 mb-2 animate-pulse rounded-full"></div>
+        <div className="bg-gothic-600/85 w-12 flex items-center justify-center h-12 ml-[23px] mr-[10px] rounded-full"></div>
       )}
       <div className="ml-[5px] text-white/85 mr-auto px-3">
         <p className="text-sm font-bold mb-1">{`c${tokenInfo[0]?.name}`}</p>
@@ -96,26 +111,28 @@ const CompressTokenItem: React.FC<CompressTokenItemProps> = ({
         {balance === undefined ? (
           <div className="bg-white/20 h-4 w-16 mb-2 animate-pulse rounded"></div>
         ) : (
-          `${normalizeTokenAmount(balance, 6)} ${tokenInfo[0]?.ticker}`
+          `${normalizeTokenAmount(balance, 6).toFixed(2)} ${
+            tokenInfo[0]?.ticker
+          }`
         )}
       </p>
 
-      {/** <div className="ml-[10px] mt-1 text-white/85 mr-4 px-3">
+      <div className="ml-[10px] mt-1 text-white/85 mr-4 px-3">
         <p className="text-[15px] mb-1">
-          {price ? (
-            `$${price.toFixed(1)}`
+          {tokenPrice ? (
+            `$${tokenPrice.toFixed(1)}`
           ) : (
             <div className="bg-white/20 h-4 w-16 mb-2 animate-pulse rounded"></div>
           )}
         </p>
         <div className="text-[15px]">
-          {balance !== undefined && price !== undefined ? (
-            `$${(balance * price).toFixed(1)}`
+          {balance !== undefined && tokenPrice !== undefined ? (
+            `$${(balance * tokenPrice).toFixed(1)}`
           ) : (
             <div className="bg-white/20 h-4 w-16 mb-2 animate-pulse rounded"></div>
           )}
         </div>
-      </div>  */}
+      </div>
     </div>
   );
 };
@@ -235,7 +252,10 @@ export const WalletView = () => {
       console.log("fetching compress");
       if (!user) return;
 
-      const CompresstokenList = await fetchCompressedTokens(user.publicKey);
+      const CompresstokenList = await fetchCompressedTokens({
+        address: user.publicKey,
+        rpc: network.rpcUrl || "",
+      });
       const deduplicatedAccounts = CompresstokenList.items.reduce(
         (acc, current) => {
           const existingAccount = acc.find((item) =>
@@ -322,7 +342,12 @@ export const WalletView = () => {
 
     fetchPrices();
   }, [tokens]);
-
+  const navigate = (link: string) => {
+    try {
+      console.log(link);
+      router.push(link);
+    } catch (error) {}
+  };
   const scan = () => {
     try {
       //alert('startes')
@@ -331,9 +356,9 @@ export const WalletView = () => {
           return;
         }
         //alert('in d middle')
-        alert(` the address ${content}`);
-        //setReceiveAddress(content)
-        router.push(`/send/${network.native?.name.toLowerCase()}/${content}`);
+        //alert(` the address ${content}`);
+        navigate(`/send/${network.native?.name.toLowerCase()}/${content}`);
+        console.log("passedsdsdsddsdds");
       });
       console.log(scanner.isOpened); // true
     } catch (error) {

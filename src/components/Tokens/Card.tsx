@@ -130,6 +130,7 @@ export const Card = ({ tokenId }: { tokenId: string }) => {
         splAddress: addressPubKey,
         owner: ownerPubKey,
         amount: amount,
+        rpc: network.rpcUrl || "",
       });
 
       if (result?.success)
