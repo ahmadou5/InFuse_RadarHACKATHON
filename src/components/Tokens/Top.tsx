@@ -145,7 +145,7 @@ export const Top = ({ tokenId }: TopProps) => {
               <p className="ml-2 text-4xl mr-2">{`${
                 userBalance === null
                   ? "0.00"
-                  : SolConverter(userBalance)?.toFixed(2)
+                  : SolConverter(userBalance)?.toFixed(1)
               }`}</p>
               <p className="mt-3">{` ${
                 tokenId[0] === network.native?.name.toLowerCase()
@@ -161,7 +161,7 @@ export const Top = ({ tokenId }: TopProps) => {
                 <div className="flex">
                   {" "}
                   <p className="ml-2 text-4xl mr-2">{`${
-                    userBalance === null ? "0.00" : userBalance.toFixed(2)
+                    userBalance === null ? "0.00" : userBalance.toFixed(1)
                   }`}</p>
                   <p className="mt-[11px]">
                     {` ${
