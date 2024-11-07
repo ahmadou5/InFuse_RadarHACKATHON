@@ -422,7 +422,7 @@ export const WalletView = () => {
       <div className="bg-gothic-950/0 mt-8 flex flex-col items-center justify-center w-[100%] h-auto">
         <div className="flex justify-around mb-6 bg-white/0 bg-opacity-10 rounded-xl p-1">
           {network.name === "SOLANA" &&
-            ["Tokens", "Compressed"].map((tab) => (
+            ["Tokens", "cTokens"].map((tab) => (
               <button
                 key={tab}
                 className={`flex-1 py-2 px-6 w-[130px] rounded-xl ml-2 mr-2 text-sm font-medium ${
@@ -439,7 +439,7 @@ export const WalletView = () => {
             ["Tokens"].map((tab) => (
               <button
                 key={tab}
-                className={`flex-1 py-2 px-6 w-[130px] rounded-xl ml-2 mr-2 text-sm font-medium "bg-white/10 bg-opacity-20 text-white"}`}
+                className={`flex-1 py-2 px-6 w-[130px] rounded-xl ml-2 mr-2 text-sm font-medium bg-white/10 bg-opacity-20 text-white"}`}
                 onClick={() => setActiveTab(tab.toLowerCase())}
               >
                 {tab}
