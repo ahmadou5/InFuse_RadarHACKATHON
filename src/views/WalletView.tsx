@@ -111,7 +111,11 @@ const CompressTokenItem: React.FC<CompressTokenItemProps> = ({
           {balance === undefined ? (
             <div className="bg-white/20 h-4 w-16 mb-2 animate-pulse rounded"></div>
           ) : (
-            `${balance === undefined ? "0" : normalizeTokenAmount(balance, 6)} `
+            `${
+              balance === undefined
+                ? "0"
+                : normalizeTokenAmount(balance, 6).toFixed(1)
+            } `
           )}
         </p>
       </div>
