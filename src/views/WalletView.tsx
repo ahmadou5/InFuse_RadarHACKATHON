@@ -122,7 +122,7 @@ const CompressTokenItem: React.FC<CompressTokenItemProps> = ({
         </p>
         <div className="text-[15px]">
           {balance !== undefined && tokenPrice !== undefined ? (
-            `$${(balance * tokenPrice).toFixed(1)}`
+            `$${(normalizeTokenAmount(balance, 6) * tokenPrice).toFixed(1)}`
           ) : (
             <div className="bg-white/20 h-4 w-16 mb-2 animate-pulse rounded"></div>
           )}
