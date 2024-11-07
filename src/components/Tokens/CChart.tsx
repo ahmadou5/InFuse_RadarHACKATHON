@@ -110,7 +110,7 @@ const CChart = ({ tokenId }: ChartProps) => {
   };
   useEffect(() => {
     const fetchData = async () => {
-      const data = await fetchTokenData(tokenId, timeframe);
+      const data = await fetchTokenData(tokenInfo[0].token_id, timeframe);
       setChartData(data);
     };
 

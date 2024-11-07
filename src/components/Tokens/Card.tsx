@@ -123,7 +123,6 @@ export const Card = ({ tokenId }: { tokenId: string }) => {
       } catch (error) {
         throw new Error("Invalid sender Receiverrr");
       }
-      toast.loading("Compressing");
 
       const result = await compressToken({
         userMnemonic: user.mnemonic,
