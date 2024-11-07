@@ -210,11 +210,11 @@ export const SendView = ({ slug }: { slug: string }) => {
   useEffect(() => {
     fetch();
   }, []);
-  if (slug.length === 2) {
-    if (!slug[1]) return;
-    setReceiveAddress(slug[1]);
-    alert("passed");
-  }
+  useEffect(() => {
+    if (slug && Array.isArray(slug) && slug.length === 2 && slug[1]) {
+      setReceiveAddress(slug[1]);
+    }
+  }, [slug]);
   return (
     <>
       {isAddressChecked ? (
