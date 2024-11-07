@@ -104,16 +104,18 @@ const CompressTokenItem: React.FC<CompressTokenItemProps> = ({
       ) : (
         <div className="bg-gothic-600/85 w-12 flex items-center justify-center h-12 ml-[23px] mr-[10px] rounded-full"></div>
       )}
+      {/**   */}
       <div className="ml-[5px] text-white/85 mr-auto px-3">
-        <p className="text-sm font-bold mb-1">{`c${tokenInfo[0]?.name}`}</p>
+        <p className="text-sm font-bold mb-1">{tokenInfo[0]?.name}</p>
+        <p className="text-sm">
+          {balance === undefined ? (
+            <div className="bg-white/20 h-4 w-16 mb-2 animate-pulse rounded"></div>
+          ) : (
+            `${balance === undefined ? "0" : normalizeTokenAmount(balance, 6)} `
+          )}
+        </p>
       </div>
-      <p className="text-sm">
-        {balance === undefined ? (
-          <div className="bg-white/20 h-4 w-16 mb-2 animate-pulse rounded"></div>
-        ) : (
-          `${normalizeTokenAmount(balance, 6).toFixed(2)}`
-        )}
-      </p>
+      {/** */}
 
       <div className="ml-[10px] mt-1 text-white/85 mr-4 px-3">
         <p className="text-[15px] mb-1">
