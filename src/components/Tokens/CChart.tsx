@@ -95,6 +95,8 @@ const CChart = ({ tokenId }: ChartProps) => {
       if (response?.data && Array.isArray(response.data)) {
         setTokenInfo(response.data);
         console.log("Token info set:", response.data);
+        const data = await fetchTokenData(tokenInfo[0]?.token_id, timeframe);
+        setChartData(data);
         return response.data;
       } else {
         console.error("Invalid token data received:", response);
@@ -109,12 +111,6 @@ const CChart = ({ tokenId }: ChartProps) => {
     }
   };
   useEffect(() => {
-    const fetchData = async () => {
-      const data = await fetchTokenData(tokenInfo[0].token_id, timeframe);
-      setChartData(data);
-    };
-
-    fetchData();
     getTokenInfo(tokenId[1]);
   }, [tokenId, timeframe]);
 
