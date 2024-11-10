@@ -1,3 +1,4 @@
+import { Token } from "@/utils/tokens.utils";
 import { apiResponse } from "../api.helpers";
 import { supabaseClient } from "../supabase_client.utils";
 
@@ -58,12 +59,7 @@ export class TokenService {
 
   static async getCompressToken(address: string) {
     try {
-      const { data: tokens, error } = await supabaseClient
-        .from("Token")
-        .select("*")
-        .eq("compress_address", address);
-
-      if (error) return apiResponse(false, error?.message, error);
+      const tokens = Token.find((token) => token.compress_address === address);
       return apiResponse(true, "get Compress tokens by address", tokens);
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -80,12 +76,7 @@ export class TokenService {
 
   static async getTokens() {
     try {
-      const { data: tokens, error } = await supabaseClient
-        .from("Token")
-        .select("*");
-
-      if (error) return apiResponse(false, error?.message, error);
-      return apiResponse(true, "get all tokens", tokens);
+      return apiResponse(true, "get all tokens", Token);
     } catch (error: unknown) {
       if (error instanceof Error) {
         return apiResponse(false, "failed token error", error.message);

@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { Tokens } from "@/interfaces/models.interface";
-import { TokenService } from "@/lib/services/TokenServices";
+//import { TokenService } from "@/lib/services/TokenServices";
 import { useNetwork } from "@/context/NetworkContext";
+import { Token } from "@/utils/tokens.utils";
 
 interface TokenProps {
   tokenId: string;
@@ -21,10 +22,10 @@ export const TokenDetails = ({ tokenId }: TokenProps) => {
   const getTokenInfo = async (slug: string) => {
     try {
       //console.log("token etails");
-      const response = await TokenService.getTokenBytoken_id(slug);
+      const response = Token.find((token) => token.token_id === slug);
 
-      if (response.data && Array.isArray(response.data)) {
-        setToken1Info(response.data);
+      if (response && Array.isArray(response)) {
+        setToken1Info(response);
         //console.log(response, "anan ne");
       } else {
         console.error("Invalid token data received:", response);

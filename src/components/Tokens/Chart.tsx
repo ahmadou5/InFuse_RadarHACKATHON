@@ -9,9 +9,10 @@ import {
   TooltipProps,
 } from "recharts";
 import { Tokens } from "@/interfaces/models.interface";
-import { TokenService } from "@/lib/services/TokenServices";
+//import { TokenService } from "@/lib/services/TokenServices";
 import { ArrowUpRight, ArrowDownRight } from "lucide-react";
 import { useNetwork } from "@/context/NetworkContext";
+import { Token } from "@/utils/tokens.utils";
 //import { useRouter } from 'next/navigation';
 
 interface ChartProps {
@@ -89,10 +90,10 @@ const Chart = ({ tokenId }: ChartProps) => {
   const getTokenInfo = async (slug: string) => {
     try {
       console.log("token etails");
-      const response = await TokenService.getTokenBytoken_id(slug);
+      const response = Token.find((token) => token.token_id === slug);
 
-      if (response.data && Array.isArray(response.data)) {
-        setTokenInfo(response.data);
+      if (response && Array.isArray(response)) {
+        setTokenInfo(response);
         console.log(response, "anan ne");
       } else {
         console.error("Invalid token data received:", response);

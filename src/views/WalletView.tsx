@@ -20,6 +20,7 @@ import { TokenService } from "@/lib/services/TokenServices";
 import { Tokens } from "@/interfaces/models.interface";
 import { calculateWalletTotals } from "@/lib/helper.lib";
 import { useTelegramBackButton } from "@/lib/telegram.lib";
+import { Token } from "@/utils/tokens.utils";
 
 interface TokenPrices {
   [ticker: string]: number;
@@ -51,17 +52,17 @@ const CompressTokenItem: React.FC<CompressTokenItemProps> = ({
     try {
       // setIsLoading(true);
       // console.log('Fetching token info for slug:', slug);
-      const response = await TokenService.getCompressToken(slug);
-      //console.log('Token info response:', response);
+      const response = Token.find((token) => token.compress_address === slug);
+      console.log("Token info response:", response);
 
-      if (response?.data && Array.isArray(response.data)) {
-        setTokenInfo(response.data);
-        const ticker = response.data[0]?.token_id;
+      if (response && Array.isArray(response)) {
+        setTokenInfo(response);
+        const ticker = response[0];
         const prices = await getTokenPrice(ticker);
         console.log("Token prices:", prices);
         setTokenPrices(prices);
-        console.log("Token info set:", response.data);
-        return response.data;
+        console.log("Token info set:", response);
+        return response;
       } else {
         console.error("Invalid token data received:", response);
         setTokenInfo([]);
@@ -277,7 +278,7 @@ export const WalletView = () => {
     const fetchTokens = async () => {
       try {
         const response = await TokenService.getTokens();
-
+        console.log(response);
         if (response.data && Array.isArray(response.data)) {
           setTokens(response.data);
         } else {
@@ -470,15 +471,43 @@ export const WalletView = () => {
                 router.push(`/token/${network.native?.name.toLowerCase()}`)
               }
             />
-            {tokens.map((token, i) => (
-              <TokenItem
-                key={i}
-                token={token}
-                balance={tokenBalances[token.address]}
-                price={tokenPrices[token.token_id]}
-                onClick={() => router.push(`/token/${token.token_id}`)}
-              />
-            ))}
+            {network.isTestNet === true ? (
+              <>
+                {tokens
+                  .filter(
+                    (token) =>
+                      token.chain === network.name.toLowerCase() &&
+                      token.isMainnet === false
+                  )
+                  .map((token, i) => (
+                    <TokenItem
+                      key={i}
+                      token={token}
+                      balance={tokenBalances[token.address]}
+                      price={tokenPrices[token.token_id]}
+                      onClick={() => router.push(`/token/${token.token_id}`)}
+                    />
+                  ))}
+              </>
+            ) : (
+              <>
+                {tokens
+                  .filter(
+                    (token) =>
+                      token.chain === network.name.toLowerCase() &&
+                      token.isMainnet === true
+                  )
+                  .map((token, i) => (
+                    <TokenItem
+                      key={i}
+                      token={token}
+                      balance={tokenBalances[token.address]}
+                      price={tokenPrices[token.token_id]}
+                      onClick={() => router.push(`/token/${token.token_id}`)}
+                    />
+                  ))}
+              </>
+            )}
           </>
         ) : (
           <>

@@ -14,9 +14,10 @@ import Link from "next/link";
 import { getTokenPrice } from "@/lib/helper.lib";
 //import { fetchSolPriceB } from "@/lib/solana.lib";
 import { useAuth } from "@/context/AuthContext";
-import { TokenService } from "@/lib/services/TokenServices";
+//import { TokenService } from "@/lib/services/TokenServices";
 import { Tokens } from "@/interfaces/models.interface";
 import { useNetwork } from "@/context/NetworkContext";
+import { Token } from "@/utils/tokens.utils";
 export const SendView = ({ slug }: { slug: string }) => {
   const [loading, setIsLoading] = useState<boolean>(false);
   const [isTxSuccess, setIsTxSuccess] = useState<boolean>(false);
@@ -48,13 +49,13 @@ export const SendView = ({ slug }: { slug: string }) => {
     try {
       // setIsLoading(true);
       // console.log('Fetching token info for slug:', slug);
-      const response = await TokenService.getTokenBytoken_id(slug);
+      const response = Token.find((token) => token.token_id === slug);
       //console.log('Token info response:', response);
 
-      if (response?.data && Array.isArray(response.data)) {
-        setTokenInfo(response.data);
-        console.log("Token info set:", response.data);
-        return response.data;
+      if (response && Array.isArray(response)) {
+        setTokenInfo(response);
+        console.log("Token info set:", response);
+        return response;
       } else {
         console.error("Invalid token data received:", response);
         setTokenInfo([]);

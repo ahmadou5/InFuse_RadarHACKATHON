@@ -9,8 +9,9 @@ import { formatAddress } from "@/lib/helper.lib";
 import { getSPLTokenTransactions } from "@/lib/spl.lib";
 
 //yimport { Tokens } from "@/interfaces/models.interface";
-import { TokenService } from "@/lib/services/TokenServices";
+//import { TokenService } from "@/lib/services/TokenServices";
 import { useNetwork } from "@/context/NetworkContext";
+import { Token } from "@/utils/tokens.utils";
 //import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 
 export interface TransactionData {
@@ -54,13 +55,13 @@ export const Transactions = ({ tokenId }: { tokenId: string }) => {
         console.log(trx.transactions);
       } else {
         if (!user) return;
-        const response = await TokenService.getTokenBytoken_id(tokenId);
-        if (response?.data && Array.isArray(response.data)) {
+        const response = Token.find((token) => token.token_id === tokenId);
+        if (response && Array.isArray(response)) {
           //console.log(response.data[0].address);
           const trx = await getSPLTokenTransactions(user.publicKey, {
             limit: 100 | 0,
             cluster: network.rpcUrl,
-            mintAddress: response?.data[0]?.address,
+            mintAddress: response[0]?.address,
           });
           console.log("spl data", trx);
         }

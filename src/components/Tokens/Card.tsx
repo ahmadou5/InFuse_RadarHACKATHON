@@ -1,7 +1,7 @@
 import { useMini } from "@/context/MiniContext";
 import { useEffect, useState } from "react";
 import { Tokens } from "@/interfaces/models.interface";
-import { TokenService } from "@/lib/services/TokenServices";
+//import { TokenService } from "@/lib/services/TokenServices";
 import { getSplTokenBalance } from "@/lib/solana.lib";
 import { Connection, clusterApiUrl } from "@solana/web3.js";
 import { PublicKey } from "@solana/web3.js";
@@ -12,6 +12,7 @@ import toast, { Toaster } from "react-hot-toast";
 
 import { createAndMintToken } from "@/lib/helper.lib";
 import { useNetwork } from "@/context/NetworkContext";
+import { Token } from "@/utils/tokens.utils";
 
 export const Card = ({ tokenId }: { tokenId: string }) => {
   const { user } = useAuth();
@@ -36,13 +37,13 @@ export const Card = ({ tokenId }: { tokenId: string }) => {
     try {
       // setIsLoading(true);
       // console.log('Fetching token info for slug:', slug);
-      const response = await TokenService.getTokenBytoken_id(slug);
-      //console.log('Token info response:', response);
+      const response = Token.find((token) => token.token_id === slug);
+      console.log("Token info response:", response);
 
-      if (response?.data && Array.isArray(response.data)) {
-        setTokenInfo(response.data);
-        console.log("Token info set:", response.data);
-        return response.data;
+      if (response && Array.isArray(response)) {
+        setTokenInfo(response);
+        console.log("Token info set:", response);
+        return response;
       } else {
         console.error("Invalid token data received:", response);
         setTokenInfo([]);
@@ -113,7 +114,7 @@ export const Card = ({ tokenId }: { tokenId: string }) => {
       if (!tokenDetails) return;
       let ownerPubKey: PublicKey;
       try {
-        ownerPubKey = new PublicKey(tokenDetails[0]?.Owner);
+        ownerPubKey = new PublicKey(tokenDetails[0]?.owner);
       } catch (error) {
         throw new Error("Invalid sender address");
       }

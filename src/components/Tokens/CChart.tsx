@@ -9,9 +9,10 @@ import {
   TooltipProps,
 } from "recharts";
 import { Tokens } from "@/interfaces/models.interface";
-import { TokenService } from "@/lib/services/TokenServices";
+//import { TokenService } from "@/lib/services/TokenServices";
 import { ArrowUpRight, ArrowDownRight } from "lucide-react";
 import { useNetwork } from "@/context/NetworkContext";
+import { Token } from "@/utils/tokens.utils";
 //import { useRouter } from 'next/navigation';
 
 interface ChartProps {
@@ -89,15 +90,15 @@ const CChart = ({ tokenId }: ChartProps) => {
     try {
       // setIsLoading(true);
       // console.log('Fetching token info for slug:', slug);
-      const response = await TokenService.getCompressToken(slug);
+      const response = Token.find((token) => token.compress_address === slug);
       //console.log('Token info response:', response);
 
-      if (response?.data && Array.isArray(response.data)) {
-        setTokenInfo(response.data);
-        console.log("Token info set:", response.data);
+      if (response && Array.isArray(response)) {
+        setTokenInfo(response);
+        console.log("Token info set:", response);
         const data = await fetchTokenData(tokenInfo[0]?.token_id, timeframe);
         setChartData(data);
-        return response.data;
+        return response;
       } else {
         console.error("Invalid token data received:", response);
         setTokenInfo([]);
