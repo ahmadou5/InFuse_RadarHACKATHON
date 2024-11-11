@@ -90,7 +90,7 @@ const Chart = ({ tokenId }: ChartProps) => {
   const getTokenInfo = async (slug: string) => {
     try {
       console.log("token etails");
-      const response = Token.find((token) => token.token_id === slug);
+      const response = Token.filter((token) => token.address === slug);
 
       if (response && Array.isArray(response)) {
         setTokenInfo(response);
@@ -105,13 +105,14 @@ const Chart = ({ tokenId }: ChartProps) => {
     }
   };
   useEffect(() => {
-    const fetchData = async () => {
-      const data = await fetchTokenData(tokenId, timeframe);
+    const fetchData = async (slug: string) => {
+      const token = Token.filter((token) => token.address === slug);
+      const data = await fetchTokenData(token[0]?.token_id, timeframe);
       setChartData(data);
     };
 
-    fetchData();
-    getTokenInfo(tokenId);
+    fetchData(tokenId[0]);
+    getTokenInfo(tokenId[0]);
   }, [tokenId, timeframe]);
 
   const currentPrice = useMemo(

@@ -27,7 +27,7 @@ export const Top = ({ tokenId }: TopProps) => {
     try {
       // setIsLoading(true);
       // console.log('Fetching token info for slug:', slug);
-      const response = Token.find((token) => token.token_id === slug);
+      const response = Token.filter((token) => token.address === slug);
       //console.log('Token info response:', response);
 
       if (response && Array.isArray(response)) {
@@ -82,7 +82,7 @@ export const Top = ({ tokenId }: TopProps) => {
 
   const fetch = async () => {
     try {
-      const tokenDetails = await getTokenInfo(tokenId);
+      const tokenDetails = await getTokenInfo(tokenId[0]);
       if (!tokenDetails) return;
       const balance = fetchBalances(tokenDetails[0]?.address);
       console.log(balance);

@@ -48,16 +48,15 @@ const CompressTokenItem: React.FC<CompressTokenItemProps> = ({
 }) => {
   const [tokenInfo, setTokenInfo] = useState<Tokens[]>([]);
   const [tokenPrice, setTokenPrices] = useState<number>();
+  const { user } = useAuth();
   const getTokenInfo = async (slug: string) => {
     try {
-      // setIsLoading(true);
-      // console.log('Fetching token info for slug:', slug);
-      const response = Token.find((token) => token.compress_address === slug);
+      const response = Token.filter((token) => token.compress_address === slug);
       console.log("Token info response:", response);
 
       if (response && Array.isArray(response)) {
         setTokenInfo(response);
-        const ticker = response[0];
+        const ticker = response[0].token_id;
         const prices = await getTokenPrice(ticker);
         console.log("Token prices:", prices);
         setTokenPrices(prices);
@@ -70,15 +69,12 @@ const CompressTokenItem: React.FC<CompressTokenItemProps> = ({
     } catch (error) {
       console.error("Failed to fetch tokens:", error);
       setTokenInfo([]);
-    } finally {
-      //    setIsLoading(false);
-      //alert('done')
     }
   };
 
   useEffect(() => {
     getTokenInfo(address);
-  }, []);
+  }, [user]);
   //alert(address);
   return (
     <div
@@ -116,14 +112,14 @@ const CompressTokenItem: React.FC<CompressTokenItemProps> = ({
       <div className="ml-[10px] mt-1 text-white/85 mr-4 px-3">
         <p className="text-[15px] mb-1">
           {tokenPrice ? (
-            `$${tokenPrice.toFixed(1)}`
+            `$${tokenPrice.toFixed(2)}`
           ) : (
             <div className="bg-white/20 h-4 w-16 mb-2 animate-pulse rounded"></div>
           )}
         </p>
         <div className="text-[15px]">
           {balance !== undefined && tokenPrice !== undefined ? (
-            `$${(normalizeTokenAmount(balance, 6) * tokenPrice).toFixed(1)}`
+            `$${(normalizeTokenAmount(balance, 6) * tokenPrice).toFixed(2)}`
           ) : (
             <div className="bg-white/20 h-4 w-16 mb-2 animate-pulse rounded"></div>
           )}
@@ -485,7 +481,7 @@ export const WalletView = () => {
                       token={token}
                       balance={tokenBalances[token.address]}
                       price={tokenPrices[token.token_id]}
-                      onClick={() => router.push(`/token/${token.token_id}`)}
+                      onClick={() => router.push(`/token/${token.address}`)}
                     />
                   ))}
               </>
@@ -503,7 +499,7 @@ export const WalletView = () => {
                       token={token}
                       balance={tokenBalances[token.address]}
                       price={tokenPrices[token.token_id]}
-                      onClick={() => router.push(`/token/${token.token_id}`)}
+                      onClick={() => router.push(`/token/${token.address}`)}
                     />
                   ))}
               </>
@@ -522,7 +518,7 @@ export const WalletView = () => {
                       address={token.parsed.mint.toString()}
                       balance={token.parsed.amount}
                       onClick={() => {
-                        alert(token.parsed.mint.toBase58());
+                        //alert(token.parsed.mint.toBase58());
                         router.push(
                           `/token/compress/${token.parsed.mint.toBase58()}`
                         );

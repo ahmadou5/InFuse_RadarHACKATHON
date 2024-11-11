@@ -90,7 +90,7 @@ const CChart = ({ tokenId }: ChartProps) => {
     try {
       // setIsLoading(true);
       // console.log('Fetching token info for slug:', slug);
-      const response = Token.find((token) => token.compress_address === slug);
+      const response = Token.filter((token) => token.compress_address === slug);
       //console.log('Token info response:', response);
 
       if (response && Array.isArray(response)) {
@@ -158,8 +158,8 @@ const CChart = ({ tokenId }: ChartProps) => {
               <CustomTooltip
                 tokenId={
                   tokenId[0] === network.native?.name.toLowerCase()
-                    ? network.native.name
-                    : tokenInfo[0]?.name
+                    ? `c${network.native.name}`
+                    : `c${tokenInfo[0]?.name}`
                 }
               />
             }

@@ -8,7 +8,7 @@ interface TokenProps {
   tokenId: string;
   tokenSymbol: string;
 }
-export const TokenDetails = ({ tokenId }: TokenProps) => {
+export const CTokenDetails = ({ tokenId }: TokenProps) => {
   const [tokenInfo, setTokenInfo] = useState({
     currentPrice: 0,
     priceChange24h: 0,
@@ -22,7 +22,7 @@ export const TokenDetails = ({ tokenId }: TokenProps) => {
   const getTokenInfo = async (slug: string) => {
     try {
       //console.log("token etails");
-      const response = Token.filter((token) => token.address === slug);
+      const response = Token.filter((token) => token.compress_address === slug);
 
       if (response && Array.isArray(response)) {
         setToken1Info(response);
@@ -41,7 +41,8 @@ export const TokenDetails = ({ tokenId }: TokenProps) => {
   };
   useEffect(() => {
     const fetchTokenInfo = async () => {
-      const token = Token.filter((token) => token.address === tokenId[0]);
+      const token = Token.filter((token) => token.compress_address === tokenId);
+      console.log(token, "ggggsgsg");
       const url = `https://api.coingecko.com/api/v3/coins/${token[0].token_id}`;
       try {
         const response = await fetch(url);
@@ -59,7 +60,7 @@ export const TokenDetails = ({ tokenId }: TokenProps) => {
     };
 
     fetchTokenInfo();
-    getTokenInfo(tokenId[0]);
+    getTokenInfo(tokenId);
   }, [tokenId]);
   return (
     <div className="w-[100%]">
