@@ -86,7 +86,7 @@ export const SendView = ({ slug }: { slug: string }) => {
     try {
       //console.log('gettin bal')
       console.log(tokenInfo[0], "shineee");
-      if (slug[0] === "solana") {
+      if (slug[0] === network.native?.name.toLowerCase()) {
         if (!user) return;
         let userPubKey: PublicKey;
         try {
@@ -147,7 +147,7 @@ export const SendView = ({ slug }: { slug: string }) => {
 
   const handleTransfer = async () => {
     try {
-      if (slug[0] === "solana") {
+      if (slug[0] === network.native?.name.toLowerCase()) {
         if (!user) {
           return;
         }
