@@ -41,6 +41,7 @@ export const TokenDetails = ({ tokenId }: TokenProps) => {
   };
   useEffect(() => {
     const fetchTokenInfo = async () => {
+      const token = Token.filter((token) => token.address === tokenId[0]);
       if (tokenId[0] === network.native?.name.toLowerCase()) {
         const url = `https://api.coingecko.com/api/v3/coins/${tokenId[0]}`;
         try {
@@ -57,7 +58,6 @@ export const TokenDetails = ({ tokenId }: TokenProps) => {
           console.error("Error fetching token info:", error);
         }
       } else {
-        const token = Token.filter((token) => token.address === tokenId[0]);
         const url = `https://api.coingecko.com/api/v3/coins/${token[0].token_id}`;
         try {
           const response = await fetch(url);

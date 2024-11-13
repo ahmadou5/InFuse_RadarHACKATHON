@@ -3,6 +3,7 @@ import { Tokens } from "@/interfaces/models.interface";
 //import { TokenService } from "@/lib/services/TokenServices";
 import { useNetwork } from "@/context/NetworkContext";
 import { Token } from "@/utils/tokens.utils";
+import axios from "axios";
 
 interface TokenProps {
   tokenId: string;
@@ -41,12 +42,14 @@ export const CTokenDetails = ({ tokenId }: TokenProps) => {
   };
   useEffect(() => {
     const fetchTokenInfo = async () => {
-      const token = Token.filter((token) => token.compress_address === tokenId);
+      const token = Token.filter(
+        (token) => token.compress_address === tokenId[1]
+      );
       console.log(token, "ggggsgsg");
       const url = `https://api.coingecko.com/api/v3/coins/${token[0].token_id}`;
       try {
-        const response = await fetch(url);
-        const data = await response.json();
+        const response = await axios.get(url);
+        const data = await response.data;
         setTokenInfo({
           currentPrice: data.market_data.current_price.usd,
           priceChange24h: data.market_data.price_change_percentage_24h,

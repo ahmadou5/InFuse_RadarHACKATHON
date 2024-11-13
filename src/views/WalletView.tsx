@@ -48,7 +48,7 @@ const CompressTokenItem: React.FC<CompressTokenItemProps> = ({
 }) => {
   const [tokenInfo, setTokenInfo] = useState<Tokens[]>([]);
   const [tokenPrice, setTokenPrices] = useState<number>();
-  const { user } = useAuth();
+  //const { user } = useAuth();
   const getTokenInfo = async (slug: string) => {
     try {
       const response = Token.filter((token) => token.compress_address === slug);
@@ -74,7 +74,7 @@ const CompressTokenItem: React.FC<CompressTokenItemProps> = ({
 
   useEffect(() => {
     getTokenInfo(address);
-  }, [user]);
+  }, []);
   //alert(address);
   return (
     <div
