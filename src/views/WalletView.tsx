@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { BN254, ParsedTokenAccount } from "@lightprotocol/stateless.js";
 import { useAuth } from "@/context/AuthContext";
 import { normalizeTokenAmount } from "helius-airship-core";
@@ -46,84 +46,92 @@ const CompressTokenItem: React.FC<CompressTokenItemProps> = ({
   balance,
   onClick,
 }) => {
-  const [tokenInfo, setTokenInfo] = useState<Tokens[]>([]);
-  const [tokenPrice, setTokenPrices] = useState<number>();
-  //const { user } = useAuth();
-  const getTokenInfo = async (slug: string) => {
-    try {
-      const response = Token.filter((token) => token.compress_address === slug);
-      console.log("Token info response:", response);
+  const [tokenInfo, setTokenInfo] = useState<Tokens | null>(null);
+  const [tokenPrice, setTokenPrice] = useState<number | undefined>();
+  const [isLoading, setIsLoading] = useState(true);
 
-      if (response && Array.isArray(response)) {
-        setTokenInfo(response);
+  const getTokenInfo = useCallback(async (slug: string) => {
+    try {
+      setIsLoading(true);
+      // Filter token info
+      const response = Token.filter((token) => token.compress_address === slug);
+
+      if (response && response.length > 0) {
+        setTokenInfo(response[0]);
+
+        // Fetch price only if we have valid token info
         const ticker = response[0].token_id;
-        const prices = await getTokenPrice(ticker);
-        console.log("Token prices:", prices);
-        setTokenPrices(prices);
-        console.log("Token info set:", response);
-        return response;
-      } else {
-        console.error("Invalid token data received:", response);
-        setTokenInfo([]);
+        const price = await getTokenPrice(ticker);
+        console.log(price, "asdfghjklwertyui");
+        setTokenPrice(price);
       }
     } catch (error) {
-      console.error("Failed to fetch tokens:", error);
-      setTokenInfo([]);
+      console.error("Failed to fetch token info:", error);
+    } finally {
+      setIsLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
-    getTokenInfo(address);
-  }, []);
-  //alert(address);
+    if (address) {
+      getTokenInfo(address);
+    }
+  }, [address, getTokenInfo]);
+
+  // Calculate normalized balance
+  const normalizedBalance = balance ? normalizeTokenAmount(balance, 6) : 0;
+
+  // Calculate total value
+  const totalValue = tokenPrice ? normalizedBalance * tokenPrice : 0;
+
+  if (isLoading) {
+    return (
+      <div className="bg-white/10 w-[90%] mb-1.5 flex items-center justify-center rounded-xl h-[70px]">
+        <div className="animate-pulse flex w-full items-center px-6">
+          <div className="rounded-full bg-white/20 h-12 w-12" />
+          <div className="flex-1 ml-4 space-y-2">
+            <div className="h-4 bg-white/20 rounded w-1/4" />
+            <div className="h-4 bg-white/20 rounded w-1/3" />
+          </div>
+          <div className="space-y-2">
+            <div className="h-4 bg-white/20 rounded w-16" />
+            <div className="h-4 bg-white/20 rounded w-16" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!tokenInfo) {
+    return null;
+  }
+
   return (
     <div
       onClick={onClick}
       className="bg-white/10 w-[90%] mb-1.5 flex items-center justify-center rounded-xl h-[70px] cursor-pointer"
     >
-      {tokenInfo[0]?.logoUrl ? (
-        <div className="bg-gothic-600/85 w-12 flex items-center justify-center h-12 ml-[23px] mr-[10px] rounded-full">
+      <div className="bg-gothic-600/85 w-12 flex items-center justify-center h-12 ml-[23px] mr-[10px] rounded-full">
+        {tokenInfo.logoUrl && (
           <img
-            src={tokenInfo[0]?.logoUrl}
-            alt={tokenInfo[0]?.name}
+            src={tokenInfo.logoUrl}
+            alt={tokenInfo.name}
             className="text-white/90 w-full h-full rounded-full"
+            onError={(e) => {
+              e.currentTarget.src = "./assets/5426.png"; // Fallback image
+            }}
           />
-        </div>
-      ) : (
-        <div className="bg-gothic-600/85 w-12 flex items-center justify-center h-12 ml-[23px] mr-[10px] rounded-full"></div>
-      )}
-      {/**   */}
-      <div className="ml-[5px] text-white/85 mr-auto px-3">
-        <p className="text-sm font-bold mb-1">{`c${tokenInfo[0]?.name}`}</p>
-        <p className="text-sm">
-          {balance === undefined ? (
-            <div className="bg-white/20 h-4 w-16 mb-2 animate-pulse rounded"></div>
-          ) : (
-            `${
-              balance === undefined
-                ? "0"
-                : normalizeTokenAmount(balance, 6).toFixed(2)
-            } `
-          )}
-        </p>
+        )}
       </div>
-      {/** */}
+
+      <div className="ml-[5px] text-white/85 mr-auto px-3">
+        <p className="text-sm font-bold mb-1">{`c${tokenInfo.name}`}</p>
+        <p className="text-sm">{normalizedBalance.toFixed(2)}</p>
+      </div>
 
       <div className="ml-[10px] mt-1 text-white/85 mr-4 px-3">
-        <p className="text-[15px] mb-1">
-          {tokenPrice ? (
-            `$${tokenPrice.toFixed(2)}`
-          ) : (
-            <div className="bg-white/20 h-4 w-16 mb-2 animate-pulse rounded"></div>
-          )}
-        </p>
-        <div className="text-[15px]">
-          {balance !== undefined && tokenPrice !== undefined ? (
-            `$${(normalizeTokenAmount(balance, 6) * tokenPrice).toFixed(2)}`
-          ) : (
-            <div className="bg-white/20 h-4 w-16 mb-2 animate-pulse rounded"></div>
-          )}
-        </div>
+        <p className="text-[15px] mb-1">${tokenPrice?.toFixed(2) ?? "0.00"}</p>
+        <div className="text-[15px]">${totalValue.toFixed(2)}</div>
       </div>
     </div>
   );
@@ -387,7 +395,9 @@ export const WalletView = () => {
       <div className="bg-gothic-950/0 mt-3 flex items-center justify-center w-[100%] h-auto">
         <div className="bg-gothic-300/0 w-[90%] flex items-center justify-center rounded-3xl h-[100px]">
           <div
-            onClick={() => router.push(`/send/${network.name.toLowerCase()}`)}
+            onClick={() =>
+              router.push(`/send/${network.native?.name.toLowerCase()}`)
+            }
             className="text-xl bg-white/10  border-[#448cff]/25 flex flex-col items-center justify-center rounded-3xl h-20 w-20 ml-auto mr-auto  text-white/60"
           >
             <img
@@ -464,7 +474,7 @@ export const WalletView = () => {
               balance={solBalance}
               price={solPrice}
               onClick={() =>
-                router.push(`/token/${network.name.toLowerCase()}`)
+                router.push(`/token/${network.native?.name.toLowerCase()}`)
               }
             />
             {network.isTestNet === true ? (
