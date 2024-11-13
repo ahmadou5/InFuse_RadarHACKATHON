@@ -89,15 +89,19 @@ const Chart = ({ tokenId }: ChartProps) => {
 
   const getTokenInfo = async (slug: string) => {
     try {
-      console.log("token etails");
-      const response = Token.filter((token) => token.address === slug);
-
-      if (response && Array.isArray(response)) {
-        setTokenInfo(response);
-        console.log(response, "anan ne");
+      if (slug === network.native?.name.toLowerCase()) {
+        console.log("NEWRWR");
       } else {
-        console.error("Invalid token data received:", response);
-        setTokenInfo([]); // Set to empty array if data is invalid
+        console.log("token etails");
+        const response = Token.filter((token) => token.address === slug);
+
+        if (response && Array.isArray(response)) {
+          setTokenInfo(response);
+          console.log(response, "anan ne");
+        } else {
+          console.error("Invalid token data received:", response);
+          setTokenInfo([]); // Set to empty array if data is invalid
+        }
       }
     } catch (error) {
       console.error("Failed to fetch tokens:", error);
@@ -106,9 +110,14 @@ const Chart = ({ tokenId }: ChartProps) => {
   };
   useEffect(() => {
     const fetchData = async (slug: string) => {
-      const token = Token.filter((token) => token.address === slug);
-      const data = await fetchTokenData(token[0]?.token_id, timeframe);
-      setChartData(data);
+      if (slug === network.native?.name.toLowerCase()) {
+        const data = await fetchTokenData(tokenId, timeframe);
+        setChartData(data);
+      } else {
+        const token = Token.filter((token) => token.address === slug);
+        const data = await fetchTokenData(token[0]?.token_id, timeframe);
+        setChartData(data);
+      }
     };
 
     fetchData(tokenId[0]);

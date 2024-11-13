@@ -8,9 +8,11 @@ import { useMini } from "@/context/MiniContext";
 import { Token } from "@/utils/tokens.utils";
 import { useEffect, useState } from "react";
 import { Tokens } from "@/interfaces/models.interface";
+import { useNetwork } from "@/context/NetworkContext";
 export const Activities = ({ slug }: Params) => {
   const [tokenInfo, setTokenInfo] = useState<Tokens[]>([]);
   const { user } = useAuth();
+  const { network } = useNetwork();
   const { setIsCompressed } = useMini();
   console.log(slug[0]);
   const router = useRouter();
@@ -83,7 +85,11 @@ export const Activities = ({ slug }: Params) => {
     <>
       <div className="bg-gothic-300/0 w-[90%] ml-auto mr-auto mb-5 flex items-center justify-center rounded-3xl h-[100px]">
         <div
-          onClick={() => router.replace(`/send/${tokenInfo[0]?.address}`)}
+          onClick={() => {
+            slug[0] = network.native?.name.toLowerCase()
+              ? router.replace(`/send/${slug[0]}`)
+              : router.replace(`/send/${tokenInfo[0]?.address}`);
+          }}
           className="text-xl bg-white/10  border-[#448cff]/25 flex flex-col items-center justify-center rounded-3xl h-16 w-16 ml-auto mr-auto  text-white/60"
         >
           <img

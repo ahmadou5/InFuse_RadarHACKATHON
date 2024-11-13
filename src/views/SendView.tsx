@@ -37,7 +37,7 @@ export const SendView = ({ slug }: { slug: string }) => {
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setReceiveAddress(event.target.value);
   };
-  console.log(slug[0]);
+  console.log(slug[1]);
   const connection = new Connection(
     network?.rpcUrl || clusterApiUrl("devnet"),
     {

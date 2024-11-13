@@ -464,7 +464,7 @@ export const WalletView = () => {
               balance={solBalance}
               price={solPrice}
               onClick={() =>
-                router.push(`/token/${network.native?.name.toLowerCase()}`)
+                router.push(`/token/${network.name.toLowerCase()}`)
               }
             />
             {network.isTestNet === true ? (

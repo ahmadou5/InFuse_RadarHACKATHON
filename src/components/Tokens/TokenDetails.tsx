@@ -41,20 +41,37 @@ export const TokenDetails = ({ tokenId }: TokenProps) => {
   };
   useEffect(() => {
     const fetchTokenInfo = async () => {
-      const token = Token.filter((token) => token.address === tokenId[0]);
-      const url = `https://api.coingecko.com/api/v3/coins/${token[0].token_id}`;
-      try {
-        const response = await fetch(url);
-        const data = await response.json();
-        setTokenInfo({
-          currentPrice: data.market_data.current_price.usd,
-          priceChange24h: data.market_data.price_change_percentage_24h,
-          marketCap: data.market_data.market_cap.usd,
-          volume24h: data.market_data.total_volume.usd,
-          circulatingSupply: data.market_data.circulating_supply,
-        });
-      } catch (error) {
-        console.error("Error fetching token info:", error);
+      if (tokenId[0] === network.native?.name.toLowerCase()) {
+        const url = `https://api.coingecko.com/api/v3/coins/${tokenId[0]}`;
+        try {
+          const response = await fetch(url);
+          const data = await response.json();
+          setTokenInfo({
+            currentPrice: data.market_data.current_price.usd,
+            priceChange24h: data.market_data.price_change_percentage_24h,
+            marketCap: data.market_data.market_cap.usd,
+            volume24h: data.market_data.total_volume.usd,
+            circulatingSupply: data.market_data.circulating_supply,
+          });
+        } catch (error) {
+          console.error("Error fetching token info:", error);
+        }
+      } else {
+        const token = Token.filter((token) => token.address === tokenId[0]);
+        const url = `https://api.coingecko.com/api/v3/coins/${token[0].token_id}`;
+        try {
+          const response = await fetch(url);
+          const data = await response.json();
+          setTokenInfo({
+            currentPrice: data.market_data.current_price.usd,
+            priceChange24h: data.market_data.price_change_percentage_24h,
+            marketCap: data.market_data.market_cap.usd,
+            volume24h: data.market_data.total_volume.usd,
+            circulatingSupply: data.market_data.circulating_supply,
+          });
+        } catch (error) {
+          console.error("Error fetching token info:", error);
+        }
       }
     };
 
