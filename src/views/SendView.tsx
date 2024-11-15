@@ -18,9 +18,11 @@ import { useAuth } from "@/context/AuthContext";
 import { Tokens } from "@/interfaces/models.interface";
 import { useNetwork } from "@/context/NetworkContext";
 import { Token } from "@/utils/tokens.utils";
+//import { Fascinate_Inline } from "next/font/google";
 export const SendView = ({ slug }: { slug: string }) => {
   const [loading, setIsLoading] = useState<boolean>(false);
   const [isTxSuccess, setIsTxSuccess] = useState<boolean>(false);
+  const [isTxFail, setIsTxFail] = useState<boolean>(false);
   const [preview, setPreview] = useState<boolean>(false);
   const [tokenInfo, setTokenInfo] = useState<Tokens[]>([]);
   const [receiveAddress, setReceiveAddress] = useState<string>("");
@@ -29,6 +31,7 @@ export const SendView = ({ slug }: { slug: string }) => {
   const [userBalance, setUserBalance] = useState<number>(0);
   const [solFee, setSolFee] = useState<number | undefined>(0);
   const [hash, setHash] = useState<string | undefined>("");
+  const [errorMessage, setErrorMessage] = useState<string | undefined>("");
   const amountRef = useRef<HTMLInputElement>(null);
 
   const { network } = useNetwork();
@@ -37,13 +40,10 @@ export const SendView = ({ slug }: { slug: string }) => {
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setReceiveAddress(event.target.value);
   };
-  console.log(slug[1]);
-  const connection = new Connection(
-    network?.rpcUrl || clusterApiUrl("devnet"),
-    {
-      commitment: "confirmed",
-    }
-  );
+  console.log(slug[0]);
+  const connection = new Connection(clusterApiUrl("devnet"), {
+    commitment: "confirmed",
+  });
 
   const getTokenInfo = async (slug: string) => {
     try {
@@ -99,7 +99,7 @@ export const SendView = ({ slug }: { slug: string }) => {
         setUserBalance(balance);
         //console.log(balance,'hhhhh');
       } else {
-        //console.log('spl ne waannan',address,)
+        console.log("spl ne waannan", address);
         if (!user) return;
         const balance = await getSplTokenBalance(
           connection,
@@ -151,29 +151,37 @@ export const SendView = ({ slug }: { slug: string }) => {
         if (!user) {
           return;
         }
-        setIsLoading(true);
-        // const userAdd = user.publicKey
-        // Ensure the private key is properly handled
-        const mnemonic = user.mnemonic;
-        //const receiver = new PublicKey(receiveAddress)
-        // Ensure the receive address is a valid public key
-        //const toPubkey = new PublicKey(receiveAddress);
-        console.log(mnemonic);
-        //console.log(receiver);
-        console.log("Sending transaction...", receiveAddress);
+        try {
+          setIsLoading(true);
+          // const userAdd = user.publicKey
+          // Ensure the private key is properly handled
+          const mnemonic = user.mnemonic;
+          //const receiver = new PublicKey(receiveAddress)
+          // Ensure the receive address is a valid public key
+          //const toPubkey = new PublicKey(receiveAddress);
+          console.log(mnemonic);
+          //console.log(receiver);
+          console.log("Sending transaction...", receiveAddress);
 
-        console.log("Sending transaction...");
-        const trx = await handleSendSol({
-          connection: connection,
-          receiveAddress: receiveAddress,
-          userMnemonic: mnemonic,
-          amount: amount,
-        });
-        console.log("Transaction result:", trx?.txid);
-        console.log(trx?.feeInSol, "fee");
-        setSolFee(trx?.feeInSol);
-        setHash(trx?.txid);
-        setIsLoading(true);
+          console.log("Sending transaction...");
+          const trx = await handleSendSol({
+            connection: connection,
+            receiveAddress: receiveAddress,
+            userMnemonic: mnemonic,
+            amount: amount,
+          });
+          console.log("Transaction result:", trx?.txid);
+          console.log(trx?.feeInSol, "fee");
+          setIsTxSuccess(true);
+          setSolFee(trx?.feeInSol);
+          setHash(trx?.txid);
+          setIsLoading(true);
+        } catch (error: unknown) {
+          if (error instanceof Error) {
+            setErrorMessage(error.message);
+          }
+          setIsTxFail(true);
+        }
       } else {
         if (!user) return;
         let mintPubKey: PublicKey;
@@ -203,14 +211,27 @@ export const SendView = ({ slug }: { slug: string }) => {
           mintAddress: mintPubKey,
         });
         console.log(trx, "transaction");
+        setIsTxSuccess(true);
       }
-    } catch (error) {
-      console.error("Transaction error:", error);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        setErrorMessage(error.message);
+      }
+      setIsTxFail(true);
+    }
+  };
+  const transactionErrorHandler = (ErrorString: string) => {
+    if (ErrorString.includes("insufficient funds")) {
+      return "You do not have enought to spend balance too low";
+    } else if (ErrorString.includes("RPC")) {
+      return "Network Error try again later";
     }
   };
   useEffect(() => {
     fetch();
+    getTokenInfo(slug[0]);
   }, []);
+
   useEffect(() => {
     if (slug && Array.isArray(slug) && slug.length === 2 && slug[1]) {
       setReceiveAddress(slug[1]);
@@ -377,8 +398,8 @@ export const SendView = ({ slug }: { slug: string }) => {
                                 onClick={async () => {
                                   if (receiveAddress !== "") {
                                     await handleTransfer();
-                                    setIsTxSuccess(true);
-                                    console.log("uiss");
+                                    //setIsTxSuccess(true);
+                                    //console.log("uiss");
                                   }
                                 }}
                                 className="outline-none bg-transparent w-[100%] h-[100%] text-white  py-0 px-4"
@@ -416,7 +437,11 @@ export const SendView = ({ slug }: { slug: string }) => {
                           {hash != "" ? (
                             <div className="text-white/85 flex font-light ml-auto mr-auto ">
                               <Link
-                                href={`https://${"solscan./io"}/tx/${hash}?cluster=devnet`}
+                                href={`https://explorer.solana.com/tx/${hash}?cluster=${
+                                  network.isTestNet === true
+                                    ? "devnet"
+                                    : "mainnet"
+                                }`}
                                 target="_blank"
                               >
                                 <p className="text-[#448DFC] font-light ml-auto mr-auto ">{`View on Explorer`}</p>
@@ -431,6 +456,44 @@ export const SendView = ({ slug }: { slug: string }) => {
                         <div
                           onClick={() => router.push("/wallet")}
                           className="w-[98%] ml-auto mr-auto py-1 border border-[#448cff]/60 rounded-xl bg-black/50 h-14 flex items-center"
+                        >
+                          <p className="ml-auto mr-auto">Continue</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+              {isTxFail && (
+                <div className="inset-0 fixed bg-black/95 bg-opacity-100 w-[100%] z-[99999999] min-h-screen h-auto backdrop-blur-sm flex ">
+                  <div className="w-[100%] flex items-center px-3 justify-center">
+                    <div className="h-[100%] mt-[200px] ml-auto mr-auto py-2 px-2 w-[90%] bg-white/0 rounded-xl">
+                      <div className="mt-0 ml-auto mr-auto flex flex-col items-center justify-center text-center">
+                        <div className="w-[200px] mb-5 h-[200px] flex items-center justify-center">
+                          <img
+                            src="/assets/error.svg"
+                            className="w-[80%] h-[80%]"
+                          />
+                        </div>
+                        <div className="w-[100%]  ml-auto mr-auto py-1 px-3 flex  items-center justify-center bg-white/0 rounded-full h-9">
+                          <p className="text-white/85 font-light text-[24px] ml-auto mr-auto ">{`Transaction failed`}</p>
+                        </div>
+                        <div className="w-[100%] mb-5 ml-auto mr-auto py-1 px-3 flex  mt-12 items-center justify-center bg-white/0 rounded-full h-9">
+                          {errorMessage !== "" ? (
+                            <div className="text-white/85 flex mt-2 rounded-2xl bg-white bg-opacity-25 mb-2 p-5 font-light ml-auto mr-auto ">
+                              <p className="text-red-600 font-light ml-auto mr-auto ">{`${transactionErrorHandler(
+                                errorMessage || ""
+                              )}`}</p>
+                            </div>
+                          ) : (
+                            <div>
+                              <p></p>
+                            </div>
+                          )}
+                        </div>
+                        <div
+                          onClick={() => router.push("/wallet")}
+                          className="w-[98%] ml-auto mt-6 mr-auto py-1 border border-[#448cff]/60 rounded-xl bg-black/50 h-14 flex items-center"
                         >
                           <p className="ml-auto mr-auto">Continue</p>
                         </div>
