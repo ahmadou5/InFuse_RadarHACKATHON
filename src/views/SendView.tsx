@@ -225,6 +225,8 @@ export const SendView = ({ slug }: { slug: string }) => {
       return "You do not have enought to spend balance too low";
     } else if (ErrorString.includes("RPC")) {
       return "Network Error try again later";
+    } else {
+      return ErrorString;
     }
   };
   useEffect(() => {
