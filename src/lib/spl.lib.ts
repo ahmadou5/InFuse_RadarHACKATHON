@@ -4,6 +4,8 @@ import {
   createTransferInstruction,
   getAssociatedTokenAddress,
   TOKEN_PROGRAM_ID,
+  getMint,
+  getAccount,
 } from "@solana/spl-token";
 import * as bip39 from "bip39";
 import {
@@ -218,25 +220,27 @@ export const SendSplToken = async (
     fromPubKey,
     toPubKey,
     mintAddress,
-  }: {
+  }: // feePayerKeypair, // Add this new parameter for cases where fromPubKey is different from derived account
+  {
     amount: number;
     mnemonic: string;
     fromPubKey: PublicKey;
     toPubKey: PublicKey;
     mintAddress: PublicKey;
+    // feePayerKeypair?: Keypair;
   }
 ) => {
   try {
-    //const numberDecimals_ = await getNumberDecimals(connection, mintAddress);
-    console.log("started");
+    // 1. Generate keypair from mnemonic
     const seed = await bip39.mnemonicToSeed(mnemonic);
     const seedBytes = seed.slice(0, 32);
     const account = Keypair.fromSeed(seedBytes);
-    //l//et transferAmount: number = parseFloat(amount.toString());
-    // .toFixed() returns a string, so we need to parse it back to a number
-    //transferAmount = Number(transferAmount.toFixed(numberDecimals_));
-    // transferAmount = transferAmount * Math.pow(10, numberDecimals_);
 
+    // 2. Get token mint info for decimal adjustment
+    const mintInfo = await getMint(connection, mintAddress);
+    const adjustedAmount = amount * Math.pow(10, mintInfo.decimals);
+
+    // 3. Get token accounts
     const fromTokenAccount = await getAssociatedTokenAddress(
       mintAddress,
       fromPubKey,
@@ -253,12 +257,29 @@ export const SendSplToken = async (
       ASSOCIATED_TOKEN_PROGRAM_ID
     );
 
-    console.log("existance");
-    const ifexists = await connection.getAccountInfo(toTokenAccount);
+    // 4. Check balances
+    const solBalance = await connection.getBalance(fromPubKey);
 
+    try {
+      const tokenAccount = await getAccount(connection, fromTokenAccount);
+      if (BigInt(tokenAccount.amount) < BigInt(adjustedAmount)) {
+        throw new Error("Insufficient token balance");
+      }
+    } catch (e) {
+      throw new Error("Token account not found or insufficient balance");
+    }
+
+    // 5. Prepare instructions array
     const instructions = [];
 
+    // 6. Check if destination account exists and create if needed
+    const ifexists = await connection.getAccountInfo(toTokenAccount);
     if (!ifexists || !ifexists.data) {
+      const rent = await connection.getMinimumBalanceForRentExemption(165); // Size of ATA account
+      if (solBalance < rent) {
+        throw new Error("Insufficient SOL for ATA creation");
+      }
+
       const createATAiX = createAssociatedTokenAccountInstruction(
         fromPubKey,
         toTokenAccount,
@@ -269,38 +290,58 @@ export const SendSplToken = async (
       );
       instructions.push(createATAiX);
     }
-    console.log(amount, "hereeee");
+
+    // 7. Create transfer instruction with adjusted amount
     const transferInstruction = createTransferInstruction(
       fromTokenAccount,
       toTokenAccount,
       fromPubKey,
-      amount
+      adjustedAmount
     );
     instructions.push(transferInstruction);
 
+    // 8. Build transaction
     const transaction = new Transaction();
     transaction.feePayer = fromPubKey;
-
     transaction.add(...instructions);
-
-    console.log(transaction);
-
-    // set the end user as the fee payer
-    transaction.feePayer = fromPubKey;
 
     transaction.recentBlockhash = (
       await connection.getLatestBlockhash()
     ).blockhash;
+
+    // 9. Handle signers
+    const signers = [account];
+
+    // 10. Estimate transaction fee
+    const fees = await transaction.getEstimatedFee(connection);
+    if (fees === null) return;
+    if (solBalance < fees) {
+      throw new Error(
+        `Insufficient SOL for transaction fees. Required: ${fees}, Available: ${solBalance}`
+      );
+    }
+
+    // 11. Send and confirm transaction
     const transactionSignature = await sendAndConfirmTransaction(
       connection,
       transaction,
-      [
-        account, // payer, owner
-      ]
+      signers,
+      {
+        commitment: "confirmed",
+        preflightCommitment: "confirmed",
+      }
     );
-    return transactionSignature;
+
+    return {
+      signature: transactionSignature,
+      adjustedAmount,
+      fees,
+    };
   } catch (error: unknown) {
-    if (error instanceof Error)
-      console.log(error.message || "Unknown error occurred");
+    if (error instanceof Error) {
+      console.error("Transaction failed:", error.message);
+      throw error; // Re-throw to allow proper error handling by caller
+    }
+    throw new Error("An unknown error occurred");
   }
 };
