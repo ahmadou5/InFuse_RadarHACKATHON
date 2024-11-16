@@ -184,9 +184,11 @@ export const SendView = ({ slug }: { slug: string }) => {
         }
       } else {
         if (!user) return;
+        const tokenDetails = await getTokenInfo(slug[0]);
+        if (!tokenDetails) return;
         let mintPubKey: PublicKey;
         try {
-          mintPubKey = new PublicKey(tokenInfo[0]?.address);
+          mintPubKey = new PublicKey(tokenDetails[0]?.address);
         } catch (error) {
           throw new Error("Invalid mint address");
         }
