@@ -228,7 +228,7 @@ export const SendSplToken = async (
 ) => {
   try {
     //const numberDecimals_ = await getNumberDecimals(connection, mintAddress);
-
+    console.log("started");
     const seed = await bip39.mnemonicToSeed(mnemonic);
     const seedBytes = seed.slice(0, 32);
     const account = Keypair.fromSeed(seedBytes);
@@ -253,6 +253,7 @@ export const SendSplToken = async (
       ASSOCIATED_TOKEN_PROGRAM_ID
     );
 
+    console.log("existance");
     const ifexists = await connection.getAccountInfo(toTokenAccount);
 
     const instructions = [];
@@ -268,7 +269,7 @@ export const SendSplToken = async (
       );
       instructions.push(createATAiX);
     }
-
+    console.log(amount, "hereeee");
     const transferInstruction = createTransferInstruction(
       fromTokenAccount,
       toTokenAccount,
@@ -281,6 +282,8 @@ export const SendSplToken = async (
     transaction.feePayer = fromPubKey;
 
     transaction.add(...instructions);
+
+    console.log(transaction);
 
     // set the end user as the fee payer
     transaction.feePayer = fromPubKey;
@@ -298,6 +301,6 @@ export const SendSplToken = async (
     return transactionSignature;
   } catch (error: unknown) {
     if (error instanceof Error)
-      throw new Error(error.message || "Unknown error occurred");
+      console.log(error.message || "Unknown error occurred");
   }
 };
