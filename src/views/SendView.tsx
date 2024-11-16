@@ -172,14 +172,18 @@ export const SendView = ({ slug }: { slug: string }) => {
           });
           console.log("Transaction result:", trx?.txid);
           console.log(trx?.feeInSol, "fee");
-          setIsTxSuccess(true);
-          setSolFee(trx?.feeInSol);
-          setHash(trx?.txid);
-          setIsLoading(true);
+          if (trx === undefined) {
+            setIsTxFail(true);
+          } else {
+            setIsTxSuccess(true);
+            setSolFee(trx?.feeInSol);
+            setHash(trx?.txid);
+            setIsLoading(true);
+          }
         } catch (error: unknown) {
           if (error instanceof Error) {
             setErrorMessage(error.message);
-            setIsTxFail(true);
+            //setIsTxFail(true);
           }
         }
       } else {
