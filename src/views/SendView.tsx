@@ -220,15 +220,15 @@ export const SendView = ({ slug }: { slug: string }) => {
       setIsTxFail(true);
     }
   };
-  const transactionErrorHandler = (ErrorString: string) => {
-    if (ErrorString.includes("insufficient funds")) {
-      return "You do not have enought to spend balance too low";
-    } else if (ErrorString.includes("RPC")) {
-      return "Network Error try again later";
-    } else {
-      return ErrorString;
-    }
-  };
+  // const transactionErrorHandler = (ErrorString: string) => {
+  //  if (ErrorString.includes("insufficient funds")) {
+  //    return "You do not have enought to spend balance too low";
+  //  } else if (ErrorString.includes("RPC")) {
+  //    return "Network Error try again later";
+  //  } else {
+  //    return ErrorString;
+  //  }
+  //};
   useEffect(() => {
     fetch();
     getTokenInfo(slug[0]);
@@ -483,9 +483,9 @@ export const SendView = ({ slug }: { slug: string }) => {
                         <div className="w-[100%] mb-5 ml-auto mr-auto py-1 px-3 flex  mt-12 items-center justify-center bg-white/0 rounded-full h-9">
                           {errorMessage !== "" ? (
                             <div className="text-white/85 flex mt-2 rounded-2xl bg-white bg-opacity-25 mb-2 p-5 font-light ml-auto mr-auto ">
-                              <p className="text-red-600 font-light ml-auto mr-auto ">{`${transactionErrorHandler(
+                              <p className="text-red-600 font-light ml-auto mr-auto ">{`${
                                 errorMessage || ""
-                              )}`}</p>
+                              }`}</p>
                             </div>
                           ) : (
                             <div>
