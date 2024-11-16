@@ -9,11 +9,9 @@ import * as bip39 from "bip39";
 import {
   Connection,
   sendAndConfirmTransaction,
-  ParsedAccountData,
   PublicKey,
   ConfirmedSignatureInfo,
   ParsedInstruction,
-  clusterApiUrl,
   Transaction,
   Keypair,
 } from "@solana/web3.js";
@@ -212,16 +210,6 @@ export const getSplTokenAddress = (token: string) =>
     usdc: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
   }[token]);
 
-async function getNumberDecimals(
-  connection: Connection,
-  mintAddress: PublicKey
-): Promise<number> {
-  const info = await connection.getParsedAccountInfo(mintAddress);
-  const result = (info.value?.data as ParsedAccountData).parsed.info
-    .decimals as number;
-  return result;
-}
-
 export const SendSplToken = async (
   connection: Connection,
   {
@@ -239,16 +227,15 @@ export const SendSplToken = async (
   }
 ) => {
   try {
-    const connection = new Connection(clusterApiUrl("devnet"), "confirmed");
-    const numberDecimals_ = await getNumberDecimals(connection, mintAddress);
+    //const numberDecimals_ = await getNumberDecimals(connection, mintAddress);
 
     const seed = await bip39.mnemonicToSeed(mnemonic);
     const seedBytes = seed.slice(0, 32);
     const account = Keypair.fromSeed(seedBytes);
-    let transferAmount: number = parseFloat(amount.toString());
+    //l//et transferAmount: number = parseFloat(amount.toString());
     // .toFixed() returns a string, so we need to parse it back to a number
-    transferAmount = Number(transferAmount.toFixed(numberDecimals_));
-    transferAmount = transferAmount * Math.pow(10, numberDecimals_);
+    //transferAmount = Number(transferAmount.toFixed(numberDecimals_));
+    // transferAmount = transferAmount * Math.pow(10, numberDecimals_);
 
     const fromTokenAccount = await getAssociatedTokenAddress(
       mintAddress,
@@ -286,7 +273,7 @@ export const SendSplToken = async (
       fromTokenAccount,
       toTokenAccount,
       fromPubKey,
-      transferAmount
+      amount
     );
     instructions.push(transferInstruction);
 
