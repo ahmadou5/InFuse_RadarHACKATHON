@@ -227,6 +227,8 @@ export const SendView = ({ slug }: { slug: string }) => {
       return "You do not have enought to spend balance too low";
     } else if (ErrorString.includes("RPC")) {
       return "Network Error try again later";
+    } else if (ErrorString.includes("insufficient lamports")) {
+      return "You do not have enought SOL for Gas ";
     } else {
       return ErrorString;
     }
