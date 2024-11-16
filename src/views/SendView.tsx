@@ -75,7 +75,7 @@ export const SendView = ({ slug }: { slug: string }) => {
         const price = await getSolPrice(token[0]);
         console.log(price);
       } else {
-        const price = await getTokenPrice(tokenInfo[0].token_id);
+        const price = await getTokenPrice(tokenInfo[0]?.token_id);
         console.log(price);
       }
     } catch (error) {
