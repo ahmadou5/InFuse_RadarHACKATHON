@@ -170,6 +170,7 @@ export const SendView = ({ slug }: { slug: string }) => {
             userMnemonic: mnemonic,
             amount: amount,
           });
+
           console.log("Transaction result:", trx?.txid);
           console.log(trx?.feeInSol, "fee");
           if (trx === undefined) {

@@ -204,7 +204,7 @@ export const WalletView = () => {
   const [tokens, setTokens] = useState<Tokens[]>([]);
   const { user } = useAuth();
   const { network } = useNetwork();
-  const [activeTab, setActiveTab] = useState("tokens");
+  const [activeTab, setActiveTab] = useState("assets");
   const router = useRouter();
   const connection = new Connection(network.rpcUrl || clusterApiUrl("devnet"), {
     commitment: "confirmed",
@@ -429,7 +429,7 @@ export const WalletView = () => {
       <div className="bg-gothic-950/0 mt-8 flex flex-col items-center justify-center w-[100%] h-auto">
         <div className="flex justify-around mb-6 bg-white/0 bg-opacity-10 rounded-xl p-1">
           {network.name === "SOLANA" &&
-            ["Tokens", "cTokens"].map((tab) => (
+            ["Assets", "cAssets"].map((tab) => (
               <button
                 key={tab}
                 className={`flex-1 py-2 px-6 w-[130px] rounded-xl ml-2 mr-2 text-sm font-medium ${
@@ -443,7 +443,7 @@ export const WalletView = () => {
               </button>
             ))}
           {network.name !== "SOLANA" &&
-            ["Tokens"].map((tab) => (
+            ["Assets"].map((tab) => (
               <button
                 key={tab}
                 className={`flex-1 py-2 px-6 w-[130px] rounded-xl ml-2 mr-2 text-sm font-medium bg-white/10 bg-opacity-20 text-white"}`}
@@ -454,7 +454,7 @@ export const WalletView = () => {
             ))}
         </div>
 
-        {activeTab === "tokens" ? (
+        {activeTab === "assets" ? (
           <>
             <TokenItem
               token={{
@@ -518,7 +518,7 @@ export const WalletView = () => {
         ) : (
           <>
             {compTokens?.length === 0 ? (
-              "You have not Compress Token yet"
+              "You have no Compressed Asset"
             ) : (
               <>
                 {compTokens &&
