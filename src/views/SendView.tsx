@@ -148,10 +148,10 @@ export const SendView = ({ slug }: { slug: string }) => {
   const handleTransfer = async () => {
     try {
       if (slug[0] === network.native?.name.toLowerCase()) {
-        if (!user) {
-          return;
-        }
         try {
+          if (!user) {
+            return;
+          }
           setIsLoading(true);
           // const userAdd = user.publicKey
           // Ensure the private key is properly handled
@@ -179,8 +179,8 @@ export const SendView = ({ slug }: { slug: string }) => {
         } catch (error: unknown) {
           if (error instanceof Error) {
             setErrorMessage(error.message);
+            setIsTxFail(true);
           }
-          setIsTxFail(true);
         }
       } else {
         if (!user) return;
