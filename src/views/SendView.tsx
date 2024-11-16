@@ -41,7 +41,7 @@ export const SendView = ({ slug }: { slug: string }) => {
     setReceiveAddress(event.target.value);
   };
   console.log(slug[0]);
-  const connection = new Connection(network.rpcUrl || clusterApiUrl("devnet"), {
+  const connection = new Connection(clusterApiUrl("mainnet-beta"), {
     commitment: "confirmed",
   });
 
