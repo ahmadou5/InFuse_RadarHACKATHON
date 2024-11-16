@@ -90,6 +90,8 @@ export const decompressToken = async ({
       inputAccounts.map((account) => bn(account.compressedAccount.hash))
     );
 
+    const instructions = [];
+
     // 4. Create the decompress instruction
     const decompressIx = await CompressedTokenProgram.decompress({
       payer: account.publicKey,
@@ -99,9 +101,31 @@ export const decompressToken = async ({
       recentInputStateRootIndices: proof.rootIndices,
       recentValidityProof: proof.compressedProof,
     });
+
+    instructions.push(decompressIx);
+    const transaction = new Transaction();
+    transaction.feePayer = account.publicKey;
+
+    transaction.add(...instructions);
+
+    // set the end user as the fee payer
+    transaction.feePayer = account.publicKey;
+    console.log(transaction.signatures);
+    transaction.recentBlockhash = (
+      await connection.getLatestBlockhash()
+    ).blockhash;
+    const transactionSignature = await sendAndConfirmTransaction(
+      connection,
+      transaction,
+      [
+        account, // payer, owner
+      ]
+    );
     console.log(decompressIx);
+    return apiResponse(true, "Decompressed", transactionSignature);
   } catch (error) {
-    if (error instanceof Error) console.log(error.message);
+    if (error instanceof Error)
+      return apiResponse(false, "unable to compress", error.message);
   }
 };
 
@@ -265,12 +289,14 @@ export const getCompressTokenBalance = async ({
 
 export const transferCompressedTokens = async ({
   amount,
+  userMnemonic,
   sender,
   receiver,
   rpc,
 }: {
   amount: number;
   receiver: PublicKeyData;
+  userMnemonic: string;
   sender: PublicKeyData;
   rpc: string;
 }) => {
@@ -280,6 +306,10 @@ export const transferCompressedTokens = async ({
     const connection: Rpc = createRpc(RPC_ENDPOINT, COMPRESSION_RPC_ENDPOINT);
     const receiverKey = new PublicKey(receiver);
     const senderKey = new PublicKey(sender);
+    const seed = await bip39.mnemonicToSeed(userMnemonic);
+    //console.log(owner, "seed");
+    const seedBytes = seed.slice(0, 32);
+    const account = await Keypair.fromSeed(seedBytes);
     // get the token account state
     const compressedTokenAccounts =
       await connection.getCompressedTokenAccountsByOwner(senderKey, {
@@ -297,6 +327,8 @@ export const transferCompressedTokens = async ({
       inputAccounts.map((account) => bn(account.compressedAccount.hash))
     );
 
+    const instructions = [];
+
     // 4. Create transfer instruction
     const ix = await CompressedTokenProgram.transfer({
       payer: senderKey,
@@ -307,7 +339,28 @@ export const transferCompressedTokens = async ({
       recentValidityProof: proof.compressedProof,
     });
 
+    instructions.push(ix);
+    const transaction = new Transaction();
+    transaction.feePayer = senderKey;
+
+    transaction.add(...instructions);
+
+    // set the end user as the fee payer
+
+    console.log(transaction.signatures);
+    transaction.recentBlockhash = (
+      await connection.getLatestBlockhash()
+    ).blockhash;
+    const transactionSignature = await sendAndConfirmTransaction(
+      connection,
+      transaction,
+      [
+        account, // payer, owner
+      ]
+    );
+
     console.log(ix);
+    return transactionSignature;
   } catch (error) {
     if (error instanceof Error) console.log(error.message);
   }
