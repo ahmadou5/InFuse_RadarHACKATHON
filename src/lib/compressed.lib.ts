@@ -134,11 +134,13 @@ export const decompressToken = async ({
 export const compressToken = async ({
   userMnemonic,
   splAddress,
+  owner,
   amount,
   rpc,
 }: {
   userMnemonic: string;
   splAddress: PublicKeyData;
+  owner: PublicKeyData;
   amount: number;
   rpc: string;
 }) => {
@@ -147,6 +149,7 @@ export const compressToken = async ({
       splAddress,
       amount,
       rpc,
+      owner,
     });
 
     const RPC_ENDPOINT = rpc;
