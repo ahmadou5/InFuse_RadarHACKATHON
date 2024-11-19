@@ -31,6 +31,7 @@ import {
   ASSOCIATED_TOKEN_PROGRAM_ID,
   getAssociatedTokenAddress,
   getMint,
+  getAccount,
   createAssociatedTokenAccountInstruction,
 } from "@solana/spl-token";
 
@@ -171,11 +172,26 @@ export const compressToken = async ({
       ASSOCIATED_TOKEN_PROGRAM_ID
     );
 
-    const ifexists = await connection.getAccountInfo(ata);
+    const solBalance = await connection.getBalance(account.publicKey);
+
+    try {
+      const tokenAccount = await getAccount(connection, ata);
+      if (BigInt(tokenAccount.amount) < BigInt(adjustedAmount)) {
+        throw new Error("Insufficient token balance");
+      }
+    } catch (e) {
+      throw new Error("Token account not found or insufficient balance");
+    }
 
     const instructions = [];
 
+    const ifexists = await connection.getAccountInfo(ata);
     if (!ifexists || !ifexists.data) {
+      const rent = await connection.getMinimumBalanceForRentExemption(165); // Size of ATA account
+      if (solBalance < rent) {
+        throw new Error("Insufficient SOL for ATA creation");
+      }
+
       const createATAiX = createAssociatedTokenAccountInstruction(
         account.publicKey,
         ata,
