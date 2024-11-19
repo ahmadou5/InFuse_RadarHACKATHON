@@ -224,6 +224,7 @@ export const compressToken = async ({
     if (!TokenPool.programId) {
       instructions.push(TokenPool);
     } else {
+      console.log("exist");
     }
 
     // 5. Create the compress instruction
@@ -249,14 +250,29 @@ export const compressToken = async ({
     transaction.recentBlockhash = (
       await connection.getLatestBlockhash()
     ).blockhash;
+
+    // 9. Handle signers
+    const signers = [account];
+
+    // 10. Estimate transaction fee
+    const fees = await transaction.getEstimatedFee(connection);
+    if (fees === null) return;
+    if (solBalance < fees) {
+      throw new Error(
+        `Insufficient SOL for transaction fees. Required: ${fees}, Available: ${solBalance}`
+      );
+    }
+
+    // 11. Send and confirm transaction
     const transactionSignature = await sendAndConfirmTransaction(
       connection,
       transaction,
-      [
-        account, // payer, owner
-      ]
+      signers,
+      {
+        commitment: "confirmed",
+        preflightCommitment: "confirmed",
+      }
     );
-    console.log(compressTx, " transaction");
     return apiResponse(true, "compressed", transactionSignature);
   } catch (error: unknown) {
     if (error instanceof Error)
