@@ -108,18 +108,14 @@ export const CCard = ({ tokenId }: { tokenId: string }) => {
     try {
       if (!user) return;
       setIsLoading(true);
-
       const tokenDetails = await getTokenInfo(tokenId[0]);
-
       if (!tokenDetails) return;
-
       let addressPubKey: PublicKey;
       try {
-        addressPubKey = new PublicKey(tokenDetails[0]?.address);
+        addressPubKey = new PublicKey(tokenDetails[0]?.compress_address);
       } catch (error) {
         throw new Error("Invalid sender Receiverrr");
       }
-
       const result = await decompressToken({
         splAddress: addressPubKey,
         amount: amount,
@@ -210,32 +206,41 @@ export const CCard = ({ tokenId }: { tokenId: string }) => {
                 </div>
               </div>
             </div>
-            <div className="w-[80%] ml-auto mr-auto">
+            <div className="w-[90%] mt-12 flex ml-auto mr-auto">
+              <div
+                onClick={() => setIsCompressed(false)}
+                className="w-[45%] ml-auto mr-auto py-1 border border-[#448cff]/0 rounded-xl bg-black/90 h-12 flex items-center"
+              >
+                <p className="ml-auto mr-auto">Close</p>
+              </div>
               <div
                 onClick={() => handleDeCompression()}
-                className="w-[98%] ml-auto mr-auto py-1 border border-[#448cff]/60 rounded-xl bg-black/50 h-14 flex items-center"
+                className="w-[45%] ml-auto mr-auto py-1 border border-[#448cff]/0 rounded-xl bg-white/70 h-12 flex items-center"
               >
                 {isLoading ? (
-                  <SpinningCircles className="ml-auto mr-auto h-7 w-7" />
+                  <SpinningCircles className="ml-auto text-black mr-auto h-7 w-7" />
                 ) : (
-                  <p className="ml-auto mr-auto">Continue</p>
+                  <p className="ml-auto mr-auto text-black">Compress</p>
                 )}
               </div>
             </div>
           </>
         ) : (
           <>
-            <div className="w-[98%] ml-auto py-3 px-2 mr-auto ">
-              <div className=" bg-slate-50/0 mb-[20px] h-[200px] items-center justify-center w-[100%] flex py-3 px-2 ">
+            <div className="w-[98%] ml-auto py-3 mb-5 px-2 mr-auto ">
+              <div className=" bg-slate-50/0 mb-[8px] h-[200px] items-center justify-center w-[100%] flex py-3 px-2 ">
                 <img src="/assets/good.svg" className="h-[80%] w-[80%]" />
               </div>
             </div>
-            <div className="w-[80%] ml-auto mr-auto">
+            <div className="ml-auto mr-auto flex items-center justify-center">
+              <p>{`You DeCompressed ${amount} of c${tokenInfo[0].name}`}</p>
+            </div>
+            <div className="w-[80%] ml-auto mt-8 mr-auto">
               <div
                 onClick={() => setIsCompressed(false)}
                 className="w-[98%] ml-auto mr-auto py-1 border border-[#448cff]/60 rounded-xl bg-black/50 h-14 flex items-center"
               >
-                <p className="ml-auto mr-auto">Continue</p>
+                <p className="ml-auto mr-auto">Close</p>
               </div>
             </div>
           </>

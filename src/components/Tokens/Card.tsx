@@ -138,6 +138,7 @@ export const Card = ({ tokenId }: { tokenId: string }) => {
       if (result?.success)
         setTimeout(() => {
           setIsLoading(false);
+          setIsFirst(false);
           toast.success("Compress Success");
         }, 5000);
       else {
@@ -236,17 +237,20 @@ export const Card = ({ tokenId }: { tokenId: string }) => {
           </>
         ) : (
           <>
-            <div className="w-[98%] ml-auto py-3 px-2 mr-auto ">
-              <div className=" bg-slate-50/0 mb-[20px] h-[200px] items-center justify-center w-[100%] flex py-3 px-2 ">
+            <div className="w-[98%] ml-auto py-3 mb-5 px-2 mr-auto ">
+              <div className=" bg-slate-50/0 mb-[8px] h-[200px] items-center justify-center w-[100%] flex py-3 px-2 ">
                 <img src="/assets/good.svg" className="h-[80%] w-[80%]" />
               </div>
             </div>
-            <div className="w-[80%] ml-auto mr-auto">
+            <div className="ml-auto mr-auto flex items-center justify-center">
+              <p>{`You Compressed ${amount} of ${tokenInfo[0].name}`}</p>
+            </div>
+            <div className="w-[80%] ml-auto mt-8 mr-auto">
               <div
                 onClick={() => setIsCompressed(false)}
                 className="w-[98%] ml-auto mr-auto py-1 border border-[#448cff]/60 rounded-xl bg-black/50 h-14 flex items-center"
               >
-                <p className="ml-auto mr-auto">Continue</p>
+                <p className="ml-auto mr-auto">Close</p>
               </div>
             </div>
           </>
