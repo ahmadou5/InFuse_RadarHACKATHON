@@ -30,10 +30,10 @@ export default function NetworkContextProvider({
         COOKIE_NETWORK_DATA_KEY
       );
       console.log(savedNetwork, "saved netwoek");
-      if (!savedNetwork) {
-        fetchNetwork();
-      } else {
+      if (savedNetwork) {
         handleSetNetwork(savedNetwork);
+      } else {
+        fetchNetwork();
       }
     };
     initNetwork();
