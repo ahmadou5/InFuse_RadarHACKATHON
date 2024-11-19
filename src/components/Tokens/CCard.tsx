@@ -37,7 +37,7 @@ export const CCard = ({ tokenId }: { tokenId: string }) => {
     try {
       // setIsLoading(true);
       // console.log('Fetching token info for slug:', slug);
-      const response = Token.filter((token) => token.address === slug);
+      const response = Token.filter((token) => token.compress_address === slug);
       console.log("Token info response:", response);
 
       if (response && Array.isArray(response)) {

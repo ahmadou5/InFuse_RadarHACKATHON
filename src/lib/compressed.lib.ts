@@ -30,6 +30,7 @@ import {
   TOKEN_PROGRAM_ID,
   ASSOCIATED_TOKEN_PROGRAM_ID,
   getAssociatedTokenAddress,
+  getMint,
   createAssociatedTokenAccountInstruction,
 } from "@solana/spl-token";
 
@@ -154,11 +155,11 @@ export const compressToken = async ({
     //const account = getKeypairFromPrivateKey(userAddress.toString())
     const tokenAddress = new PublicKey(splAddress);
     //const tokenAuth = new PublicKey(owner);
-    const tokenDecimal = await getTokenDecimals(tokenAddress);
-    let transferAmount = parseFloat(amount.toString());
-    transferAmount = parseInt(transferAmount.toFixed(tokenDecimal));
-    transferAmount = transferAmount * Math.pow(10, tokenDecimal);
-    console.log("mun wuce0");
+
+    // 2. Get token mint info for decimal adjustment
+    const mintInfo = await getMint(connection, tokenAddress);
+    const adjustedAmount = amount * Math.pow(10, mintInfo.decimals);
+
     //const instructions = [];
     // 0. Create an associated token account for the user if it doesn't exist
     console.log("before ata");
@@ -215,7 +216,7 @@ export const compressToken = async ({
       owner: account.publicKey,
       source: ata,
       toAddress: account.publicKey,
-      amount: transferAmount,
+      amount: adjustedAmount,
       mint: tokenAddress,
     });
     console.log("mun wuce2");
