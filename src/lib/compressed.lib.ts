@@ -260,6 +260,7 @@ export const compressToken = async ({
 
     const latestBlockhash = await connection.getLatestBlockhash();
     transaction.recentBlockhash = latestBlockhash.blockhash;
+    transaction.lastValidBlockHeight = latestBlockhash.lastValidBlockHeight;
     console.log("Latest Blockhash:", latestBlockhash.blockhash);
 
     const signers = [account];
