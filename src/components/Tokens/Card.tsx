@@ -10,9 +10,10 @@ import { useAuth } from "@/context/AuthContext";
 import { compressToken } from "@/lib/compressed.lib";
 import toast, { Toaster } from "react-hot-toast";
 
-import { createAndMintToken } from "@/lib/helper.lib";
+//import { createAndMintToken } from "@/lib/helper.lib";
 import { useNetwork } from "@/context/NetworkContext";
 import { Token } from "@/utils/tokens.utils";
+//import { X } from "lucide-react";
 
 export const Card = ({ tokenId }: { tokenId: string }) => {
   const { user } = useAuth();
@@ -98,6 +99,7 @@ export const Card = ({ tokenId }: { tokenId: string }) => {
       //setMintAu(tokenDetails[0]?.owner)
       //setMintAd(tokenDetails[0]?.address)
       const balance = fetchBalances(tokenDetails[0]?.address);
+      //setTokenBalance(balance)
       console.log(balance);
     } catch (error) {
       console.log(error);
@@ -135,7 +137,7 @@ export const Card = ({ tokenId }: { tokenId: string }) => {
 
       if (result?.success)
         setTimeout(() => {
-          setIsFirst(false);
+          setIsLoading(false);
           toast.success("Compress Success");
         }, 5000);
       else {
@@ -149,19 +151,19 @@ export const Card = ({ tokenId }: { tokenId: string }) => {
       setIsFirst(true);
     }
   };
-  const createDummy = async ({
-    mnemonic,
-  }: {
-    mnemonic: string | undefined;
-  }) => {
-    try {
-      const token = await createAndMintToken({ mnemonic: mnemonic });
-      //const token = await testMint(mnemonic)
-      console.log(token, "address");
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  //const createDummy = async ({
+  //  mnemonic,
+  //}: {
+  //  mnemonic: string | undefined;
+  //}) => {
+  //  try {
+  //    const token = await createAndMintToken({ mnemonic: mnemonic });
+  //const token = await testMint(mnemonic)
+  //    console.log(token, "address");
+  //  } catch (error) {
+  //    console.log(error);
+  //  }
+  //};
 
   useEffect(() => {
     fetch();
@@ -171,9 +173,6 @@ export const Card = ({ tokenId }: { tokenId: string }) => {
       <div className="h-[390px] rounded-3xl  w-[94%] bg-white/30">
         {isFirst ? (
           <>
-            <div onClick={() => setIsFirst(false)} className="h-12 w-12 bwhite">
-              X
-            </div>
             <div className="w-[98%] ml-auto py-3 px-2 mr-auto ">
               {tokenInfo[0] === undefined ? (
                 <></>
@@ -208,7 +207,7 @@ export const Card = ({ tokenId }: { tokenId: string }) => {
                     className="outline-none bg-transparent text-xl ml- w-[93%] h-9 "
                   />
                   <div
-                    onClick={() => createDummy({ mnemonic: user?.mnemonic })}
+                    onClick={() => setAmount(tokenBalance)}
                     className="w-[18%] h-[80%] flex items-center justify-center mt-0.5 bg-black rounded-2xl "
                   >
                     Max
@@ -216,15 +215,21 @@ export const Card = ({ tokenId }: { tokenId: string }) => {
                 </div>
               </div>
             </div>
-            <div className="w-[80%] ml-auto mr-auto">
+            <div className="w-[90%] mt-12 flex ml-auto mr-auto">
+              <div
+                onClick={() => setIsCompressed(false)}
+                className="w-[45%] ml-auto mr-auto py-1 border border-[#448cff]/0 rounded-xl bg-black/90 h-12 flex items-center"
+              >
+                <p className="ml-auto mr-auto">Close</p>
+              </div>
               <div
                 onClick={() => handleCompression()}
-                className="w-[98%] ml-auto mr-auto py-1 border border-[#448cff]/60 rounded-xl bg-black/50 h-14 flex items-center"
+                className="w-[45%] ml-auto mr-auto py-1 border border-[#448cff]/0 rounded-xl bg-white/70 h-12 flex items-center"
               >
                 {isLoading ? (
-                  <SpinningCircles className="ml-auto mr-auto h-7 w-7" />
+                  <SpinningCircles className="ml-auto text-black mr-auto h-7 w-7" />
                 ) : (
-                  <p className="ml-auto mr-auto">Continue</p>
+                  <p className="ml-auto mr-auto text-black">Compress</p>
                 )}
               </div>
             </div>
