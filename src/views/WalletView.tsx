@@ -246,7 +246,7 @@ export const WalletView = () => {
     };
     fetchSolPrice();
   }, []);
-
+  console.log(network.name, "wertyusfghjk");
   useEffect(() => {
     const fetchCompress = async () => {
       console.log("fetching compress");

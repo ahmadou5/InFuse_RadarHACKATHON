@@ -23,16 +23,18 @@ export const useNetwork = () => {
 export default function NetworkContextProvider({
   children,
 }: ReactChildrenProps) {
-  const [network, setNetwork] = useState<Network>();
+  const [network, setNetwork] = useState<Network | null>(null);
   useEffect(() => {
     const initNetwork = async () => {
       const savedNetwork = await CookiesService.getNetwork(
         COOKIE_NETWORK_DATA_KEY
       );
-      if (savedNetwork) {
+      console.log(savedNetwork, "saved netwoek");
+      if (!savedNetwork) {
+        fetchNetwork();
+      } else {
         handleSetNetwork(savedNetwork);
       }
-      fetchNetwork();
     };
     initNetwork();
   }, []);
@@ -43,12 +45,17 @@ export default function NetworkContextProvider({
 
   const fetchNetwork = async () => {
     try {
-      const solana = await NetworkServices.getSolana();
+      const Networks = await NetworkServices.getAllNetworks();
+      const solana = Networks?.filter(
+        (n) => n.name === "SOLANA" && n.isTestNet === false
+      );
       if (!solana) {
-        setNetwork(undefined);
+        setNetwork(null);
+      } else {
+        console.log(solana, "solaaandyyyyyyy");
+        handleSetNetwork(solana[0]);
+        setNetwork(solana[0]);
       }
-      console.log(solana);
-      setNetwork(solana);
     } catch (error) {
       console.log(error);
     }
