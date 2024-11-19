@@ -131,39 +131,43 @@ export const decompressToken = async ({
   }
 };
 
-// Compressionn function...................
 export const compressToken = async ({
   userMnemonic,
-  owner,
   splAddress,
   amount,
   rpc,
 }: {
   userMnemonic: string;
-  owner: PublicKeyData;
   splAddress: PublicKeyData;
   amount: number;
   rpc: string;
 }) => {
   try {
+    console.log("Compression Start - Input Parameters:", {
+      splAddress,
+      amount,
+      rpc,
+    });
+
     const RPC_ENDPOINT = rpc;
-    const COMPRESSION_RPC_ENDPOINT = RPC_ENDPOINT;
-    const connection: Rpc = createRpc(RPC_ENDPOINT, COMPRESSION_RPC_ENDPOINT);
+    const connection: Rpc = createRpc(RPC_ENDPOINT, RPC_ENDPOINT);
     const seed = await bip39.mnemonicToSeed(userMnemonic);
-    console.log(owner, "seed");
     const seedBytes = seed.slice(0, 32);
     const account = await Keypair.fromSeed(seedBytes);
-    //const account = getKeypairFromPrivateKey(userAddress.toString())
+
     const tokenAddress = new PublicKey(splAddress);
-    //const tokenAuth = new PublicKey(owner);
 
-    // 2. Get token mint info for decimal adjustment
+    // Detailed Mint Info Logging
     const mintInfo = await getMint(connection, tokenAddress);
-    const adjustedAmount = amount * Math.pow(10, mintInfo.decimals);
+    console.log("Token Mint Information:", {
+      decimals: mintInfo.decimals,
+      supply: mintInfo.supply.toString(),
+    });
 
-    //const instructions = [];
-    // 0. Create an associated token account for the user if it doesn't exist
-    console.log("before ata");
+    const adjustedAmount = amount * Math.pow(10, mintInfo.decimals);
+    console.log(`Adjusted Amount: ${adjustedAmount}`);
+
+    // Comprehensive ATA Creation and Balance Checks
     const ata = await getAssociatedTokenAddress(
       tokenAddress,
       account.publicKey,
@@ -173,23 +177,43 @@ export const compressToken = async ({
     );
 
     const solBalance = await connection.getBalance(account.publicKey);
+    console.log("Account Balances:", {
+      solBalance,
+      publicKey: account.publicKey.toString(),
+    });
 
+    // Detailed Token Account Verification
     try {
       const tokenAccount = await getAccount(connection, ata);
+      console.log("Token Account Details:", {
+        address: ata.toString(),
+        balance: tokenAccount.amount.toString(),
+        owner: tokenAccount.owner.toString(),
+      });
+
       if (BigInt(tokenAccount.amount) < BigInt(adjustedAmount)) {
-        throw new Error("Insufficient token balance");
+        throw new Error(
+          `Insufficient token balance. Required: ${adjustedAmount}, Available: ${tokenAccount.amount}`
+        );
       }
-    } catch (e) {
-      throw new Error("Token account not found or insufficient balance");
+    } catch (error: unknown) {
+      console.error("Token Account Retrieval Error:", error);
+      if (error instanceof Error)
+        throw new Error(`Token account error: ${error.message}`);
     }
 
     const instructions = [];
 
+    // ATA Existence and Creation Logic with Detailed Logging
     const ifexists = await connection.getAccountInfo(ata);
     if (!ifexists || !ifexists.data) {
-      const rent = await connection.getMinimumBalanceForRentExemption(165); // Size of ATA account
+      console.log("ATA Does Not Exist - Attempting Creation");
+      const rent = await connection.getMinimumBalanceForRentExemption(165);
+
       if (solBalance < rent) {
-        throw new Error("Insufficient SOL for ATA creation");
+        throw new Error(
+          `Insufficient SOL for ATA creation. Required: ${rent}, Available: ${solBalance}`
+        );
       }
 
       const createATAiX = createAssociatedTokenAccountInstruction(
@@ -203,31 +227,17 @@ export const compressToken = async ({
       instructions.push(createATAiX);
     }
 
-    //instructions.push(ata)
-    // 0. Create an associated token account for the user if it doesn't exist
-    console.log(ata.toString(), "ata");
-    // 1. Fetch the latest compressed token account state
-
-    // 2. Select accounts to transfer from based on the transfer amount
-
-    //console.log("mun wuce2", proof);
-    // 1. Fetch the latest compressed token account state
-    //const instructions = [];
-    // 4. Create the decompress instruction
-
-    //instructions.push(decompressTx);
-    //console.log(decompressTx, "gdggdgdgdgdg");
+    // Token Pool and Compression Instruction Creation with Logging
     const TokenPool = await CompressedTokenProgram.createTokenPool({
       mint: tokenAddress,
       feePayer: account.publicKey,
     });
+
     if (!TokenPool.programId) {
       instructions.push(TokenPool);
-    } else {
-      console.log("exist");
+      console.log("Token Pool Instruction Added");
     }
 
-    // 5. Create the compress instruction
     const compressTx = await CompressedTokenProgram.compress({
       payer: account.publicKey,
       owner: account.publicKey,
@@ -236,34 +246,39 @@ export const compressToken = async ({
       amount: adjustedAmount,
       mint: tokenAddress,
     });
-    console.log("mun wuce2");
-    console.log(compressTx, "instructions");
+
+    console.log("Compression Transaction Details:", compressTx);
     instructions.push(compressTx);
+
+    // Transaction Preparation with Enhanced Logging
     const transaction = new Transaction();
     transaction.feePayer = account.publicKey;
-
     transaction.add(...instructions);
 
-    // set the end user as the fee payer
-    transaction.feePayer = account.publicKey;
-    console.log(transaction.signatures);
-    transaction.recentBlockhash = (
-      await connection.getLatestBlockhash()
-    ).blockhash;
+    const latestBlockhash = await connection.getLatestBlockhash();
+    transaction.recentBlockhash = latestBlockhash.blockhash;
+    console.log("Latest Blockhash:", latestBlockhash.blockhash);
 
-    // 9. Handle signers
     const signers = [account];
 
-    // 10. Estimate transaction fee
+    // Fee Estimation with Detailed Logging
     const fees = await transaction.getEstimatedFee(connection);
-    if (fees === null) return;
+    console.log("Transaction Fee Estimation:", {
+      estimatedFees: fees,
+      solBalance,
+    });
+
+    if (fees === null) {
+      throw new Error("Unable to estimate transaction fees");
+    }
+
     if (solBalance < fees) {
       throw new Error(
         `Insufficient SOL for transaction fees. Required: ${fees}, Available: ${solBalance}`
       );
     }
 
-    // 11. Send and confirm transaction
+    // Transaction Submission with Comprehensive Logging
     const transactionSignature = await sendAndConfirmTransaction(
       connection,
       transaction,
@@ -273,8 +288,17 @@ export const compressToken = async ({
         preflightCommitment: "confirmed",
       }
     );
+
+    console.log("Transaction Successfully Submitted:", transactionSignature);
     return apiResponse(true, "compressed", transactionSignature);
   } catch (error: unknown) {
+    if (error instanceof Error)
+      console.error("Compression Process Error:", {
+        errorName: error.constructor.name,
+        errorMessage: error.message,
+        errorStack: error.stack,
+      });
+
     if (error instanceof Error)
       return apiResponse(false, "failed to compress", error.message);
   }
