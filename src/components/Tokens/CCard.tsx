@@ -93,7 +93,7 @@ export const CCard = ({ tokenId }: { tokenId: string }) => {
   const fetch = async () => {
     try {
       const tokenDetails = await getTokenInfo(tokenId[0]);
-
+      console.log("fetched ohhh");
       if (!tokenDetails) return;
       //setMintAu(tokenDetails[0]?.owner)
       //setMintAd(tokenDetails[0]?.address)
