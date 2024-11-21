@@ -40,8 +40,8 @@ import {
 const RPC_ENDPOINT = ENV.SOL_DEVNET_RPC;
 const COMPRESSION_RPC_ENDPOINT = RPC_ENDPOINT;
 const connection: Rpc = createRpc(RPC_ENDPOINT, COMPRESSION_RPC_ENDPOINT);
-const MINT_KEYPAIR = Keypair.generate();
-const mint = MINT_KEYPAIR.publicKey;
+//const MINT_KEYPAIR = Keypair.generate();
+//const mint = MINT_KEYPAIR.publicKey;
 
 //async function getTokenDecimals(mintAddress: PublicKey): Promise<number> {
 //const info = await connection.getParsedAccountInfo(mintAddress);
@@ -434,6 +434,7 @@ export const getCompressTokenBalance = async ({
 
 export const transferCompressedTokens = async ({
   amount,
+  tokenMint,
   userMnemonic,
   sender,
   receiver,
@@ -441,6 +442,7 @@ export const transferCompressedTokens = async ({
 }: {
   amount: number;
   receiver: PublicKeyData;
+  tokenMint: PublicKeyData;
   userMnemonic: string;
   sender: PublicKeyData;
   rpc: string;
@@ -451,35 +453,71 @@ export const transferCompressedTokens = async ({
     const connection: Rpc = createRpc(RPC_ENDPOINT, COMPRESSION_RPC_ENDPOINT);
     const receiverKey = new PublicKey(receiver);
     const senderKey = new PublicKey(sender);
+    const mint = new PublicKey(tokenMint);
     const seed = await bip39.mnemonicToSeed(userMnemonic);
     //console.log(owner, "seed");
     const seedBytes = seed.slice(0, 32);
     const account = await Keypair.fromSeed(seedBytes);
     // get the token account state
+    // 2. Get token mint info for decimal adjustment
+    const mintInfo = await getMint(connection, mint);
+    const adjustedAmount = amount * Math.pow(10, mintInfo.decimals);
+
+    // 3. Get token accounts
+
+    const toTokenAccount = await getAssociatedTokenAddress(
+      mint,
+      receiverKey,
+      true,
+      TOKEN_PROGRAM_ID,
+      ASSOCIATED_TOKEN_PROGRAM_ID
+    );
+
+    const solBalance = await connection.getBalance(account.publicKey);
+    console.log("Account Balances:", {
+      solBalance,
+      publicKey: account.publicKey.toString(),
+    });
+
     const compressedTokenAccounts =
       await connection.getCompressedTokenAccountsByOwner(senderKey, {
-        mint,
+        mint: mint,
       });
 
     // 2. Select accounts to transfer from based on the transfer amount
     const [inputAccounts] = selectMinCompressedTokenAccountsForTransfer(
       compressedTokenAccounts.items,
-      amount
+      adjustedAmount
     );
-
+    const instructions = [];
     // 3. Fetch recent validity proof
     const proof = await connection.getValidityProof(
       inputAccounts.map((account) => bn(account.compressedAccount.hash))
     );
+    const ifexists = await connection.getAccountInfo(toTokenAccount);
+    if (!ifexists || !ifexists.data) {
+      const rent = await connection.getMinimumBalanceForRentExemption(165); // Size of ATA account
+      if (solBalance < rent) {
+        throw new Error("Insufficient SOL for ATA creation");
+      }
 
-    const instructions = [];
+      const createATAiX = createAssociatedTokenAccountInstruction(
+        senderKey,
+        toTokenAccount,
+        receiverKey,
+        mint,
+        TOKEN_PROGRAM_ID,
+        ASSOCIATED_TOKEN_PROGRAM_ID
+      );
+      instructions.push(createATAiX);
+    }
 
     // 4. Create transfer instruction
     const ix = await CompressedTokenProgram.transfer({
       payer: senderKey,
       inputCompressedTokenAccounts: inputAccounts,
-      toAddress: receiverKey,
-      amount: amount,
+      toAddress: toTokenAccount,
+      amount: adjustedAmount,
       recentInputStateRootIndices: proof.rootIndices,
       recentValidityProof: proof.compressedProof,
     });
@@ -490,24 +528,46 @@ export const transferCompressedTokens = async ({
 
     transaction.add(...instructions);
 
-    // set the end user as the fee payer
+    const latestBlockhash = await connection.getLatestBlockhash();
+    transaction.recentBlockhash = latestBlockhash.blockhash;
+    transaction.lastValidBlockHeight = latestBlockhash.lastValidBlockHeight;
+    console.log("Latest Blockhash:", latestBlockhash.blockhash);
 
-    console.log(transaction.signatures);
-    transaction.recentBlockhash = (
-      await connection.getLatestBlockhash()
-    ).blockhash;
+    const signers = [account];
+
+    // Fee Estimation with Detailed Logging
+    const fees = await transaction.getEstimatedFee(connection);
+    console.log("Transaction Fee Estimation:", {
+      estimatedFees: fees,
+      solBalance,
+    });
+
+    if (fees === null) {
+      throw new Error("Unable to estimate transaction fees");
+    }
+
+    if (solBalance < fees) {
+      throw new Error(
+        `Insufficient SOL for transaction fees. Required: ${fees}, Available: ${solBalance}`
+      );
+    }
+
+    // Transaction Submission with Comprehensive Logging
     const transactionSignature = await sendAndConfirmTransaction(
       connection,
       transaction,
-      [
-        account, // payer, owner
-      ]
+      signers,
+      {
+        commitment: "confirmed",
+        preflightCommitment: "confirmed",
+      }
     );
 
-    console.log(ix);
-    return transactionSignature;
+    console.log("Transaction Successfully Submitted:", transactionSignature);
+    return apiResponse(true, "Compress token sent", transactionSignature);
   } catch (error) {
-    if (error instanceof Error) console.log(error.message);
+    if (error instanceof Error)
+      return apiResponse(false, "transfer failed", error.message);
   }
 };
 

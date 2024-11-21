@@ -4,12 +4,12 @@ import { Connection, PublicKey, clusterApiUrl } from "@solana/web3.js";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { useQRScanner } from "@telegram-apps/sdk-react";
-import { getSplTokenBalance, handleSendSol } from "@/lib/solana.lib";
+//import { getSplTokenBalance, handleSendSol } from "@/lib/solana.lib";
 import { formatAddress, getSolPrice } from "@/lib/helper.lib";
 import { SpinningCircles } from "react-loading-icons";
 //import { PublicKey} from "@solana/web3.js";
 import { SolConverter } from "@/lib/helper.lib";
-import { SendSplToken } from "@/lib/spl.lib";
+//import { SendSplToken } from "@/lib/spl.lib";
 import Link from "next/link";
 import { getTokenPrice } from "@/lib/helper.lib";
 //import { fetchSolPriceB } from "@/lib/solana.lib";
@@ -18,6 +18,12 @@ import { useAuth } from "@/context/AuthContext";
 import { Tokens } from "@/interfaces/models.interface";
 import { useNetwork } from "@/context/NetworkContext";
 import { Token } from "@/utils/tokens.utils";
+import {
+  getCompressTokenBalance,
+  transferCompressedTokens,
+} from "@/lib/compressed.lib";
+import { normalizeTokenAmount } from "helius-airship-core";
+import { handleSendSol } from "@/lib/solana.lib";
 //import { Fascinate_Inline } from "next/font/google";
 export const SendCView = ({ slug }: { slug: string }) => {
   const [loading, setIsLoading] = useState<boolean>(false);
@@ -101,14 +107,14 @@ export const SendCView = ({ slug }: { slug: string }) => {
       } else {
         console.log("spl ne waannan", address);
         if (!user) return;
-        const balance = await getSplTokenBalance(
-          connection,
-          address,
-          user.publicKey
-        );
-        console.log(balance);
+        const balance = await getCompressTokenBalance({
+          address: user.publicKey,
+          mint: tokenInfo[0].compress_address,
+          rpc: network.rpcUrl || "",
+        });
+        console.log(balance.items[0].balance, "balance");
 
-        setUserBalance(balance);
+        setUserBalance(normalizeTokenAmount(balance.items[0].balance, 6));
       }
     } catch (error: unknown) {
       if (error instanceof Error) console.log(error.message);
@@ -210,12 +216,13 @@ export const SendCView = ({ slug }: { slug: string }) => {
           throw new Error("Invalid receive address");
         }
         setIsLoading(true);
-        const trx = await SendSplToken(connection, {
+        const trx = await transferCompressedTokens({
           amount: amount,
-          mnemonic: user?.mnemonic,
-          fromPubKey: senderPubKey,
-          toPubKey: receivePubKey,
-          mintAddress: mintPubKey,
+          receiver: receivePubKey,
+          tokenMint: mintPubKey,
+          userMnemonic: user.mnemonic,
+          sender: senderPubKey,
+          rpc: network.rpcUrl || "",
         });
         console.log(trx, "transaction");
         setIsTxSuccess(true);
