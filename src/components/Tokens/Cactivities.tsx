@@ -52,7 +52,7 @@ export const CActivities = ({ slug }: Params) => {
     <>
       <div className="bg-gothic-300/0 w-[90%] ml-auto mr-auto mb-5 flex items-center justify-center rounded-3xl h-[100px]">
         <div
-          onClick={() => router.replace(`/sendc/${slug}`)}
+          onClick={() => router.push(`/sendc/${slug}`)}
           className="text-xl bg-white/10  border-[#448cff]/25 flex flex-col items-center justify-center rounded-3xl h-16 w-16 ml-auto mr-auto  text-white/60"
         >
           <img
