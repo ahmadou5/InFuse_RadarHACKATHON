@@ -23,7 +23,7 @@ import {
   sendAndConfirmTransaction,
   //clusterApiUrl,
 } from "@solana/web3.js";
-import { getKeypairFromPrivateKey } from "./helper.lib";
+//import { getKeypairFromPrivateKey } from "./helper.lib";
 import { ENV } from "./constant/env.constant";
 import { apiResponse } from "./api.helpers";
 import {
@@ -53,19 +53,21 @@ const mint = MINT_KEYPAIR.publicKey;
 export const decompressToken = async ({
   splAddress,
   amount,
-  userAddress,
+  userMnemonic,
   rpc,
 }: {
   splAddress: PublicKeyData;
   amount: number;
-  userAddress: PublicKeyData;
+  userMnemonic: string;
   rpc: string;
 }) => {
   try {
     const RPC_ENDPOINT = rpc;
     const COMPRESSION_RPC_ENDPOINT = RPC_ENDPOINT;
     const connection: Rpc = createRpc(RPC_ENDPOINT, COMPRESSION_RPC_ENDPOINT);
-    const account = getKeypairFromPrivateKey(userAddress.toString());
+    const seed = await bip39.mnemonicToSeed(userMnemonic);
+    const seedBytes = seed.slice(0, 32);
+    const account = await Keypair.fromSeed(seedBytes);
     const tokenAddress = new PublicKey(splAddress);
     const ata = await createAssociatedTokenAccount(
       connection,
