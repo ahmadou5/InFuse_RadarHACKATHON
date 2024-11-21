@@ -13,7 +13,7 @@ import {
   CompressedTokenProgram,
   selectMinCompressedTokenAccountsForTransfer,
 } from "@lightprotocol/compressed-token";
-import { createAssociatedTokenAccount } from "@solana/spl-token";
+//import { createAssociatedTokenAccount } from "@solana/spl-token";
 import {
   Keypair,
   //ParsedAccountData,
@@ -69,11 +69,13 @@ export const decompressToken = async ({
     const seedBytes = seed.slice(0, 32);
     const account = await Keypair.fromSeed(seedBytes);
     const tokenAddress = new PublicKey(splAddress);
-    const ata = await createAssociatedTokenAccount(
-      connection,
-      account,
+
+    const ata = await getAssociatedTokenAddress(
       tokenAddress,
-      account.publicKey
+      account.publicKey,
+      true,
+      TOKEN_PROGRAM_ID,
+      ASSOCIATED_TOKEN_PROGRAM_ID
     );
     // Detailed Mint Info Logging
     const mintInfo = await getMint(connection, tokenAddress);
@@ -107,8 +109,49 @@ export const decompressToken = async ({
       solBalance,
       publicKey: account.publicKey.toString(),
     });
+    try {
+      const tokenAccount = await getAccount(connection, ata);
+      console.log("Token Account Details:", {
+        address: ata.toString(),
+        balance: tokenAccount.amount.toString(),
+        owner: tokenAccount.owner.toString(),
+      });
+
+      if (BigInt(tokenAccount.amount) < BigInt(adjustedAmount)) {
+        throw new Error(
+          `Insufficient token balance. Required: ${adjustedAmount}, Available: ${tokenAccount.amount}`
+        );
+      }
+    } catch (error: unknown) {
+      console.error("Token Account Retrieval Error:", error);
+      if (error instanceof Error)
+        throw new Error(`Token account error: ${error.message}`);
+    }
 
     const instructions = [];
+
+    // ATA Existence and Creation Logic with Detailed Logging
+    const ifexists = await connection.getAccountInfo(ata);
+    if (!ifexists || !ifexists.data) {
+      console.log("ATA Does Not Exist - Attempting Creation");
+      const rent = await connection.getMinimumBalanceForRentExemption(165);
+
+      if (solBalance < rent) {
+        throw new Error(
+          `Insufficient SOL for ATA creation. Required: ${rent}, Available: ${solBalance}`
+        );
+      }
+
+      const createATAiX = createAssociatedTokenAccountInstruction(
+        account.publicKey,
+        ata,
+        account.publicKey,
+        tokenAddress,
+        TOKEN_PROGRAM_ID,
+        ASSOCIATED_TOKEN_PROGRAM_ID
+      );
+      instructions.push(createATAiX);
+    }
 
     // 4. Create the decompress instruction
     const decompressIx = await CompressedTokenProgram.decompress({
