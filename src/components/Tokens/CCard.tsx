@@ -2,17 +2,18 @@ import { useMini } from "@/context/MiniContext";
 import { useEffect, useState } from "react";
 import { Tokens } from "@/interfaces/models.interface";
 //import { TokenService } from "@/lib/services/TokenServices";
-import { getSplTokenBalance } from "@/lib/solana.lib";
+//import { getSplTokenBalance } from "@/lib/solana.lib";
 import { Connection, clusterApiUrl } from "@solana/web3.js";
 import { PublicKey } from "@solana/web3.js";
 import { SpinningCircles } from "react-loading-icons";
 import { useAuth } from "@/context/AuthContext";
-import { decompressToken } from "@/lib/compressed.lib";
+import { decompressToken, getCompressTokenBalance } from "@/lib/compressed.lib";
 import toast, { Toaster } from "react-hot-toast";
 
-import { createAndMintToken } from "@/lib/helper.lib";
+//import { createAndMintToken } from "@/lib/helper.lib";
 import { useNetwork } from "@/context/NetworkContext";
 import { Token } from "@/utils/tokens.utils";
+import { normalizeTokenAmount } from "helius-airship-core";
 
 export const CCard = ({ tokenId }: { tokenId: string }) => {
   const { user } = useAuth();
@@ -59,7 +60,7 @@ export const CCard = ({ tokenId }: { tokenId: string }) => {
     }
   };
 
-  const fetchBalances = async (address: string) => {
+  const fetchBalances = async () => {
     try {
       //console.log('gettin bal')
       console.log(tokenInfo[0], "shineee");
@@ -78,14 +79,15 @@ export const CCard = ({ tokenId }: { tokenId: string }) => {
       } else {
         //console.log('spl ne waannan',address,)
         if (!user) return;
-        const balance = await getSplTokenBalance(
-          connection,
-          address,
-          user.publicKey
-        );
-        console.log(balance);
+        const balance = await getCompressTokenBalance({
+          address: user.publicKey,
+          mint: tokenId[1],
+          rpc: network.rpcUrl || "",
+        });
+        console.log(balance.items[0].balance, "balance");
 
-        setTokenBalance(balance);
+        setTokenBalance(normalizeTokenAmount(balance.items[0].balance, 6));
+        //setUserBalance(normalizeTokenAmount(balance.items[0].balance, 6));
       }
     } catch (error: unknown) {
       if (error instanceof Error) console.log(error.message);
@@ -99,7 +101,7 @@ export const CCard = ({ tokenId }: { tokenId: string }) => {
       if (!tokenDetails) return;
       //setMintAu(tokenDetails[0]?.owner)
       //setMintAd(tokenDetails[0]?.address)
-      const balance = fetchBalances(tokenDetails[0]?.address);
+      const balance = fetchBalances();
       console.log(balance);
     } catch (error) {
       console.log(error);
@@ -141,19 +143,6 @@ export const CCard = ({ tokenId }: { tokenId: string }) => {
       setIsFirst(true);
     }
   };
-  const createDummy = async ({
-    mnemonic,
-  }: {
-    mnemonic: string | undefined;
-  }) => {
-    try {
-      const token = await createAndMintToken({ mnemonic: mnemonic });
-      //const token = await testMint(mnemonic)
-      console.log(token, "address");
-    } catch (error) {
-      console.log(error);
-    }
-  };
 
   useEffect(() => {
     fetch();
@@ -163,9 +152,6 @@ export const CCard = ({ tokenId }: { tokenId: string }) => {
       <div className="h-[390px] rounded-3xl  w-[94%] bg-white/30">
         {isFirst ? (
           <>
-            <div onClick={() => setIsFirst(false)} className="h-12 w-12 bwhite">
-              X
-            </div>
             <div className="w-[98%] ml-auto py-3 px-2 mr-auto ">
               {tokenInfo[0] === undefined ? (
                 <></>
@@ -179,7 +165,7 @@ export const CCard = ({ tokenId }: { tokenId: string }) => {
                 {tokenInfo[0] === undefined ? (
                   <div className="bg-white/20 h-[25px] w-[90px]  animate-pulse rounded"></div>
                 ) : (
-                  <p className="font-semibold">{tokenInfo[0]?.name}</p>
+                  <p className="font-semibold">{`c${tokenInfo[0]?.name}`}</p>
                 )}
               </div>
               <div className=" bg-slate-50/0 mb-[20px] w-[100%] flex py-3 px-2 ">
@@ -200,7 +186,7 @@ export const CCard = ({ tokenId }: { tokenId: string }) => {
                     className="outline-none bg-transparent text-xl ml- w-[93%] h-9 "
                   />
                   <div
-                    onClick={() => createDummy({ mnemonic: user?.mnemonic })}
+                    onClick={() => setAmount(tokenBalance)}
                     className="w-[18%] h-[80%] flex items-center justify-center mt-0.5 bg-black rounded-2xl "
                   >
                     Max
