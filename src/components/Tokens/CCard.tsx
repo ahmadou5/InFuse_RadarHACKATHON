@@ -123,7 +123,7 @@ export const CCard = ({ tokenId }: { tokenId: string }) => {
       const result = await decompressToken({
         splAddress: addressPubKey,
         amount: amount,
-        userAddress: user.publicKey,
+        userMnemonic: user.mnemonic,
         rpc: network.rpcUrl || "",
       });
 
