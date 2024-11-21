@@ -15,6 +15,7 @@ import {
 } from "@lightprotocol/compressed-token";
 //import { createAssociatedTokenAccount } from "@solana/spl-token";
 import {
+  ComputeBudgetProgram,
   Keypair,
   //ParsedAccountData,
   PublicKey,
@@ -129,7 +130,10 @@ export const decompressToken = async ({
     }
 
     const instructions = [];
-
+    const computeUnitIx = ComputeBudgetProgram.setComputeUnitLimit({
+      units: 300_000, // Increased from default, adjust based on testing
+    });
+    instructions.unshift(computeUnitIx);
     // ATA Existence and Creation Logic with Detailed Logging
     const ifexists = await connection.getAccountInfo(ata);
     if (!ifexists || !ifexists.data) {
