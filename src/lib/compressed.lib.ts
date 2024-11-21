@@ -97,7 +97,7 @@ export const decompressToken = async ({
     // 2. Select accounts to transfer from based on the transfer amount
     const [inputAccounts] = selectMinCompressedTokenAccountsForTransfer(
       compressedTokenAccounts.items,
-      amount
+      adjustedAmount
     );
 
     // 3. Fetch recent validity proof
@@ -162,7 +162,7 @@ export const decompressToken = async ({
       payer: account.publicKey,
       inputCompressedTokenAccounts: inputAccounts,
       toAddress: ata,
-      amount,
+      amount: adjustedAmount,
       recentInputStateRootIndices: proof.rootIndices,
       recentValidityProof: proof.compressedProof,
     });
