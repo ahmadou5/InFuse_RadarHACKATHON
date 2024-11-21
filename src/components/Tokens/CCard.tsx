@@ -32,9 +32,11 @@ export const CCard = ({ tokenId }: { tokenId: string }) => {
       commitment: "confirmed",
     }
   );
+  console.log(tokenId, "address");
   console.log(tokenBalance);
   const getTokenInfo = async (slug: string) => {
     try {
+      console.log("gett");
       // setIsLoading(true);
       // console.log('Fetching token info for slug:', slug);
       const response = Token.filter((token) => token.compress_address === slug);
@@ -92,7 +94,7 @@ export const CCard = ({ tokenId }: { tokenId: string }) => {
 
   const fetch = async () => {
     try {
-      const tokenDetails = await getTokenInfo(tokenId[0]);
+      const tokenDetails = await getTokenInfo(tokenId[1]);
       console.log("fetched ohhh");
       if (!tokenDetails) return;
       //setMintAu(tokenDetails[0]?.owner)
@@ -108,7 +110,7 @@ export const CCard = ({ tokenId }: { tokenId: string }) => {
     try {
       if (!user) return;
       setIsLoading(true);
-      const tokenDetails = await getTokenInfo(tokenId[0]);
+      const tokenDetails = await getTokenInfo(tokenId[1]);
       if (!tokenDetails) return;
       let addressPubKey: PublicKey;
       try {

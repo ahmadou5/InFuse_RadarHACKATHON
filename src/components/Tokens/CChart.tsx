@@ -74,7 +74,7 @@ const fetchTokenData = async (tokenId: string, timeframe: string) => {
       price: price,
     }));
   } catch (error) {
-    console.error("Error fetching token data:", error);
+    // console.error("Error fetching token data:", error);
     return [];
   }
 };
@@ -95,16 +95,16 @@ const CChart = ({ tokenId }: ChartProps) => {
 
       if (response && Array.isArray(response)) {
         setTokenInfo(response);
-        console.log("Token info set:", response);
+        //  console.log("Token info set:", response);
         const data = await fetchTokenData(tokenInfo[0]?.token_id, timeframe);
         setChartData(data);
         return response;
       } else {
-        console.error("Invalid token data received:", response);
+        //   console.error("Invalid token data received:", response);
         setTokenInfo([]);
       }
     } catch (error) {
-      console.error("Failed to fetch tokens:", error);
+      //console.error("Failed to fetch tokens:", error);
       setTokenInfo([]);
     } finally {
       //    setIsLoading(false);
@@ -123,7 +123,7 @@ const CChart = ({ tokenId }: ChartProps) => {
     if (chartData.length < 2) return 0;
     return currentPrice - chartData[0].price;
   }, [chartData, currentPrice]);
-  console.log(tokenInfo, "gggggggggggggggggggg");
+  //console.log(tokenInfo, "gggggggggggggggggggg");
   const priceChangePercentage = useMemo(() => {
     if (chartData.length < 2) return 0;
     return (priceChange / chartData[0].price) * 100;
