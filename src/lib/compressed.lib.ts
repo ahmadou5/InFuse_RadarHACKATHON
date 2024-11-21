@@ -16,7 +16,7 @@ import {
 import { createAssociatedTokenAccount } from "@solana/spl-token";
 import {
   Keypair,
-  ParsedAccountData,
+  //ParsedAccountData,
   PublicKey,
   PublicKeyData,
   Transaction,
@@ -42,12 +42,12 @@ const connection: Rpc = createRpc(RPC_ENDPOINT, COMPRESSION_RPC_ENDPOINT);
 const MINT_KEYPAIR = Keypair.generate();
 const mint = MINT_KEYPAIR.publicKey;
 
-async function getTokenDecimals(mintAddress: PublicKey): Promise<number> {
-  const info = await connection.getParsedAccountInfo(mintAddress);
-  const result = (info.value?.data as ParsedAccountData).parsed.info
-    .decimals as number;
-  return result;
-}
+//async function getTokenDecimals(mintAddress: PublicKey): Promise<number> {
+//const info = await connection.getParsedAccountInfo(mintAddress);
+//const result = (info.value?.data as ParsedAccountData).parsed.info
+//  .decimals as number;
+//return result;
+//}
 //Decompress token Function...............
 
 export const decompressToken = async ({
@@ -73,12 +73,20 @@ export const decompressToken = async ({
       tokenAddress,
       account.publicKey
     );
-    const tokenDecimal = getTokenDecimals(tokenAddress);
+    // Detailed Mint Info Logging
+    const mintInfo = await getMint(connection, tokenAddress);
+    console.log("Token Mint Information:", {
+      decimals: mintInfo.decimals,
+      supply: mintInfo.supply.toString(),
+    });
+
+    const adjustedAmount = amount * Math.pow(10, mintInfo.decimals);
+    console.log(`Adjusted Amount: ${adjustedAmount}`);
     // 1. Fetch the latest compressed token account state
-    console.log(tokenDecimal);
+    //console.log(tokenDecimal);
     const compressedTokenAccounts =
       await connection.getCompressedTokenAccountsByOwner(account.publicKey, {
-        mint,
+        mint: tokenAddress,
       });
 
     // 2. Select accounts to transfer from based on the transfer amount
@@ -91,6 +99,12 @@ export const decompressToken = async ({
     const proof = await connection.getValidityProof(
       inputAccounts.map((account) => bn(account.compressedAccount.hash))
     );
+
+    const solBalance = await connection.getBalance(account.publicKey);
+    console.log("Account Balances:", {
+      solBalance,
+      publicKey: account.publicKey.toString(),
+    });
 
     const instructions = [];
 
@@ -110,20 +124,41 @@ export const decompressToken = async ({
 
     transaction.add(...instructions);
 
-    // set the end user as the fee payer
-    transaction.feePayer = account.publicKey;
-    console.log(transaction.signatures);
-    transaction.recentBlockhash = (
-      await connection.getLatestBlockhash()
-    ).blockhash;
+    const latestBlockhash = await connection.getLatestBlockhash();
+    transaction.recentBlockhash = latestBlockhash.blockhash;
+    transaction.lastValidBlockHeight = latestBlockhash.lastValidBlockHeight;
+    console.log("Latest Blockhash:", latestBlockhash.blockhash);
+
+    const signers = [account];
+
+    // Fee Estimation with Detailed Logging
+    const fees = await transaction.getEstimatedFee(connection);
+    console.log("Transaction Fee Estimation:", {
+      estimatedFees: fees,
+      solBalance,
+    });
+
+    if (fees === null) {
+      throw new Error("Unable to estimate transaction fees");
+    }
+
+    if (solBalance < fees) {
+      throw new Error(
+        `Insufficient SOL for transaction fees. Required: ${fees}, Available: ${solBalance}`
+      );
+    }
+
+    // Transaction Submission with Comprehensive Logging
     const transactionSignature = await sendAndConfirmTransaction(
       connection,
       transaction,
-      [
-        account, // payer, owner
-      ]
+      signers,
+      {
+        commitment: "confirmed",
+        preflightCommitment: "confirmed",
+      }
     );
-    console.log(decompressIx);
+    // console.log(decompressIx);
     return apiResponse(true, "Decompressed", transactionSignature);
   } catch (error) {
     if (error instanceof Error)
