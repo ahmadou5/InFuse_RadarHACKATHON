@@ -42,7 +42,7 @@ export const SendView = ({ slug }: { slug: string }) => {
     setReceiveAddress(event.target.value);
   };
   console.log(slug[0]);
-  const connection = new Connection(clusterApiUrl("mainnet-beta"), {
+  const connection = new Connection(network.rpcUrl || clusterApiUrl("devnet"), {
     commitment: "confirmed",
   });
 
@@ -222,10 +222,10 @@ export const SendView = ({ slug }: { slug: string }) => {
         setIsTxSuccess(true);
       }
     } catch (error: unknown) {
+      setIsTxFail(true);
       if (error instanceof Error) {
         setErrorMessage(error.message);
       }
-      setIsTxFail(true);
     }
   };
   const transactionErrorHandler = (ErrorString: string) => {
