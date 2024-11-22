@@ -77,7 +77,7 @@ export const CActivities = ({ slug }: Params) => {
           >
             <img src="/assets/decomp.svg" className="mt-1" />
           </div>
-          <p>Decompress</p>
+          <p className="text-sm mt-1">Decompress</p>
         </div>
 
         <Toaster />
