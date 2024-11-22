@@ -18,6 +18,7 @@ import { useAuth } from "@/context/AuthContext";
 import { Tokens } from "@/interfaces/models.interface";
 import { useNetwork } from "@/context/NetworkContext";
 import { Token } from "@/utils/tokens.utils";
+import { isValidSolanaAddress } from "@/lib/helius.lib";
 //import { Fascinate_Inline } from "next/font/google";
 export const SendView = ({ slug }: { slug: string }) => {
   const [loading, setIsLoading] = useState<boolean>(false);
@@ -536,7 +537,7 @@ export const SendView = ({ slug }: { slug: string }) => {
               <div className="flex mt-[10px]">
                 <p className="mb-3 mt-0 mr-auto text-[16px] ml-3"></p>
                 <div className="mr-4 mt-8 h-8">
-                  {receiveAddress?.length > 42 && (
+                  {isValidSolanaAddress(receiveAddress) && (
                     <>
                       <img src="https://solana-wallet-orcin.vercel.app/assets/good.svg" />
                     </>
@@ -545,7 +546,7 @@ export const SendView = ({ slug }: { slug: string }) => {
               </div>
               <div
                 className={`w-[100%] ml-auto mr-auto ${
-                  receiveAddress.length > 0 && receiveAddress.length < 42
+                  !isValidSolanaAddress(receiveAddress)
                     ? " border-red-500 border"
                     : "border-none"
                 } h-16 py-2 px-1 flex rounded-2xl bg-[#1F1F1F]`}
@@ -567,7 +568,7 @@ export const SendView = ({ slug }: { slug: string }) => {
                 </div>
               </div>
               <div>
-                {receiveAddress.length > 0 && receiveAddress.length < 42 ? (
+                {!isValidSolanaAddress(receiveAddress) ? (
                   <>
                     <p className="text-[#FC4444] text-[14px]">
                       Invalid address
@@ -582,7 +583,7 @@ export const SendView = ({ slug }: { slug: string }) => {
               <div className="mt-[360px] w-[98%] ml-auto mr-auto">
                 <button
                   onClick={() => {
-                    if (receiveAddress.length >= 40) {
+                    if (isValidSolanaAddress(receiveAddress)) {
                       setIsAddressChecked(true);
                     }
                   }}

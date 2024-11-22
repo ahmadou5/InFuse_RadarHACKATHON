@@ -310,10 +310,10 @@ export const SendSplToken = async (
     transaction.feePayer = fromPubKey;
     transaction.add(...instructions);
 
-    transaction.recentBlockhash = (
-      await connection.getLatestBlockhash()
-    ).blockhash;
-
+    const latestBlockhash = await connection.getLatestBlockhash();
+    transaction.recentBlockhash = latestBlockhash.blockhash;
+    transaction.lastValidBlockHeight = latestBlockhash.lastValidBlockHeight;
+    console.log("Latest Blockhash:", latestBlockhash.blockhash);
     // 9. Handle signers
     const signers = [account];
 
