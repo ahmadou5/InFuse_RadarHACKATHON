@@ -70,12 +70,14 @@ export const CActivities = ({ slug }: Params) => {
         >
           <img src="/assets/link.svg" className="mt-1" />
         </div>  */}
-
-        <div
-          onClick={() => setIsCompressed(true)}
-          className="text-3xl  bg-white/10 flex flex-col items-center justify-center rounded-3xl h-16 w-16 ml-auto mr-auto  text-white/60"
-        >
-          <img src="/assets/decomp.svg" className="mt-1" />
+        <div>
+          <div
+            onClick={() => setIsCompressed(true)}
+            className="text-3xl  bg-white/10 flex flex-col items-center justify-center rounded-3xl h-16 w-16 ml-auto mr-auto  text-white/60"
+          >
+            <img src="/assets/decomp.svg" className="mt-1" />
+          </div>
+          <p>Decompress</p>
         </div>
 
         <Toaster />
