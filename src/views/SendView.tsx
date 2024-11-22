@@ -568,7 +568,8 @@ export const SendView = ({ slug }: { slug: string }) => {
                 </div>
               </div>
               <div>
-                {!isValidSolanaAddress(receiveAddress) ? (
+                {receiveAddress.length > 0 &&
+                !isValidSolanaAddress(receiveAddress) ? (
                   <>
                     <p className="text-[#FC4444] text-[14px]">
                       Invalid address
