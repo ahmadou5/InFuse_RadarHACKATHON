@@ -18,6 +18,7 @@ import {
   Keypair,
   ComputeBudgetProgram,
 } from "@solana/web3.js";
+import { apiResponse } from "./api.helpers";
 
 // Interfaces
 export interface TokenTransactionOptions {
@@ -336,16 +337,10 @@ export const SendSplToken = async (
       }
     );
 
-    return {
-      signature: transactionSignature,
-      adjustedAmount,
-      fees,
-    };
+    return apiResponse(true, "sent", transactionSignature);
   } catch (error: unknown) {
-    if (error instanceof Error) {
-      console.error("Transaction failed:", error.message);
-      throw error; // Re-throw to allow proper error handling by caller
-    }
-    throw new Error("An unknown error occurred");
+    if (error instanceof Error)
+      return apiResponse(false, "Transaction failed:", error.message);
+    throw error; // Re-throw to allow proper error handling by caller
   }
 };
