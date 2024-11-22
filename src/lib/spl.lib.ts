@@ -16,6 +16,7 @@ import {
   ParsedInstruction,
   Transaction,
   Keypair,
+  ComputeBudgetProgram,
 } from "@solana/web3.js";
 
 // Interfaces
@@ -271,7 +272,10 @@ export const SendSplToken = async (
 
     // 5. Prepare instructions array
     const instructions = [];
-
+    const computeUnitIx = ComputeBudgetProgram.setComputeUnitLimit({
+      units: 300_000, // Increased from default, adjust based on testing
+    });
+    instructions.unshift(computeUnitIx);
     // 6. Check if destination account exists and create if needed
     const ifexists = await connection.getAccountInfo(toTokenAccount);
     if (!ifexists || !ifexists.data) {

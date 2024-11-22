@@ -246,6 +246,8 @@ export const SendView = ({ slug }: { slug: string }) => {
   useEffect(() => {
     if (slug && Array.isArray(slug) && slug.length === 2 && slug[1]) {
       setReceiveAddress(slug[1]);
+    } else if (slug && Array.isArray(slug) && slug.length === 3 && slug[2]) {
+      getTokenInfo(slug[2]);
     }
   }, [slug]);
   return (
