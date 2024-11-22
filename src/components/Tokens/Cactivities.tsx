@@ -51,7 +51,7 @@ export const CActivities = ({ slug }: Params) => {
   return (
     <>
       <div className="bg-gothic-300/0 w-[90%] ml-auto mr-auto mb-5 flex items-center justify-center rounded-3xl h-[100px]">
-        <div
+        {/** <div
           onClick={() => router.push("/wallet")}
           className="text-xl bg-white/10  border-[#448cff]/25 flex flex-col items-center justify-center rounded-3xl h-16 w-16 ml-auto mr-auto  text-white/60"
         >
@@ -69,7 +69,7 @@ export const CActivities = ({ slug }: Params) => {
           className="text-3xl  bg-white/10 flex flex-col items-center justify-center rounded-3xl h-16 w-16 ml-auto mr-auto  text-white/60"
         >
           <img src="/assets/link.svg" className="mt-1" />
-        </div>
+        </div>  */}
 
         <div
           onClick={() => setIsCompressed(true)}
