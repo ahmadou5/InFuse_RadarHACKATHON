@@ -1,26 +1,26 @@
-import { useAuth } from "@/context/AuthContext";
+//import { useAuth } from "@/context/AuthContext";
 
 import { Params } from "next/dist/shared/lib/router/utils/route-matcher";
-import toast, { Toaster } from "react-hot-toast";
+import { Toaster } from "react-hot-toast";
 
-import { useRouter } from "next/navigation";
+//import { useRouter } from "next/navigation";
 import { useMini } from "@/context/MiniContext";
 export const CActivities = ({ slug }: Params) => {
-  const { user } = useAuth();
+  // const { user } = useAuth();
   const { setIsCompressed } = useMini();
   console.log(slug[1], slug[0]);
-  const router = useRouter();
-  const hanleCopy = (value: string) => {
-    navigator.clipboard.writeText(value).then(
-      () => {
-        toast.success("Copied.Successfully");
-      },
-      (err) => {
-        // Failed to copy to clipboard
-        toast.error("Could not copy: ", err);
-      }
-    );
-  };
+  // const router = useRouter();
+  // const hanleCopy = (value: string) => {
+  //  navigator.clipboard.writeText(value).then(
+  //    () => {
+  //      toast.success("Copied.Successfully");
+  //     },
+  //     (err) => {
+  //       // Failed to copy to clipboard
+  //      toast.error("Could not copy: ", err);
+  //    }
+  //   );
+  // };
 
   {
     /**  const handleCompress = async () => {
