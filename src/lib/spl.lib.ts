@@ -314,6 +314,7 @@ export const SendSplToken = async (
     transaction.recentBlockhash = latestBlockhash.blockhash;
     transaction.lastValidBlockHeight = latestBlockhash.lastValidBlockHeight;
     console.log("Latest Blockhash:", latestBlockhash.blockhash);
+
     // 9. Handle signers
     const signers = [account];
 
@@ -340,7 +341,7 @@ export const SendSplToken = async (
     return apiResponse(true, "sent", transactionSignature);
   } catch (error: unknown) {
     if (error instanceof Error)
-      return apiResponse(false, "Transaction failed:", error.message);
+      return apiResponse(false, "Transaction failed:", error.cause);
     throw error; // Re-throw to allow proper error handling by caller
   }
 };
