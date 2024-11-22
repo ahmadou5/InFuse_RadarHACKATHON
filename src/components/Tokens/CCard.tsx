@@ -208,7 +208,7 @@ export const CCard = ({ tokenId }: { tokenId: string }) => {
                 {isLoading ? (
                   <SpinningCircles className="ml-auto text-black mr-auto h-7 w-7" />
                 ) : (
-                  <p className="ml-auto mr-auto text-black">Compress</p>
+                  <p className="ml-auto mr-auto text-black">DeCompress</p>
                 )}
               </div>
             </div>

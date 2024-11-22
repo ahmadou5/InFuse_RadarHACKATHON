@@ -113,7 +113,7 @@ const CChart = ({ tokenId }: ChartProps) => {
   };
   useEffect(() => {
     getTokenInfo(tokenId[1]);
-  }, [tokenId[1], getTokenInfo, timeframe]);
+  }, [tokenId[1], timeframe]);
 
   const currentPrice = useMemo(
     () => chartData[chartData.length - 1]?.price || 0,
