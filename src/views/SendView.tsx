@@ -546,6 +546,7 @@ export const SendView = ({ slug }: { slug: string }) => {
               </div>
               <div
                 className={`w-[100%] ml-auto mr-auto ${
+                  receiveAddress.length > 0 &&
                   !isValidSolanaAddress(receiveAddress)
                     ? " border-red-500 border"
                     : "border-none"
