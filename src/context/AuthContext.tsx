@@ -48,7 +48,7 @@ export default function AuthContextProvider({ children }: ReactChildrenProps) {
         setTimeout(() => {
           console.log(savedUser);
           handleSetUser(savedUser);
-          router.replace("/create");
+          router.replace("/wallet");
           console.log("Function triggered after  25 seconds!");
         }, 5000);
       } else if (tgData?.user?.id) {
@@ -90,8 +90,7 @@ export default function AuthContextProvider({ children }: ReactChildrenProps) {
 
       console.log("User found:", getUser.data);
       handleSetUser(getUser.data);
-      // router.replace("/wallet");
-      router.replace("/create");
+      router.replace("/wallet");
     } catch (error) {
       console.error("Error fetching user data:", error);
       setIsUserLoading(false);
