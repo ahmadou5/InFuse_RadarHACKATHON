@@ -2,8 +2,15 @@ export interface UserInterface {
   id: string;
   username: string;
   pin: string;
-  publicKey: string;
-  privateKey: string;
+  ethAddress: string;
+  ethPrivateKey: string;
+  suiAddress: string;
+  //suiPublicKey: string;
+  suiPrivateKey: string;
+  solPublicKey: string;
+  tonPublicKey: string;
+  tonPrivateKey: string;
+  solPrivateKey: string;
   mnemonic: string;
   email: string;
 }

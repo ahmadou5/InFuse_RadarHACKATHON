@@ -91,7 +91,7 @@ export const SendView = ({ slug }: { slug: string }) => {
         if (!user) return;
         let userPubKey: PublicKey;
         try {
-          userPubKey = new PublicKey(user.publicKey);
+          userPubKey = new PublicKey(user.solPublicKey);
         } catch (error) {
           throw new Error("Invalid sender address");
         }
@@ -105,7 +105,7 @@ export const SendView = ({ slug }: { slug: string }) => {
         const balance = await getSplTokenBalance(
           connection,
           address,
-          user.publicKey
+          user.solPublicKey
         );
         console.log(balance);
 
@@ -200,7 +200,7 @@ export const SendView = ({ slug }: { slug: string }) => {
         }
         let senderPubKey: PublicKey;
         try {
-          senderPubKey = new PublicKey(user.publicKey);
+          senderPubKey = new PublicKey(user.solPublicKey);
         } catch (error) {
           throw new Error("Invalid sender address");
         }

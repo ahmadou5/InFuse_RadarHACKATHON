@@ -74,7 +74,9 @@ export const RampView = ({ slug }: { slug: string }) => {
   }, []);
 
   const handleInput = (e: React.FormEvent<HTMLParagraphElement>) => {
-    const newText = parseFloat((e.target as HTMLParagraphElement).textContent || "");
+    const newText = parseFloat(
+      (e.target as HTMLParagraphElement).textContent || ""
+    );
     setAmount(newText);
     console.log("New value:", newText);
   };
@@ -90,7 +92,7 @@ export const RampView = ({ slug }: { slug: string }) => {
   };
 
   const utils = useUtils();
-  const [priceLoading,setPriceLoading] = useState<boolean>(false)
+  const [priceLoading, setPriceLoading] = useState<boolean>(false);
   const [tokenInfo, setTokenInfo] = useState<Tokens[]>([]);
   const [LinkStr, setLinkStr] = useState<string>("");
   const { user } = useAuth();
@@ -102,10 +104,10 @@ export const RampView = ({ slug }: { slug: string }) => {
           tokenName: "SOL",
           amount: amount,
           type: "buy",
-          userAddress: user?.publicKey,
+          userAddress: user?.solPublicKey,
         });
         if (Link === undefined) return;
-        
+
         //console.log(Link);
         setLinkStr(Link);
         //setIsLoading(true)
@@ -115,7 +117,7 @@ export const RampView = ({ slug }: { slug: string }) => {
           tokenName: tokenInfo[0].ticker,
           amount: amount,
           type: "buy",
-          userAddress: user?.publicKey,
+          userAddress: user?.solPublicKey,
         });
         console.log(Link);
         if (Link === undefined) return;
@@ -145,22 +147,21 @@ export const RampView = ({ slug }: { slug: string }) => {
   };
   const fetchPrice = async (token: string) => {
     try {
-     
       if (token === "solana") {
-        setPriceLoading(true)
-        const priceSol = await getSolPrice('solana');
-        setPrice(priceSol)
-        setPriceLoading(false)
+        setPriceLoading(true);
+        const priceSol = await getSolPrice("solana");
+        setPrice(priceSol);
+        setPriceLoading(false);
         console.log(priceSol);
       } else {
-        setPriceLoading(true)
+        setPriceLoading(true);
         const priceT = await getTokenPrice(token);
         setPrice(priceT);
-        setPriceLoading(false)
+        setPriceLoading(false);
         console.log(priceT);
       }
     } catch (error) {
-      console.log(error, 'fetch error');
+      console.log(error, "fetch error");
     }
   };
 
@@ -264,21 +265,20 @@ export const RampView = ({ slug }: { slug: string }) => {
                   }
                   className="h-10 rounded-full mr-2 w-10"
                 />
-                {
-                  priceLoading ? <div className="bg-white/20 h-4 w-16 mb-2 animate-pulse rounded"></div>
-                   : 
+                {priceLoading ? (
+                  <div className="bg-white/20 h-4 w-16 mb-2 animate-pulse rounded"></div>
+                ) : (
                   <p
+                    ref={pRef}
+                    className="text-white max-w-xs outline-none text-5xl"
+                    contentEditable
+                    onInput={handleInput}
+                    onKeyDown={handleKeyDown}
+                    inputMode="numeric"
+                    suppressContentEditableWarning
+                  ></p>
+                )}
 
-                  ref={pRef}
-                  className="text-white max-w-xs outline-none text-5xl"
-                  contentEditable
-                  onInput={handleInput}
-                  onKeyDown={handleKeyDown}
-                  inputMode="numeric"
-                  suppressContentEditableWarning
-                ></p>
-                }
-                
                 {/* <inputborer
                   type="number"
                   id="pin"
@@ -297,40 +297,43 @@ export const RampView = ({ slug }: { slug: string }) => {
                 {/**<p className="mt-5 text-2xl font-light ml-1 mr-auto">$</p> **/}
               </div>
               <div className="bg-black/0 rounded-2xl w-[150px] ml-auto mr-auto mt-12 mb-[90px] flex  items-center justify-center h-9">
-                {
-                  priceLoading ? <div className="bg-white/20 h-4 w-6 mb-2 animate-pulse rounded"></div>
-                  :
-                   <p className="text-white text-3xl text-center py-0.5">
-                  {`$${amount * price}`}
-                </p>
-                }
+                {priceLoading ? (
+                  <div className="bg-white/20 h-4 w-6 mb-2 animate-pulse rounded"></div>
+                ) : (
+                  <p className="text-white text-3xl text-center py-0.5">
+                    {`$${amount * price}`}
+                  </p>
+                )}
               </div>
               <div className="mb-[80px] w-[100%] flex items-center justify-center">
                 <div
-                 onClick={() => {
-                  const amount = 50 / price
-                  setAmount(amount)
-                 if (pRef.current) pRef.current.innerText = amount.toFixed(2).toString()
-                }}
+                  onClick={() => {
+                    const amount = 50 / price;
+                    setAmount(amount);
+                    if (pRef.current)
+                      pRef.current.innerText = amount.toFixed(2).toString();
+                  }}
                   className="ml-auto mr-8 bg-white/10 flex items-center justify-center rounded-2xl h-9 w-[24%]"
                 >
                   $50
                 </div>
                 <div
-                    onClick={() => {
-                      const amount = 100 / price
-                      setAmount(amount)
-                     if (pRef.current) pRef.current.innerText = amount.toFixed(2).toString()
-                    }}
+                  onClick={() => {
+                    const amount = 100 / price;
+                    setAmount(amount);
+                    if (pRef.current)
+                      pRef.current.innerText = amount.toFixed(2).toString();
+                  }}
                   className="ml-0 mr-0 bg-white/10 flex items-center justify-center rounded-2xl h-9 w-[24%]"
                 >
                   $100
                 </div>
                 <div
                   onClick={() => {
-                    const amount = 500 / price
-                    setAmount(amount)
-                   if (pRef.current) pRef.current.innerText = amount.toFixed(2).toString()
+                    const amount = 500 / price;
+                    setAmount(amount);
+                    if (pRef.current)
+                      pRef.current.innerText = amount.toFixed(2).toString();
                   }}
                   className="ml-8 mr-auto bg-white/10 flex items-center justify-center rounded-2xl h-9 w-[24%]"
                 >

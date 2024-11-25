@@ -15,7 +15,7 @@ import {
 import { createTransferInstruction } from "@solana/spl-token";
 import { getAssociatedTokenAddress } from "@solana/spl-token";
 import * as bip39 from "bip39";
-import { GenerateSeed, getSolPrice } from "./helper.lib";
+import { getSolPrice } from "./helper.lib";
 import { TransactionDetails } from "@/interfaces/models.interface";
 import bs58 from "bs58";
 //import { useNetwork } from "@/context/NetworkContext";
@@ -457,15 +457,15 @@ export async function getSplTokenBalance(
   }
 }
 
-export const createSolanaWallet = async () => {
+export const createSolanaWallet = async (seedArray: Uint8Array) => {
   try {
-    const { mnemonic, seedArray } = await GenerateSeed();
+    //const { seedArray } = await GenerateSeed();
     const account = await Keypair.fromSeed(seedArray);
     //console.log(account)
     const publicKey = account.publicKey.toString();
     const privateKey = account.secretKey;
     const secret = bs58.encode(privateKey);
-    return { publicKey, secret, mnemonic };
+    return { publicKey, secret };
   } catch (error) {
     if (error instanceof Error)
       console.log("Account Creation Error", error.message);

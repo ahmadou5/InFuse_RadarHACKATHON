@@ -21,6 +21,7 @@ import { Tokens } from "@/interfaces/models.interface";
 import { calculateWalletTotals } from "@/lib/helper.lib";
 import { useTelegramBackButton } from "@/lib/telegram.lib";
 import { Token } from "@/utils/tokens.utils";
+//import { getUserTokensWithMetadata, TokenDataResponse } from "@/lib/helius.lib";
 
 interface TokenPrices {
   [ticker: string]: number;
@@ -202,6 +203,7 @@ export const WalletView = () => {
   const [solPrice, setSolPrice] = useState<number | undefined>();
   const [compTokens, setCompTokens] = useState<ParsedTokenAccount[]>();
   const [tokens, setTokens] = useState<Tokens[]>([]);
+  //const [otherTokens, setOtherTokens] = useState<TokenDataResponse>();
   const { user } = useAuth();
   const { network } = useNetwork();
   const [activeTab, setActiveTab] = useState("assets");
@@ -296,7 +298,18 @@ export const WalletView = () => {
     };
     fetchTokens();
   }, []);
-
+  //to be done
+  {
+    /** useEffect(() => {
+    const getTokens = async () => {
+      if (!user) return;
+      const tokens = await getUserTokensWithMetadata(user.publicKey);
+      setOtherTokens(tokens);
+    };
+    getTokens();
+    console.log(otherTokens, "others");
+  }, [user]);  */
+  }
   useEffect(() => {
     const fetchBalances = async () => {
       if (!user) return;

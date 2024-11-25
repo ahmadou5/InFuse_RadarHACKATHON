@@ -341,7 +341,7 @@ export const SendSplToken = async (
     return apiResponse(true, "sent", transactionSignature);
   } catch (error: unknown) {
     if (error instanceof Error)
-      return apiResponse(false, "Transaction failed:", error.cause);
+      return apiResponse(false, "Transaction failed:", error.message);
     throw error; // Re-throw to allow proper error handling by caller
   }
 };

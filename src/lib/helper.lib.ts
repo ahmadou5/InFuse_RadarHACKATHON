@@ -20,8 +20,10 @@ import axios from "axios";
 import { Tokens } from "@/interfaces/models.interface";
 import * as bip39 from "bip39";
 import bs58 from "bs58";
+import { ethers } from "ethers";
+import { Ed25519Keypair } from "@mysten/sui/keypairs/ed25519";
 
-interface SeedGenerationResult {
+export interface SeedGenerationResult {
   seedArray: Uint8Array;
   mnemonic: string;
 }
@@ -29,6 +31,49 @@ interface SeedGenerationResult {
 export const SolConverter = (value: number) => {
   const converted = value / LAMPORTS_PER_SOL;
   return converted;
+};
+
+export const CreateAllAccounts = async ({
+  mnemonic,
+  seedArray,
+}: {
+  mnemonic: string;
+  seedArray: Uint8Array;
+}) => {
+  console.log(mnemonic, "mn");
+  console.log(seedArray, "array");
+  //solana
+
+  const solanaAccount = await Keypair.fromSeed(seedArray);
+  //console.log(account)
+  const solPublicKey = solanaAccount.publicKey.toString();
+  const solPrivateKey = solanaAccount.secretKey;
+  const SolConvertedsecret = bs58.encode(solPrivateKey);
+
+  //eth addresses
+  const ethAccount = ethers.Wallet.fromPhrase(mnemonic);
+  const Ethaddress = ethAccount.address;
+  const EthprivateKey = ethAccount.privateKey;
+
+  // sui Account
+  const Suiaccount = Ed25519Keypair.deriveKeypair(mnemonic);
+
+  const suiPublicKey = Suiaccount.getPublicKey();
+  const suiPrivateKey = Suiaccount.getSecretKey();
+  const suiAddress = Suiaccount.toSuiAddress();
+
+  if (!solanaAccount && !ethAccount && !Suiaccount) return;
+
+  return {
+    solPublicKey,
+    SolConvertedsecret,
+    solPrivateKey,
+    Ethaddress,
+    EthprivateKey,
+    suiAddress,
+    suiPrivateKey,
+    suiPublicKey,
+  };
 };
 
 export const formatAddress = (value: string) => {

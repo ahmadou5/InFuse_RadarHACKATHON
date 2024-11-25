@@ -96,7 +96,7 @@ export const SendCView = ({ slug }: { slug: string }) => {
         if (!user) return;
         let userPubKey: PublicKey;
         try {
-          userPubKey = new PublicKey(user.publicKey);
+          userPubKey = new PublicKey(user.solPublicKey);
         } catch (error) {
           throw new Error("Invalid sender address");
         }
@@ -108,7 +108,7 @@ export const SendCView = ({ slug }: { slug: string }) => {
         console.log("spl ne waannan", address);
         if (!user) return;
         const balance = await getCompressTokenBalance({
-          address: user.publicKey,
+          address: user.solPublicKey,
           mint: tokenInfo[0].compress_address,
           rpc: network.rpcUrl || "",
         });
@@ -205,7 +205,7 @@ export const SendCView = ({ slug }: { slug: string }) => {
         }
         let senderPubKey: PublicKey;
         try {
-          senderPubKey = new PublicKey(user.publicKey);
+          senderPubKey = new PublicKey(user.solPublicKey);
         } catch (error) {
           throw new Error("Invalid sender address");
         }

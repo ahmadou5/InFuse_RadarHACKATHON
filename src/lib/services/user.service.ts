@@ -22,8 +22,15 @@ export class UserService {
     user_id: number;
     email: string;
     username: string;
-    publicKey: string | undefined;
-    privateKey: string | undefined;
+    ethAddress: string | undefined;
+    ethPrivateKey: string | undefined;
+    suiAddress: string | undefined;
+    //suiPublicKey: string | undefined;
+    suiPrivateKey: string | undefined;
+    solPublicKey: string | undefined;
+    tonPublicKey: string | undefined;
+    tonPrivateKey: string | undefined;
+    solPrivateKey: string | undefined;
     mnemonic: string | undefined;
     pin: string | undefined;
   }) {
@@ -34,8 +41,15 @@ export class UserService {
         .eq("id", payload.user_id)
         .eq("email", payload.email)
         .eq("username", payload.username)
-        .eq("publicKey", payload.publicKey)
-        .eq("privateKey", payload.privateKey)
+        .eq("ethAddress", payload.ethAddress)
+        .eq("ethPrivateKey", payload.ethPrivateKey)
+        .eq("solPublicKey", payload.solPublicKey)
+        .eq("solPrivateKey", payload.solPrivateKey)
+        //.eq("suiPublicKey", payload.suiPublicKey)
+        .eq("suiAddress", payload.suiAddress)
+        .eq("suiPrivateKey", payload.suiPrivateKey)
+        .eq("tonPublicKey", payload.tonPublicKey)
+        .eq("tonPrivateKey", payload.tonPrivateKey)
         .eq("mnemonic", payload.mnemonic)
         .eq("pin", payload.pin);
       if (checkUser.error)
@@ -56,8 +70,8 @@ export class UserService {
             username: payload.username,
             pin: payload.pin,
             mnemonic: payload.mnemonic,
-            privateKey: payload.privateKey,
-            publicKey: payload.publicKey,
+            privateKey: payload.solPrivateKey,
+            publicKey: payload.solPublicKey,
           },
         ])
         .select("*");

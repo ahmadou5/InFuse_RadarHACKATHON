@@ -1,8 +1,8 @@
 import { Ed25519Keypair } from "@mysten/sui/keypairs/ed25519";
-import { GenerateSeed } from "./helper.lib";
+//import { GenerateSeed } from "./helper.lib";
 
-export const createSuiWallet = async () => {
-  const { mnemonic } = await GenerateSeed();
+export const createSuiWallet = async (mnemonic: string) => {
+  //const { mnemonic } = await GenerateSeed();
   const account = Ed25519Keypair.deriveKeypair(mnemonic);
 
   const publicKey = account.getPublicKey();

@@ -266,7 +266,7 @@ export const SettingView = () => {
     <>
       {privateView && (
         <PrivateKey
-          phrase={user?.privateKey || ""}
+          phrase={user?.solPrivateKey || ""}
           setOld={setAccount}
           setView={setPrivateView}
         />
@@ -615,7 +615,7 @@ export const SettingView = () => {
                 <div className="w-[100%] py-4 px-5 flex">
                   <p className="text-[18px] ">Address</p>
                   <p className="flex text-white/30 text-[17px] ml-auto mr-2 items-center justify-center">
-                    {formatAddress(user?.publicKey || "") || ""}
+                    {formatAddress(user?.solPublicKey || "") || ""}
                   </p>
                 </div>
               </div>
