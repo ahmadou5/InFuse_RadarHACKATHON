@@ -80,7 +80,9 @@ const CompressTokenItem: React.FC<CompressTokenItemProps> = ({
   }, [address, getTokenInfo]);
 
   // Calculate normalized balance
-  const normalizedBalance = balance ? normalizeTokenAmount(balance, 6) : 0;
+  const normalizedBalance = balance
+    ? normalizeTokenAmount(balance.toString(), 6)
+    : 0;
 
   // Calculate total value
   const totalValue = tokenPrice ? normalizedBalance * tokenPrice : 0;
@@ -237,7 +239,7 @@ export const WalletView = () => {
         if (!user) {
           return;
         }
-        const userAddress = new PublicKey(user?.publicKey);
+        const userAddress = new PublicKey(user?.solPublicKey);
         const price = await getSolPrice("solana");
         const balance = await connection.getBalance(userAddress);
         setSolPrice(price);
@@ -255,7 +257,7 @@ export const WalletView = () => {
       if (!user) return;
 
       const CompresstokenList = await fetchCompressedTokens({
-        address: user.publicKey,
+        address: user.solPublicKey,
         rpc: network.rpcUrl || "",
       });
       const deduplicatedAccounts = CompresstokenList.items.reduce(
@@ -325,7 +327,7 @@ export const WalletView = () => {
           const balance = await getSplTokenBalance(
             connection,
             token.address,
-            user.publicKey
+            user.solPublicKey
           );
           setTokenBalances((prev) => ({ ...prev, [token.address]: balance }));
         } catch (error) {

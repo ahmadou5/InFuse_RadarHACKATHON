@@ -250,13 +250,13 @@ export const SettingView = () => {
           .filter((network) => network.isTestNet === true)
           .find((item) => item.name === network.name);
         setActiveChain(testnet || network);
-        toast.success("Switched to devnet");
+        toast.success("Switched to Devnet");
       } else {
         const mainnet = networkList
           .filter((network) => network.isTestNet === false)
           .find((item) => item.name === network.name);
         setActiveChain(mainnet || network);
-        toast.success("Switch to mainnet");
+        toast.success("Switched to Mainnet");
       }
     } catch (error) {
       console.log(error);
@@ -438,7 +438,7 @@ export const SettingView = () => {
                   className="w-[100%] py-2 px-4 flex"
                 >
                   <p className="text-[18px] flex items-center justify-center ">
-                    Testnet Mode
+                    Devnet Mode
                   </p>
                   {/** switcher */}
                   <div

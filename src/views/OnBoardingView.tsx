@@ -6,10 +6,12 @@ import { UserService } from "@/lib/services/user.service";
 import React, { useState, ChangeEvent } from "react";
 import { GenerateSeed, SeedGenerationResult } from "@/lib/helper.lib";
 import { ArrowRight, ArrowLeft, MailCheckIcon, LockOpen } from "lucide-react";
-import { SpinningCircles } from "react-loading-icons";
+//import { SpinningCircles } from "react-loading-icons";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { createSuiWallet } from "@/lib/sui.lib";
+import { createTonAccount } from "@/lib/ton.lib";
+import toast, { Toaster } from "react-hot-toast";
 
 interface FormData {
   email: string;
@@ -25,7 +27,7 @@ export const OnboardView = () => {
   const [isSecond, setIsSecond] = useState<boolean>(false);
   const [isThird, setIsThird] = useState<boolean>(false);
   ////const [isNew, setIsNew] = useState<boolean>(false);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  //const [isLoading, setIsLoading] = useState<boolean>(false);
   const [created, setIsCreated] = useState<boolean>(false);
   const tgData = useInitData();
   const router = useRouter();
@@ -91,9 +93,10 @@ export const OnboardView = () => {
       return;
     }
     const { mnemonic, seedArray }: SeedGenerationResult = await GenerateSeed();
-    setIsLoading(true);
+    //setIsLoading(true);
     const EthAccount = await createEthAccount(mnemonic);
     const suiAccount = await createSuiWallet(mnemonic);
+    const tonAccount = await createTonAccount(mnemonic);
     const solWalletInfo = await createSolanaWallet(seedArray);
     const upload = UserService.CreateUser({
       user_id: tgData.user.id,
@@ -106,14 +109,19 @@ export const OnboardView = () => {
       ethPrivateKey: EthAccount.privateKey,
       suiAddress: suiAccount.address,
       suiPrivateKey: suiAccount.privateKey,
-      tonPrivateKey: "",
-      tonPublicKey: "",
+      tonPrivateKey: tonAccount.secret,
+      tonPublicKey: tonAccount.public1,
       mnemonic: mnemonic,
     });
     console.log(upload, "created");
     if ((await upload).success) {
       setIsCreated(true);
-      setIsLoading(false);
+      toast.success("Wallet Creation Success!", {
+        style: {
+          display: "ruby-base",
+        },
+      });
+      //setIsLoading(false);
       setUser((await upload).data);
       console.log("user", (await upload).data);
     }
@@ -269,20 +277,7 @@ export const OnboardView = () => {
       {isThird && (
         <>
           <div className="max-h-screen w-[100%] py-10">
-            <div className=" flex items-center justify-center h-[12] mb-[230px] w-[100%]  ">
-              {isLoading && (
-                <div className="w-[130px] rounded-3xl h-8 flex items-center justify-center bg-white/5 bg-opacity-90">
-                  {created ? (
-                    <p className="font-light">Created</p>
-                  ) : (
-                    <div className="font-light flex">
-                      <p>Creating</p>
-                      <SpinningCircles className="h-4 w-4 ml-2 mr-2 mt-1 " />
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
+            <div className=" flex items-center justify-center h-[12] mb-[230px] w-[100%]  "></div>
 
             <div className="w-[100%] flex items-center justify-center mt-12 h-[210px]">
               <div className="flex bg-black15 rounded-lg bg-opacity-30">
@@ -311,6 +306,7 @@ export const OnboardView = () => {
           </div>
         </>
       )}
+      <Toaster />
     </div>
   );
 };

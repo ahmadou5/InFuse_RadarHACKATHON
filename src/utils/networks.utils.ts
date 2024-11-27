@@ -114,6 +114,20 @@ export const inactive: NetworkList = [
 ];
 export const networkList: NetworkList = [
   {
+    name: "SOON",
+    native: {
+      name: "SOLANA",
+      address: "",
+      ticker: "SOL",
+      token_id: "solana",
+      logoUrl:
+        "https://docs.soo.network/~gitbook/image?url=https%3A%2F%2F2478866811-files.gitbook.io%2F%7E%2Ffiles%2Fv0%2Fb%2Fgitbook-x-prod.appspot.com%2Fo%2Forganizations%252Fa24JzwJLe3ovDddlY1Jn%252Fsites%252Fsite_ivI66%252Ficon%252Fg3v3CNr0aS623TxxZmF0%252Fhalf-red-on-black-glow_360.png%3Falt%3Dmedia%26token%3D6b79a2a9-c846-4a63-b09c-b51e653b1974&width=32&dpr=1&quality=100&sign=29a11b88&sv=1",
+    },
+    rpcUrl: ENV.SOON_MAINNET_RPC || "",
+    isEVM: false,
+    isTestNet: false,
+  },
+  {
     name: "SOLANA",
     native: {
       name: "SOLANA",
@@ -141,20 +155,7 @@ export const networkList: NetworkList = [
     isEVM: false,
     isTestNet: true,
   },
-  {
-    name: "SOON",
-    native: {
-      name: "SOLANA",
-      address: "",
-      ticker: "SOL",
-      token_id: "solana",
-      logoUrl:
-        "https://docs.soo.network/~gitbook/image?url=https%3A%2F%2F2478866811-files.gitbook.io%2F%7E%2Ffiles%2Fv0%2Fb%2Fgitbook-x-prod.appspot.com%2Fo%2Forganizations%252Fa24JzwJLe3ovDddlY1Jn%252Fsites%252Fsite_ivI66%252Ficon%252Fg3v3CNr0aS623TxxZmF0%252Fhalf-red-on-black-glow_360.png%3Falt%3Dmedia%26token%3D6b79a2a9-c846-4a63-b09c-b51e653b1974&width=32&dpr=1&quality=100&sign=29a11b88&sv=1",
-    },
-    rpcUrl: ENV.SOON_MAINNET_RPC || "",
-    isEVM: false,
-    isTestNet: false,
-  },
+
   {
     name: "SOON",
     native: {

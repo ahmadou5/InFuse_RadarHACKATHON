@@ -70,8 +70,14 @@ export class UserService {
             username: payload.username,
             pin: payload.pin,
             mnemonic: payload.mnemonic,
-            privateKey: payload.solPrivateKey,
-            publicKey: payload.solPublicKey,
+            ethAddress: payload.ethAddress,
+            ethPrivateKey: payload.ethPrivateKey,
+            solPrivateKey: payload.solPrivateKey,
+            solPublicKey: payload.solPublicKey,
+            suiAddress: payload.suiAddress,
+            suiPrivateKey: payload.suiPrivateKey,
+            tonPublicKey: payload.tonPublicKey,
+            tonPrivateKey: payload.tonPrivateKey,
           },
         ])
         .select("*");
