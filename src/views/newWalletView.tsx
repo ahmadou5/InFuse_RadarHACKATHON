@@ -23,28 +23,34 @@ interface TokenPrices {
 type TeamList = Token[];
 
 export const WalletView = () => {
-  const [tokenBalances, setTokenBalances] = useState<{[address: string]: number}>({});
+  const [tokenBalances, setTokenBalances] = useState<{
+    [address: string]: number;
+  }>({});
   const [tokenPrices, setTokenPrices] = useState<TokenPrices>({});
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState("tokens");
   const router = useRouter();
   const scanner = useQRScanner(false);
-  const connection = new Connection(clusterApiUrl('devnet'), { commitment: 'confirmed' });
+  const connection = new Connection(clusterApiUrl("devnet"), {
+    commitment: "confirmed",
+  });
 
   const token1: TeamList = [
     {
-      name: 'Solana',
-      ticker: 'solana',
-      id: 'DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263',
-      getId: 'solana',
-      imgUrl: 'https://coin-images.coingecko.com/coins/images/4128/large/solana.png?1718769756'
+      name: "Solana",
+      ticker: "solana",
+      id: "DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263",
+      getId: "solana",
+      imgUrl:
+        "https://coin-images.coingecko.com/coins/images/4128/large/solana.png?1718769756",
     },
     {
-      name: 'Bonk',
-      ticker: 'bonk',
-      id: 'DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263',
-      getId: 'bonk',
-      imgUrl: 'https://coin-images.coingecko.com/coins/images/28600/large/bonk.jpg?1696527587'
+      name: "Bonk",
+      ticker: "bonk",
+      id: "DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263",
+      getId: "bonk",
+      imgUrl:
+        "https://coin-images.coingecko.com/coins/images/28600/large/bonk.jpg?1696527587",
     },
   ];
 
@@ -52,18 +58,18 @@ export const WalletView = () => {
     const fetchPrices = async () => {
       if (token1.length > 0) {
         try {
-          const tickers = token1.map(token => token.ticker);
+          const tickers = token1.map((token) => token.ticker);
           const prices = await getTokenPrices(tickers);
           setTokenPrices(Object.fromEntries(prices));
         } catch (error) {
-          console.error('Failed to fetch token prices:', error);
+          console.error("Failed to fetch token prices:", error);
         }
       }
     };
 
     fetchPrices();
   }, [token1]);
- 
+
   useEffect(() => {
     const fetchBalances = async () => {
       if (!user) return;
@@ -71,15 +77,22 @@ export const WalletView = () => {
       const initialBalances = token1.reduce((acc, token) => {
         acc[token.id] = 0;
         return acc;
-      }, {} as {[address: string]: number});
+      }, {} as { [address: string]: number });
       setTokenBalances(initialBalances);
 
       for (const token of token1) {
         try {
-          const balance = await getSplTokenBalance(connection, token.id, user.publicKey);
-          setTokenBalances(prev => ({ ...prev, [token.id]: balance }));
+          const balance = await getSplTokenBalance(
+            connection,
+            token.id,
+            user.solPublicKey
+          );
+          setTokenBalances((prev) => ({ ...prev, [token.id]: balance }));
         } catch (error) {
-          console.error(`Failed to fetch balance for token ${token.id}:`, error);
+          console.error(
+            `Failed to fetch balance for token ${token.id}:`,
+            error
+          );
         }
       }
     };
@@ -89,7 +102,7 @@ export const WalletView = () => {
 
   const scan = () => {
     try {
-      scanner.open('Scan QR code').then((content) => {
+      scanner.open("Scan QR code").then((content) => {
         console.log(content);
       });
     } catch (error) {
@@ -100,40 +113,64 @@ export const WalletView = () => {
   //const getUSDValue = (amount: number, price: number) => amount * price;
 
   const navigate = (path: string) => {
-    if(!router) {
-      return
+    if (!router) {
+      return;
     }
     router.refresh();
-    router.push(path , {
-      scroll: true
-    })
+    router.push(path, {
+      scroll: true,
+    });
   };
 
   return (
     <div className="w-full">
       <div className="bg-gothic-950/0 mt-0.5 flex mb-2 flex-col items-center justify-center w-full h-auto">
         <div className="p-2 mb-4 w-full flex">
-          <div onClick={() => navigate('/settings')} className="mr-auto ml-1.5 flex items-center justify-center rounded-full cursor-pointer">
-            <img src="./assets/setting.svg" alt="Settings" className="text-white" />
+          <div
+            onClick={() => navigate("/settings")}
+            className="mr-auto ml-1.5 flex items-center justify-center rounded-full cursor-pointer"
+          >
+            <img
+              src="./assets/setting.svg"
+              alt="Settings"
+              className="text-white"
+            />
           </div>
-          <div onClick={scan} className="mr-1.5 ml-auto flex items-center justify-center rounded-full cursor-pointer">
-            <img src="./assets/scanner.svg" alt="Scanner" className="text-white" />
+          <div
+            onClick={scan}
+            className="mr-1.5 ml-auto flex items-center justify-center rounded-full cursor-pointer"
+          >
+            <img
+              src="./assets/scanner.svg"
+              alt="Scanner"
+              className="text-white"
+            />
           </div>
         </div>
         <div className="bg-s-gray-300/0 w-[90%] flex flex-col items-center justify-center rounded-3xl h-[120px]">
-          <p className="text-[22px] font-light text-[#666666] mb-2.5">Total Balance</p>
+          <p className="text-[22px] font-light text-[#666666] mb-2.5">
+            Total Balance
+          </p>
           <p className="text-5xl font-bold text-white/65">{`$${0}`}</p>
         </div>
       </div>
       <div className="bg-gothic-950/0 mt-3 flex items-center justify-center w-full h-auto">
         <div className="bg-gothic-300/0 w-[90%] flex items-center justify-center rounded-3xl h-[100px]">
           {[
-            { path: '/send/solana', icon: 'send.svg', alt: 'Send' },
-            { path: '/receive', icon: 'qr.svg', alt: 'Receive' },
-            { path: '/ramp', icon: 'dollar.svg', alt: 'Ramp' }
+            { path: "/send/solana", icon: "send.svg", alt: "Send" },
+            { path: "/receive", icon: "qr.svg", alt: "Receive" },
+            { path: "/ramp", icon: "dollar.svg", alt: "Ramp" },
           ].map((item, index) => (
-            <div key={index} onClick={() => router.push(item.path)} className="text-xl bg-white/10 border-[#448cff]/25 flex flex-col items-center justify-center rounded-3xl h-20 w-20 mx-auto cursor-pointer">
-              <img src={`https://solana-wallet-orcin.vercel.app/assets/${item.icon}`} alt={item.alt} className="mt-1" />
+            <div
+              key={index}
+              onClick={() => router.push(item.path)}
+              className="text-xl bg-white/10 border-[#448cff]/25 flex flex-col items-center justify-center rounded-3xl h-20 w-20 mx-auto cursor-pointer"
+            >
+              <img
+                src={`https://solana-wallet-orcin.vercel.app/assets/${item.icon}`}
+                alt={item.alt}
+                className="mt-1"
+              />
               <p>{item.alt}</p>
             </div>
           ))}
@@ -156,13 +193,20 @@ export const WalletView = () => {
             </button>
           ))}
         </div>
-        {activeTab === 'tokens' ? (
+        {activeTab === "tokens" ? (
           <>
             <TokenItem
-              token={{ name: "Solana", ticker: "SOL", id:'' , getId: '', imgUrl: "https://solana-wallet-orcin.vercel.app/assets/5426.png" }}
+              token={{
+                name: "Solana",
+                ticker: "SOL",
+                id: "",
+                getId: "",
+                imgUrl:
+                  "https://solana-wallet-orcin.vercel.app/assets/5426.png",
+              }}
               balance={2}
               price={150}
-              onClick={() => router.push('/token/solana')}
+              onClick={() => router.push("/token/solana")}
             />
             {token1.map((token, i) => (
               <TokenItem
@@ -175,7 +219,7 @@ export const WalletView = () => {
             ))}
           </>
         ) : (
-          'NFTs content here'
+          "NFTs content here"
         )}
       </div>
       <Menu />
@@ -190,10 +234,22 @@ interface TokenItemProps {
   onClick: () => void;
 }
 
-const TokenItem: React.FC<TokenItemProps> = ({ token, balance, price, onClick }) => (
-  <div onClick={onClick} className="bg-white/10 w-[90%] mb-1.5 flex items-center justify-center rounded-xl h-[70px] cursor-pointer">
+const TokenItem: React.FC<TokenItemProps> = ({
+  token,
+  balance,
+  price,
+  onClick,
+}) => (
+  <div
+    onClick={onClick}
+    className="bg-white/10 w-[90%] mb-1.5 flex items-center justify-center rounded-xl h-[70px] cursor-pointer"
+  >
     <div className="bg-gothic-600/85 w-12 flex items-center justify-center h-12 ml-[23px] mr-[10px] rounded-full">
-      <img src={token.imgUrl} alt={token.name} className="text-white/90 w-full h-full rounded-full" />
+      <img
+        src={token.imgUrl}
+        alt={token.name}
+        className="text-white/90 w-full h-full rounded-full"
+      />
     </div>
     <div className="ml-[5px] text-white/85 mr-auto px-3">
       <p className="text-sm font-bold mb-1">{token.name}</p>
