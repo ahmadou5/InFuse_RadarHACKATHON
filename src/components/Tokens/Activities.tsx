@@ -100,7 +100,7 @@ export const Activities = ({ slug }: Params) => {
         <div
           onClick={() => {
             if (!user) return;
-            hanleCopy(user?.publicKey);
+            hanleCopy(user?.solPublicKey);
           }}
           className="text-3xl  bg-white/10 flex flex-col items-center justify-center rounded-3xl h-16 w-16 ml-auto mr-auto  text-white/60"
         >
