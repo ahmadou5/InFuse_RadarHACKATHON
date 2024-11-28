@@ -55,7 +55,7 @@ export const Top = ({ tokenId }: TopProps) => {
         if (!user) return;
         let userPubKey: PublicKey;
         try {
-          userPubKey = new PublicKey(user.publicKey);
+          userPubKey = new PublicKey(user.solPublicKey);
         } catch (error) {
           throw new Error("Invalid sender address");
         }
@@ -69,7 +69,7 @@ export const Top = ({ tokenId }: TopProps) => {
         const balance = await getSplTokenBalance(
           connection,
           address,
-          user.publicKey
+          user.solPublicKey
         );
         console.log(balance);
 

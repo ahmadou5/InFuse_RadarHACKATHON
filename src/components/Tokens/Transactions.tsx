@@ -46,7 +46,7 @@ export const Transactions = ({ tokenId }: { tokenId: string }) => {
         if (!user) return;
         console.log("what the f");
 
-        const trx = await getSolanaTransactions(user.publicKey, {
+        const trx = await getSolanaTransactions(user.solPublicKey, {
           limit: 100 | 0,
           cluster: network.rpcUrl,
         });
@@ -58,7 +58,7 @@ export const Transactions = ({ tokenId }: { tokenId: string }) => {
         const response = Token.find((token) => token.token_id === tokenId);
         if (response && Array.isArray(response)) {
           //console.log(response.data[0].address);
-          const trx = await getSPLTokenTransactions(user.publicKey, {
+          const trx = await getSPLTokenTransactions(user.solPublicKey, {
             limit: 100 | 0,
             cluster: network.rpcUrl,
             mintAddress: response[0]?.address,

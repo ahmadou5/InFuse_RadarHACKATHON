@@ -6,7 +6,7 @@ import { Tokens } from "@/interfaces/models.interface";
 import { Connection, clusterApiUrl, PublicKey } from "@solana/web3.js";
 import { SolConverter } from "@/lib/helper.lib";
 import { useAuth } from "@/context/AuthContext";
-import { BN } from "@coral-xyz/anchor";
+//import { BN } from "@coral-xyz/anchor";
 import { normalizeTokenAmount } from "helius-airship-core";
 //import { getSplTokenBalance } from "@/lib/solana.lib";
 import { getCompressTokenBalance } from "@/lib/compressed.lib";
@@ -19,7 +19,7 @@ interface TopProps {
 export const CTop = ({ tokenId }: TopProps) => {
   const { user } = useAuth();
   const { network } = useNetwork();
-  const [userBalance, setUserBalance] = useState<BN | null>(null);
+  const [userBalance, setUserBalance] = useState<number | null>(null);
   const [tokenInfo, setTokenInfo] = useState<Tokens[]>([]);
   const connection = new Connection(network.rpcUrl || clusterApiUrl("devnet"), {
     commitment: "confirmed",
@@ -57,25 +57,27 @@ export const CTop = ({ tokenId }: TopProps) => {
         if (!user) return;
         let userPubKey: PublicKey;
         try {
-          userPubKey = new PublicKey(user.publicKey);
+          userPubKey = new PublicKey(user.solPublicKey);
         } catch (error) {
           throw new Error("Invalid sender address");
         }
 
         const balance = await connection.getBalance(userPubKey);
-        setUserBalance(balance);
+        console.log(balance);
         //console.log(balance,'hhhhh');
       } else {
         //console.log('spl ne waannan',address,)
         if (!user) return;
         const balance = await getCompressTokenBalance({
-          address: user.publicKey,
+          address: user.solPublicKey,
           mint: tokenId[1],
           rpc: network.rpcUrl || "",
         });
         console.log(balance.items[0].balance, "balance");
 
-        setUserBalance(normalizeTokenAmount(balance.items[0].balance, 6));
+        setUserBalance(
+          normalizeTokenAmount(balance?.items[0]?.balance.toString(), 6)
+        );
         //setUserBalance(normalizeTokenAmount(balance.items[0].balance, 6));
       }
     } catch (error: unknown) {

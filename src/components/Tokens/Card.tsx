@@ -66,7 +66,7 @@ export const Card = ({ tokenId }: { tokenId: string }) => {
         if (!user) return;
         let userPubKey: PublicKey;
         try {
-          userPubKey = new PublicKey(user.publicKey);
+          userPubKey = new PublicKey(user.solPublicKey);
         } catch (error) {
           throw new Error("Invalid sender address");
         }
@@ -80,7 +80,7 @@ export const Card = ({ tokenId }: { tokenId: string }) => {
         const balance = await getSplTokenBalance(
           connection,
           address,
-          user.publicKey
+          user.solPublicKey
         );
         console.log(balance);
 
@@ -116,7 +116,7 @@ export const Card = ({ tokenId }: { tokenId: string }) => {
       if (!tokenDetails) return;
       let ownerPubKey: PublicKey;
       try {
-        ownerPubKey = new PublicKey(user.publicKey);
+        ownerPubKey = new PublicKey(user.solPublicKey);
       } catch (error) {
         throw new Error("Invalid sender address");
       }

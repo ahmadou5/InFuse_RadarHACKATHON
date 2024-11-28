@@ -68,7 +68,7 @@ export const CCard = ({ tokenId }: { tokenId: string }) => {
         if (!user) return;
         let userPubKey: PublicKey;
         try {
-          userPubKey = new PublicKey(user.publicKey);
+          userPubKey = new PublicKey(user.solPublicKey);
         } catch (error) {
           throw new Error("Invalid sender address");
         }
@@ -80,13 +80,15 @@ export const CCard = ({ tokenId }: { tokenId: string }) => {
         //console.log('spl ne waannan',address,)
         if (!user) return;
         const balance = await getCompressTokenBalance({
-          address: user.publicKey,
+          address: user.solPublicKey,
           mint: tokenId[1],
           rpc: network.rpcUrl || "",
         });
         console.log(balance.items[0].balance, "balance");
 
-        setTokenBalance(normalizeTokenAmount(balance.items[0].balance, 6));
+        setTokenBalance(
+          normalizeTokenAmount(balance.items[0].balance.toString(), 6)
+        );
         //setUserBalance(normalizeTokenAmount(balance.items[0].balance, 6));
       }
     } catch (error: unknown) {
