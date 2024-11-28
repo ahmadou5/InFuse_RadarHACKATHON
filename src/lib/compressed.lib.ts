@@ -35,7 +35,7 @@ import {
   getAccount,
   createAssociatedTokenAccountInstruction,
 } from "@solana/spl-token";
-
+import { BN } from "@coral-xyz/anchor";
 /// Helius exposes Solana and compression RPC endpoints through a single URL
 const RPC_ENDPOINT = ENV.SOL_DEVNET_RPC;
 const COMPRESSION_RPC_ENDPOINT = RPC_ENDPOINT;
@@ -97,7 +97,7 @@ export const decompressToken = async ({
     // 2. Select accounts to transfer from based on the transfer amount
     const [inputAccounts] = selectMinCompressedTokenAccountsForTransfer(
       compressedTokenAccounts.items,
-      adjustedAmount
+      new BN(adjustedAmount)
     );
 
     // 3. Fetch recent validity proof
@@ -487,7 +487,7 @@ export const transferCompressedTokens = async ({
     // 2. Select accounts to transfer from based on the transfer amount
     const [inputAccounts] = selectMinCompressedTokenAccountsForTransfer(
       compressedTokenAccounts.items,
-      adjustedAmount
+      new BN(adjustedAmount)
     );
     const instructions = [];
     // 3. Fetch recent validity proof
