@@ -114,7 +114,9 @@ export const SendCView = ({ slug }: { slug: string }) => {
         });
         console.log(balance.items[0].balance, "balance");
 
-        setUserBalance(normalizeTokenAmount(balance.items[0].balance, 6));
+        setUserBalance(
+          normalizeTokenAmount(balance.items[0].balance.toString(), 6)
+        );
       }
     } catch (error: unknown) {
       if (error instanceof Error) console.log(error.message);
