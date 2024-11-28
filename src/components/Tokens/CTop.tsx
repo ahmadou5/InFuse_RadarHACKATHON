@@ -6,7 +6,7 @@ import { Tokens } from "@/interfaces/models.interface";
 import { Connection, clusterApiUrl, PublicKey } from "@solana/web3.js";
 import { SolConverter } from "@/lib/helper.lib";
 import { useAuth } from "@/context/AuthContext";
-//import { BN } from "@coral-xyz/anchor";
+import { BN } from "@coral-xyz/anchor";
 import { normalizeTokenAmount } from "helius-airship-core";
 //import { getSplTokenBalance } from "@/lib/solana.lib";
 import { getCompressTokenBalance } from "@/lib/compressed.lib";
@@ -19,7 +19,7 @@ interface TopProps {
 export const CTop = ({ tokenId }: TopProps) => {
   const { user } = useAuth();
   const { network } = useNetwork();
-  const [userBalance, setUserBalance] = useState<number | null>(null);
+  const [userBalance, setUserBalance] = useState<BN | null>(null);
   const [tokenInfo, setTokenInfo] = useState<Tokens[]>([]);
   const connection = new Connection(network.rpcUrl || clusterApiUrl("devnet"), {
     commitment: "confirmed",
@@ -75,9 +75,7 @@ export const CTop = ({ tokenId }: TopProps) => {
         });
         console.log(balance.items[0].balance, "balance");
 
-        setUserBalance(
-          normalizeTokenAmount(balance?.items[0]?.balance.toString(), 6)
-        );
+        setUserBalance(balance?.items[0]?.balance);
         //setUserBalance(normalizeTokenAmount(balance.items[0].balance, 6));
       }
     } catch (error: unknown) {
@@ -154,7 +152,9 @@ export const CTop = ({ tokenId }: TopProps) => {
                 userBalance === null ? (
                   <div className="bg-white/20 h-4 w-16 mb-2 animate-pulse rounded-xl"></div>
                 ) : (
-                  SolConverter(userBalance).toFixed(2)
+                  SolConverter(
+                    normalizeTokenAmount(userBalance.toString(), 6)
+                  ).toFixed(2)
                 )
               }`}</p>
               <p className="mt-3">{` ${
@@ -169,7 +169,12 @@ export const CTop = ({ tokenId }: TopProps) => {
                 <div className="flex">
                   {" "}
                   <p className="ml-2 text-4xl mr-2">{`${
-                    userBalance === null ? "0.00" : userBalance?.toFixed(2)
+                    userBalance === null
+                      ? "0.00"
+                      : normalizeTokenAmount(
+                          userBalance.toString(),
+                          6
+                        )?.toFixed(2)
                   }`}</p>
                   <p className="mt-[11px]">
                     {`c${tokenId[0] === "solana" ? "SOL" : tokenInfo[0]?.name}`}
