@@ -1,9 +1,7 @@
-import React, { useEffect, useRef, useState } from 'react';
-
+import React, { useEffect, useRef, useState } from "react";
 
 // Import the types from qr-code-styling
-import QRCodeStyling, { Options } from 'qr-code-styling';
-
+import QRCodeStyling, { Options } from "qr-code-styling";
 
 // Define the props interface
 interface StyledQRCodeProps {
@@ -17,36 +15,39 @@ type QRCodeInstance = InstanceType<typeof QRCodeStyling>;
 
 const StyledQRCode: React.FC<StyledQRCodeProps> = ({
   data,
-  size = 290,
-  logo = '/assets/show.png',
+  size = 270,
+  logo,
 }) => {
   const qrContainer = useRef<HTMLDivElement>(null);
   const [qrCode, setQrCode] = useState<QRCodeInstance | null>(null);
 
   useEffect(() => {
     const initQR = async () => {
-      if (typeof window !== 'undefined') {
+      if (typeof window !== "undefined") {
+        const QRCodeStyling = (await import("qr-code-styling")).default;
         const options: Options = {
           width: size,
           height: size,
-          image: 'https://in-fuse-radar-hackathon.vercel.app/assets/show.png',
+          image:
+            logo ||
+            "https://in-fuse-radar-hackathon.vercel.app/assets/show.png",
           dotsOptions: {
             gradient: {
-              type: 'linear',
+              type: "linear",
               colorStops: [
-                { offset: 0, color: 'rgb(6, 34, 92)' },
-                { offset: 1, color: 'rgba(38, 142, 200, 1)' },
+                { offset: 0, color: "rgb(6, 34, 92)" },
+                { offset: 1, color: "rgba(38, 142, 200, 1)" },
               ],
               rotation: 2.35,
             },
-            type: 'extra-rounded',
+            type: "extra-rounded",
           },
           imageOptions: {
-            crossOrigin: 'anonymous',
+            crossOrigin: "anonymous",
             margin: 10,
           },
           backgroundOptions: {
-            color: 'transparent',
+            color: "transparent",
           },
         };
         const qrCodeInstance = new QRCodeStyling(options);
@@ -58,7 +59,7 @@ const StyledQRCode: React.FC<StyledQRCodeProps> = ({
 
   useEffect(() => {
     if (qrCode && qrContainer.current) {
-      qrContainer.current.innerHTML = '';
+      qrContainer.current.innerHTML = "";
       qrCode.append(qrContainer.current);
     }
   }, [qrCode]);
@@ -74,7 +75,7 @@ const StyledQRCode: React.FC<StyledQRCodeProps> = ({
     }
   }, [qrCode, data, size]);
 
-  return <div className='' ref={qrContainer} />;
+  return <div className="" ref={qrContainer} />;
 };
 
 export default StyledQRCode;
