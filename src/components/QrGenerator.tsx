@@ -7,7 +7,7 @@ import QRCodeStyling, { Options } from "qr-code-styling";
 interface StyledQRCodeProps {
   data: string;
   size?: number;
-  //  logo?: string;
+  logo?: string;
 }
 
 // Define a type for our QR code instance
@@ -16,7 +16,7 @@ type QRCodeInstance = InstanceType<typeof QRCodeStyling>;
 const StyledQRCode: React.FC<StyledQRCodeProps> = ({
   data,
   size = 270,
-  //logo = "https://in-fuse-radar-hackathon.vercel.app/assets/show.png",
+  logo = "https://in-fuse-radar-hackathon.vercel.app/assets/show.png",
 }) => {
   const qrContainer = useRef<HTMLDivElement>(null);
   const [qrCode, setQrCode] = useState<QRCodeInstance | null>(null);
@@ -24,11 +24,11 @@ const StyledQRCode: React.FC<StyledQRCodeProps> = ({
   useEffect(() => {
     const initQR = async () => {
       if (typeof window !== "undefined") {
-        const QRCodeStyling = (await import("qr-code-styling")).default;
+        //const QRCodeStyling = (await import("qr-code-styling")).default;
         const options: Options = {
           width: size,
           height: size,
-          // image: "https://in-fuse-radar-hackathon.vercel.app/assets/show.png",
+          image: "https://in-fuse-radar-hackathon.vercel.app/assets/show.png",
           dotsOptions: {
             gradient: {
               type: "linear",
@@ -40,7 +40,10 @@ const StyledQRCode: React.FC<StyledQRCodeProps> = ({
             },
             type: "extra-rounded",
           },
-
+          imageOptions: {
+            crossOrigin: "anonymous",
+            margin: 10,
+          },
           backgroundOptions: {
             color: "transparent",
           },
@@ -50,7 +53,7 @@ const StyledQRCode: React.FC<StyledQRCodeProps> = ({
       }
     };
     initQR();
-  }, [size]);
+  }, [size, logo]);
 
   useEffect(() => {
     if (qrCode && qrContainer.current) {
@@ -64,7 +67,7 @@ const StyledQRCode: React.FC<StyledQRCodeProps> = ({
       qrCode.update({
         data: data,
         width: size,
-        //  image: logo,
+        image: logo,
         height: size,
       });
     }
