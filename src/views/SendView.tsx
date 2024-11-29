@@ -200,7 +200,7 @@ export const SendView = ({ slug }: { slug: string }) => {
         }
         let senderPubKey: PublicKey;
         try {
-          senderPubKey = new PublicKey(user.solPublicKey);
+          senderPubKey = new PublicKey(user?.solPublicKey);
         } catch (error) {
           throw new Error("Invalid sender address");
         }
