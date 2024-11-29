@@ -16,7 +16,7 @@ type QRCodeInstance = InstanceType<typeof QRCodeStyling>;
 const StyledQRCode: React.FC<StyledQRCodeProps> = ({
   data,
   size = 270,
-  logo,
+  logo = "https://in-fuse-radar-hackathon.vercel.app/assets/show.png",
 }) => {
   const qrContainer = useRef<HTMLDivElement>(null);
   const [qrCode, setQrCode] = useState<QRCodeInstance | null>(null);
