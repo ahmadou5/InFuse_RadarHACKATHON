@@ -43,11 +43,11 @@ export const ReceiveModal = () => {
             <div className="mt-4 w-[100%] ml-auto mr-auto">
               <div className="mt-2 mb-2">
                 <p className="text-white/80 text-center font-light ml-auto mr-auto ">
-                  {formatAddress(user.solPublicKey)}
+                  {formatAddress(user?.solPublicKey)}
                 </p>
               </div>
               <div
-                onClick={() => hanleCopy(user.solPublicKey)}
+                onClick={() => hanleCopy(user?.solPublicKey)}
                 className="w-[50%] mb-5   ml-auto mr-auto py-1 mt-3 px-3 flex  items-center justify-center bg-black/80 rounded-full h-9"
               >
                 <p className="text-white font-light text-[17px] ml-auto mr-1 ">
