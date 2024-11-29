@@ -37,7 +37,7 @@ export const ReceiveModal = () => {
           <div className="w-[98%] mt-16 ml-auto mr-auto h-[290px] py-3 px-2 flex flex-col items-center justify-center rounded-2xl bg-white/0">
             <div className="w-[100%] p-0 h-[100%] flex items-center justify-center">
               <StyledQRCode
-                logo="https://in-fuse-radar-hackathon.vercel.app/assets/show.png"
+                // logo="https://in-fuse-radar-hackathon.vercel.app/assets/show.png"
                 data={user?.solPublicKey}
               />
             </div>
