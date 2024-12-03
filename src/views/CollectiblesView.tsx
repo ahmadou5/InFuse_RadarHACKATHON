@@ -243,7 +243,7 @@ export const NFTView = () => {
                   backgroundImage: `url(${coll.image})`,
                 }}
                 key={i}
-                className="w-[46%] h-[160px] ml-auto mb-1 mt-1 mr-auto bg-white/10 animate-pulse rounded-xl"
+                className="w-[46%] h-[160px] ml-auto mb-1 mt-1 mr-auto bg-white/10 bg-cover bg-center bg-no-repeat rounded-xl"
               >
                 <div>{coll.name}</div>
               </div>
