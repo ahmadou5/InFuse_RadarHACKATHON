@@ -10,6 +10,7 @@ import { publicKey, Umi } from "@metaplex-foundation/umi";
 import { createUmi } from "@metaplex-foundation/umi-bundle-defaults";
 import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import { Connection, PublicKey } from "@solana/web3.js";
+//import { url } from "inspector";
 //import { toBigInt } from "ethers";
 import { ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -238,10 +239,13 @@ export const NFTView = () => {
         {nfts
           ? nfts.map((coll, i) => (
               <div
+                style={{
+                  backgroundImage: `url(${coll.image})`,
+                }}
                 key={i}
                 className="w-[46%] h-[160px] ml-auto mb-1 mt-1 mr-auto bg-white/10 animate-pulse rounded-xl"
               >
-                <img src={coll.image} className="w-full h-[100%]" />
+                <div>{coll.name}</div>
               </div>
             ))
           : NFTs.map((coll, i) => (
@@ -250,9 +254,6 @@ export const NFTView = () => {
                 className="w-[46%] h-[160px] ml-auto mb-1 mt-1 mr-auto bg-white/10 animate-pulse rounded-xl"
               ></div>
             ))}
-      </div>
-      <div className="mt-10 flex items-center justify-center">
-        <p className="text-2xl font-light">Coming Soon</p>
       </div>
     </div>
   );
