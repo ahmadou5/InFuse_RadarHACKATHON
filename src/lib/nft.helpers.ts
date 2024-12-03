@@ -43,13 +43,13 @@ export async function fetchNftHoldings(
       "confirmed"
     );
     const userPublicKey = new solPublicKey(address);
-
+    console.log("started fetchinggggg");
     // Fetch token accounts
     const tokenAccounts = await connection.getParsedTokenAccountsByOwner(
       userPublicKey,
       { programId: TOKEN_PROGRAM_ID }
     );
-
+    console.log("fdfdffd", tokenAccounts);
     // Process token accounts
     const nftInfos = await Promise.all(
       tokenAccounts.value
@@ -142,7 +142,7 @@ export async function fetchNftHoldings(
           }
         })
     );
-
+    console.log(nftInfos);
     // Filter and return only NFTs
     return nftInfos.filter((token) => token.isNft);
   } catch (err) {
