@@ -91,6 +91,11 @@ export const NFTView = () => {
               (account) =>
                 Number(account.account.data.parsed.info.tokenAmount.amount) > 0
             )
+            .filter(
+              (acc) =>
+                acc.account.data.parsed.info.tokenAmount.amount === "1" &&
+                acc.account.data.parsed.info.tokenAmount.decimals === 0
+            )
             .map(async (account) => {
               const mintAddress = account.account.data.parsed.info.mint;
               const amount =
