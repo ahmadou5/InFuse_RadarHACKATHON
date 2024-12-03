@@ -239,12 +239,11 @@ export const NFTView = () => {
         {nfts
           ? nfts.map((coll, i) => (
               <div
-                style={{
-                  backgroundImage: `url(${coll.image})`,
-                }}
                 key={i}
-                className="w-[100%] h-[180px] ml-auto mb-1 mt-1 mr-auto bg-white/10 bg-cover bg-center bg-no-repeat rounded-xl"
-              ></div>
+                className="w-[100%] h-[180px] flex items-center justify-center  ml-auto mb-1 mt-1 mr-auto bg-white/10 bg-cover bg-center bg-no-repeat rounded-xl"
+              >
+                <img src={coll.image} className="w-[98%] h-[98%] rounded-lg" />
+              </div>
             ))
           : NFTs.map((coll, i) => (
               <div
