@@ -1,7 +1,7 @@
 "use client";
 import { useAuth } from "@/context/AuthContext";
 import { useNetwork } from "@/context/NetworkContext";
-import { fetchWalletNFTs } from "@/lib/nft.helpers";
+import { fetchNftHoldings } from "@/lib/nft.helpers";
 import { ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
@@ -27,9 +27,9 @@ export const NFTView = () => {
     const fetchNFTs = async () => {
       try {
         if (!user) return;
-        const nfts = await fetchWalletNFTs(
-          network.rpcUrl || "",
-          user?.solPublicKey
+        const nfts = await fetchNftHoldings(
+          user?.solPublicKey,
+          network.rpcUrl || ""
         );
         console.log(nfts, "wertyuiop");
       } catch (error) {
