@@ -17,7 +17,7 @@ export const Token: TokenList = [
   },
   {
     name: "USDC",
-    address: "7oZFijbtRmBW5yLLSzbUNqSFEvQdp1QQpcqZ297RA6Wm",
+    address: "Esre3ZF57VXsH8kLAq69zkqTpAUPcbxZQcwbDAEByPRa",
     ticker: "USDC",
     token_id: "usd",
     logoUrl:

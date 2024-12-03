@@ -214,7 +214,7 @@ export const WalletView = () => {
     commitment: "confirmed",
   });
   const scanner = useQRScanner(false);
-  //console.log(scanner)
+  console.log(user?.solPublicKey, "asdfghjkl");
   const [walletTotals, setWalletTotals] = useState<WalletTotals>({
     totalValue: 0,
     solValue: 0,
