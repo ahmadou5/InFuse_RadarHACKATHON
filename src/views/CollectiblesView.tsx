@@ -116,8 +116,7 @@ export const NFTView = () => {
                 );
                 let imageUrl = "";
                 const isNft =
-                  asset.mint.supply.toString() === "1" &&
-                  asset.mint.decimals === 0;
+                  Number(asset.mint.supply) === 1 && asset.mint.decimals === 0;
 
                 let collection = "uncategorized";
 
