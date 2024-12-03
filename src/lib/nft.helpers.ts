@@ -72,7 +72,7 @@ export async function fetchNftHoldings(
             const asset = await fetchDigitalAsset(umi, publicKey(mintAddress));
             let imageUrl = "";
             const isNft =
-              asset.metadata.uri !== "" && asset.mint.decimals === 0;
+              Number(asset.mint.supply) === 1 && asset.mint.decimals === 0;
 
             let collection = "uncategorized";
             let isCollectionNft = false;
