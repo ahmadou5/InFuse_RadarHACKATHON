@@ -10,6 +10,7 @@ import { publicKey, Umi } from "@metaplex-foundation/umi";
 import { createUmi } from "@metaplex-foundation/umi-bundle-defaults";
 import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import { Connection, PublicKey } from "@solana/web3.js";
+import { toBigInt } from "ethers";
 import { ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
@@ -88,11 +89,6 @@ export const NFTView = () => {
           tokenAccounts.value
             .filter(
               (account) =>
-                account.account.data.parsed.info.tokenAmount.amount === "1" &&
-                account.account.data.parsed.info.tokenAmount.decimals === 0
-            )
-            .filter(
-              (account) =>
                 Number(account.account.data.parsed.info.tokenAmount.amount) > 0
             )
             .map(async (account) => {
@@ -115,7 +111,8 @@ export const NFTView = () => {
                 );
                 let imageUrl = "";
                 const isNft =
-                  Number(asset.mint.supply) === 1 && asset.mint.decimals === 0;
+                  asset.mint.supply === toBigInt(1) &&
+                  asset.mint.decimals === 0;
 
                 let collection = "uncategorized";
 
