@@ -9,6 +9,7 @@ import { formatAddress } from "@/lib/helper.lib";
 export const ReceiveModal = () => {
   const router = useRouter();
   const { user } = useAuth();
+  console.log(user);
   const hanleCopy = (value: string) => {
     navigator.clipboard.writeText(value).then(
       () => {
