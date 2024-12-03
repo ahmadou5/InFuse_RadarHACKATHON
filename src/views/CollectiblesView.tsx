@@ -88,6 +88,12 @@ export const NFTView = () => {
           tokenAccounts.value
             .filter(
               (account) =>
+                Number(account.account.data.parsed.info.tokenAmount.amount) ===
+                  1 &&
+                account.account.data.parsed.info.tokenAmount.decimals === 0
+            )
+            .filter(
+              (account) =>
                 Number(account.account.data.parsed.info.tokenAmount.amount) > 0
             )
             .map(async (account) => {
@@ -99,7 +105,7 @@ export const NFTView = () => {
                   account.account.data.parsed.info.tokenAmount.decimals
                 );
               try {
-                const umi = createUmi("https://rpc.devnet.soo.network/rpc").use(
+                const umi = createUmi(network?.rpcUrl || "").use(
                   mplTokenMetadata()
                 );
                 await umiSwitchToSoonDevnet(umi);
@@ -113,6 +119,7 @@ export const NFTView = () => {
                   Number(asset.mint.supply) === 1 && asset.mint.decimals === 0;
 
                 let collection = "uncategorized";
+
                 let isCollectionNft = false;
                 let isCollectionMaster = false;
 
