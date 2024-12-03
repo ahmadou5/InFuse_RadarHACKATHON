@@ -212,7 +212,7 @@ export const NFTView = () => {
 
         console.log(grouped);
         setNfts(tokenInfos);
-        console.log(tokenInfos, "ertyu");
+        //console.log(tokenInfos, "ertyu");
       } catch (err) {
         console.error("Error fetching tokens:", err);
       } finally {
@@ -235,7 +235,7 @@ export const NFTView = () => {
           <p className="font-light text-xl">Collectibles</p>
         </div>
       </div>
-      <div className="mt-1 grid grid-cols-2 items-center justify-center h-auto ml-auto mr-auto rounded-lg py-4 px-3 bg-white/0 w-[98%]">
+      <div className="mt-1 grid grid-cols-2 items-center justify-center h-auto ml-auto mr-auto rounded-lg py-4 px-3 bg-white/0 w-[100%]">
         {nfts
           ? nfts.map((coll, i) => (
               <div
@@ -243,7 +243,7 @@ export const NFTView = () => {
                   backgroundImage: `url(${coll.image})`,
                 }}
                 key={i}
-                className="w-[46%] h-[160px] ml-auto mb-1 mt-1 mr-auto bg-white/10 bg-cover bg-center bg-no-repeat rounded-xl"
+                className="w-[50%] h-[180px] ml-auto mb-1 mt-1 mr-auto bg-white/10 bg-cover bg-center bg-no-repeat rounded-xl"
               >
                 <div>{coll.name}</div>
               </div>
