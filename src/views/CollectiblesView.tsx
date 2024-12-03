@@ -37,7 +37,7 @@ export const NFTView = () => {
       }
     };
     fetchNFTs();
-  }, []);
+  }, [user]);
   return (
     <div className=" w-[100%] h-[100%]">
       <div className=" bg-slate-50/0 mb-[10px] w-[100%] flex py-3 px-2 ">
