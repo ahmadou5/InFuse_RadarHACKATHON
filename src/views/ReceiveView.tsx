@@ -36,21 +36,18 @@ export const ReceiveModal = () => {
           </div>
           <div className="w-[98%] mt-16 ml-auto mr-auto h-[290px] py-3 px-2 flex flex-col items-center justify-center rounded-2xl bg-white/0">
             <div className="w-[100%] p-0 h-[100%] flex items-center justify-center">
-              <StyledQRCode
-                logo="https://in-fuse-radar-hackathon.vercel.app/assets/show.png"
-                data={user.solPublicKey}
-              />
+              <StyledQRCode logo="/assets/show.png" data={"h"} />
             </div>
           </div>
           <div>
             <div className="mt-4 w-[100%] ml-auto mr-auto">
               <div className="mt-2 mb-2">
                 <p className="text-white/80 text-center font-light ml-auto mr-auto ">
-                  {formatAddress(user?.solPublicKey)}
+                  {formatAddress("dfghj")}
                 </p>
               </div>
               <div
-                onClick={() => hanleCopy(user?.solPublicKey)}
+                onClick={() => hanleCopy("dfghjk")}
                 className="w-[50%] mb-5   ml-auto mr-auto py-1 mt-3 px-3 flex  items-center justify-center bg-black/80 rounded-full h-9"
               >
                 <p className="text-white font-light text-[17px] ml-auto mr-1 ">
