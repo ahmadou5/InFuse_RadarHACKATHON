@@ -88,8 +88,7 @@ export const NFTView = () => {
           tokenAccounts.value
             .filter(
               (account) =>
-                Number(account.account.data.parsed.info.tokenAmount.amount) ===
-                  1 &&
+                account.account.data.parsed.info.tokenAmount.amount === "1" &&
                 account.account.data.parsed.info.tokenAmount.decimals === 0
             )
             .filter(
