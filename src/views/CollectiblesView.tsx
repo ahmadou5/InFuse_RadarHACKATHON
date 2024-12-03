@@ -234,14 +234,14 @@ export const NFTView = () => {
           <p className="font-light text-xl">Collectibles</p>
         </div>
       </div>
-      <div className="mt-1 flex flex-wrap items-center justify-center h-auto ml-auto mr-auto rounded-lg py-4 px-3 bg-white/0 w-[98%]">
+      <div className="mt-1 grid grid-cols-2 items-center justify-center h-auto ml-auto mr-auto rounded-lg py-4 px-3 bg-white/0 w-[98%]">
         {nfts
           ? nfts.map((coll, i) => (
               <div
                 key={i}
                 className="w-[46%] h-[160px] ml-auto mb-1 mt-1 mr-auto bg-white/10 animate-pulse rounded-xl"
               >
-                {coll.name}
+                <img src={coll.image} className="w-full h-[100%]" />
               </div>
             ))
           : NFTs.map((coll, i) => (
