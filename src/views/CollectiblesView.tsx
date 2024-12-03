@@ -1,7 +1,7 @@
 "use client";
 import { useAuth } from "@/context/AuthContext";
 import { useNetwork } from "@/context/NetworkContext";
-import { fetchNftHoldings } from "@/lib/nft.helpers";
+//import { fetchNftHoldings } from "@/lib/nft.helpers";
 import {
   fetchDigitalAsset,
   mplTokenMetadata,
@@ -13,7 +13,7 @@ import { Connection, PublicKey } from "@solana/web3.js";
 //import { toBigInt } from "ethers";
 import { ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 interface TokenInfo {
   address: string;
@@ -26,6 +26,7 @@ interface TokenInfo {
   isCollectionNft: boolean;
   isCollectionMaster: boolean;
 }
+interface TokenList extends Array<TokenInfo> {}
 
 interface GroupedNfts {
   [collectionKey: string]: TokenInfo[];
@@ -37,6 +38,8 @@ export const NFTView = () => {
   const connection = new Connection(network?.rpcUrl || "", {
     commitment: "confirmed",
   });
+
+  const [nfts, setNfts] = useState<TokenList>();
 
   async function umiSwitchToSoonDevnet(umi: Umi) {
     umi.programs.add(
@@ -93,7 +96,7 @@ export const NFTView = () => {
             )
             .filter(
               (acc) =>
-                acc.account.data.parsed.info.tokenAmount.amount === "1" &&
+                Number(acc.account.data.parsed.info.tokenAmount.amount) === 1 &&
                 acc.account.data.parsed.info.tokenAmount.decimals === 0
             )
             .map(async (account) => {
@@ -206,7 +209,8 @@ export const NFTView = () => {
           return acc;
         }, {});
 
-        console.log(grouped, "nfts here");
+        console.log(grouped);
+        setNfts(tokenInfos);
         console.log(tokenInfos, "ertyu");
       } catch (err) {
         console.error("Error fetching tokens:", err);
@@ -217,21 +221,6 @@ export const NFTView = () => {
     fetchUserTokens();
   }, [user, connection]);
 
-  useEffect(() => {
-    const fetchNFTs = async () => {
-      try {
-        if (!user) return;
-        const nfts = await fetchNftHoldings(
-          user?.solPublicKey,
-          network.rpcUrl || ""
-        );
-        console.log(nfts, "wertyuiop");
-      } catch (error) {
-        console.log(error);
-      }
-    };
-    fetchNFTs();
-  }, [user]);
   return (
     <div className=" w-[100%] h-[100%]">
       <div className=" bg-slate-50/0 mb-[10px] w-[100%] flex py-3 px-2 ">
@@ -246,13 +235,21 @@ export const NFTView = () => {
         </div>
       </div>
       <div className="mt-1 flex flex-wrap items-center justify-center h-auto ml-auto mr-auto rounded-lg py-4 px-3 bg-white/0 w-[98%]">
-        {NFTs &&
-          NFTs.map((coll, i) => (
-            <div
-              key={i}
-              className="w-[46%] h-[160px] ml-auto mb-1 mt-1 mr-auto bg-white/10 animate-pulse rounded-xl"
-            ></div>
-          ))}
+        {nfts
+          ? nfts.map((coll, i) => (
+              <div
+                key={i}
+                className="w-[46%] h-[160px] ml-auto mb-1 mt-1 mr-auto bg-white/10 animate-pulse rounded-xl"
+              >
+                {coll.name}
+              </div>
+            ))
+          : NFTs.map((coll, i) => (
+              <div
+                key={i}
+                className="w-[46%] h-[160px] ml-auto mb-1 mt-1 mr-auto bg-white/10 animate-pulse rounded-xl"
+              ></div>
+            ))}
       </div>
       <div className="mt-10 flex items-center justify-center">
         <p className="text-2xl font-light">Coming Soon</p>
