@@ -25,12 +25,12 @@ export const BrowserView = () => {
         >
           <ArrowLeft className="font-bold text-xl" />
         </div>
-        <div className="ml-auto mt-1 mr-[30%]">
+        <div className="ml-auto mt-1 mr-[43%]">
           <p className="font-light text-xl">Apps</p>
         </div>
       </div>
       <div className=" bg-slate-50/0  w-[100%] flex py-3 px-2 ">
-        <div className="border flex items-center px-2 mt-2 justify-center ml-auto mr-auto h-12 w-[98%] border-white/45 rounded-lg">
+        <div className="border flex items-center px-2 mt-0.5 justify-center ml-auto mr-auto h-12 w-[95%] border-white/45 rounded-lg">
           <Search className="w-[8%] mr-4" />
           <input
             placeholder="Search for a sites"
@@ -51,7 +51,7 @@ export const BrowserView = () => {
               apps.map((app, i) => (
                 <div
                   key={i}
-                  className="bg-white/5 h-[150px] mt-10 py-2 px-3 flex flex-col rounded-xl  w-[92%]"
+                  className="bg-white/5 h-[160px] py-2 px-3 flex flex-col rounded-xl  w-[92%]"
                 >
                   <div className="h-[60%] flex">
                     <div className="h-20 bg-black/20 rounded-xl w-20">
@@ -64,7 +64,7 @@ export const BrowserView = () => {
                     <div className="ml-auto mr-0 py-5 px-3">
                       <button
                         onClick={() => utils.openLink(app.url)}
-                        className="w-[110px] rounded-lg h-10 text-black/75 bg-white/70"
+                        className="w-[110px] rounded-lg h-10 text-black/75 bg-white/85"
                       >
                         Open App
                       </button>
