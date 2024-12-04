@@ -246,7 +246,7 @@ export const NFTView = () => {
                 }}
                 className="w-[90%] h-[180px] ml-auto mb-1 mt-1 px-3 cursor-pointer mr-auto bg-white/10 bg-cover bg-center bg-no-repeat rounded-xl"
               >
-                <div className="w-auto h-7 text-sm bg-black/20 ml-auto mr-auto px-3 mt-[87%]  flex items-center justify-center rounded-lg">
+                <div className="w-auto h-7 text-sm bg-black/20 ml-auto mr-auto px-3 mt-[90%]  flex items-center justify-center rounded-lg">
                   <p className="py-1 px-2">
                     {coll.name.length < 6 ? coll.name : formatNFT(coll.name)}
                   </p>

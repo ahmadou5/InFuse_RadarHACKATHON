@@ -4,6 +4,7 @@ import { IoWallet } from "react-icons/io5";
 import { GrAppsRounded } from "react-icons/gr";
 //import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { Compass } from "lucide-react";
 
 
 
@@ -53,9 +54,9 @@ export const Menu = () => {
               onClick={() => router.push('/dapps')}
               className="flex ml-auto mr-auto flex-col items-center justify-center"
             >
-              <img src="/assets/browser.svg" />
+              <Compass />
               <p className={`font-light mt-1 text-white text-[10px]`}>
-                Dapps
+                Apps
               </p>
             </div>
           </div>
