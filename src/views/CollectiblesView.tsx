@@ -41,7 +41,7 @@ export const NFTView = () => {
     commitment: "confirmed",
   });
 
-  const [nfts, setNfts] = useState<TokenList>();
+  const [nfts, setNfts] = useState<TokenList | undefined>(undefined);
 
   async function umiSwitchToSoonDevnet(umi: Umi) {
     umi.programs.add(
@@ -59,7 +59,7 @@ export const NFTView = () => {
 
   useEffect(() => {
     async function fetchUserTokens() {
-      if (!user?.solPublicKey) return;
+      if (!user) return;
 
       try {
         let pubKey: PublicKey;
