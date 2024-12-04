@@ -56,20 +56,7 @@ export const NFTView = () => {
     );
   }
   const { user } = useAuth();
-  const NFTs = [
-    {
-      name: "23",
-    },
-    {
-      name: "23",
-    },
-    {
-      name: "23",
-    },
-    {
-      name: "23",
-    },
-  ];
+
   useEffect(() => {
     async function fetchUserTokens() {
       if (!user?.solPublicKey) return;
@@ -237,28 +224,27 @@ export const NFTView = () => {
         </div>
       </div>
       <div className="mt-1 grid grid-cols-2 items-center justify-between  h-auto ml-auto mr-auto rounded-lg py-4 px-4 bg-white/0 w-[100%]">
-        {nfts
-          ? nfts.map((coll, i) => (
-              <div
-                key={i}
-                style={{
-                  backgroundImage: `url(${coll.image})`,
-                }}
-                className="w-[90%] h-[180px] ml-auto mb-1 mt-1 px-3 cursor-pointer mr-auto bg-white/10 bg-cover bg-center bg-no-repeat rounded-xl"
-              >
-                <div className="w-auto h-7 text-sm bg-black/20 ml-auto mr-auto px-3 mt-[90%]  flex items-center justify-center rounded-lg">
-                  <p className="py-1 px-2">
-                    {coll.name.length < 6 ? coll.name : formatNFT(coll.name)}
-                  </p>
-                </div>
+        {nfts && nfts?.length > 0 ? (
+          nfts.map((coll, i) => (
+            <div
+              key={i}
+              style={{
+                backgroundImage: `url(${coll.image})`,
+              }}
+              className="w-[90%] h-[180px] ml-auto mb-1 mt-1 px-3 cursor-pointer mr-auto bg-white/10 bg-cover bg-center bg-no-repeat rounded-xl"
+            >
+              <div className="w-auto h-7 text-sm bg-black/20 ml-auto mr-auto px-3 mt-[90%]  flex items-center justify-center rounded-lg">
+                <p className="py-1 px-2">
+                  {coll.name.length < 6 ? coll.name : formatNFT(coll.name)}
+                </p>
               </div>
-            ))
-          : NFTs.map((coll, i) => (
-              <div
-                key={i}
-                className="w-[46%] h-[160px] ml-auto mb-1 mt-1 mr-auto bg-white/10 animate-pulse rounded-xl"
-              ></div>
-            ))}
+            </div>
+          ))
+        ) : (
+          <div className="w-[46%] h-[160px] ml-auto mb-1 mt-1 mr-auto bg-white/10 animate-pulse rounded-xl">
+            You dont Have any Collectible
+          </div>
+        )}
       </div>
     </div>
   );
