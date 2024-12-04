@@ -236,7 +236,7 @@ export const NFTView = () => {
           <p className="font-light text-xl">My NFTs</p>
         </div>
       </div>
-      <div className="mt-1 grid grid-cols-2 items-center justify-center h-auto ml-auto mr-auto rounded-lg py-4 px-4 bg-white/0 w-[100%]">
+      <div className="mt-1 grid grid-cols-2 items-center justify-between  h-auto ml-auto mr-auto rounded-lg py-4 px-4 bg-white/0 w-[100%]">
         {nfts
           ? nfts.map((coll, i) => (
               <div
