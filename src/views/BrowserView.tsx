@@ -30,7 +30,7 @@ export const BrowserView = () => {
         </div>
       </div>
       <div className=" bg-slate-50/0  w-[100%] flex py-3 px-2 ">
-        <div className="border flex items-center px-2 justify-center ml-auto mr-auto h-12 w-[98%] border-white/45 rounded-lg">
+        <div className="border flex items-center px-2 mt-2 justify-center ml-auto mr-auto h-12 w-[98%] border-white/45 rounded-lg">
           <Search className="w-[8%] mr-4" />
           <input
             placeholder="Search for a sites"
