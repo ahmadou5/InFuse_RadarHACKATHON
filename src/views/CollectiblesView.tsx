@@ -221,7 +221,7 @@ export const NFTView = () => {
     }
 
     fetchUserTokens();
-  }, [user, connection]);
+  }, []);
 
   return (
     <div className=" w-[100%] h-[100%]">
