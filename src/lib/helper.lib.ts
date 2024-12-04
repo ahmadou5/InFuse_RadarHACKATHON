@@ -80,6 +80,10 @@ export const formatAddress = (value: string) => {
   return value.substring(0, 7) + "......" + value.substring(value.length - 2);
 };
 
+export const formatNFT = (value: string) => {
+  return value.substring(0, 4) + "......" + value.substring(value.length - 2);
+};
+
 export const formatEmail = (value: string) => {
   return value.substring(0, 4) + "...." + value.substring(value.length - 10);
 };

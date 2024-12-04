@@ -1,6 +1,7 @@
 "use client";
 import { useAuth } from "@/context/AuthContext";
 import { useNetwork } from "@/context/NetworkContext";
+import { formatNFT } from "@/lib/helper.lib";
 //import { fetchNftHoldings } from "@/lib/nft.helpers";
 import {
   fetchDigitalAsset,
@@ -231,18 +232,25 @@ export const NFTView = () => {
         >
           <ArrowLeft className="font-bold text-xl" />
         </div>
-        <div className="ml-auto mt-1 mr-[36%]">
-          <p className="font-light text-xl">Collectibles</p>
+        <div className="ml-auto mt-1 mr-[39%]">
+          <p className="font-light text-xl">My NFTs</p>
         </div>
       </div>
-      <div className="mt-1 grid grid-cols-2 items-center justify-center h-auto ml-auto mr-auto rounded-lg py-4 px-3 bg-white/0 w-[100%]">
+      <div className="mt-1 grid grid-cols-2 items-center justify-center h-auto ml-auto mr-auto rounded-lg py-4 px-4 bg-white/0 w-[100%]">
         {nfts
           ? nfts.map((coll, i) => (
               <div
                 key={i}
-                className="w-[100%] h-[180px] flex items-center justify-center  ml-auto mb-1 mt-1 mr-auto bg-white/10 bg-cover bg-center bg-no-repeat rounded-xl"
+                style={{
+                  backgroundImage: `url(${coll.image})`,
+                }}
+                className="w-[90%] h-[180px] ml-auto mb-1 mt-1 px-3 cursor-pointer mr-auto bg-white/10 bg-cover bg-center bg-no-repeat rounded-xl"
               >
-                <img src={coll.image} className="w-[98%] h-[98%] rounded-lg" />
+                <div className="w-auto h-7 text-sm bg-black/20 ml-auto mr-auto px-3 mt-[92%]  flex items-center justify-center rounded-lg">
+                  <p className="py-1 px-2">
+                    {coll.name.length < 6 ? coll.name : formatNFT(coll.name)}
+                  </p>
+                </div>
               </div>
             ))
           : NFTs.map((coll, i) => (
