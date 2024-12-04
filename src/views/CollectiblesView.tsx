@@ -224,7 +224,7 @@ export const NFTView = () => {
         </div>
       </div>
       <div className="mt-1 grid grid-cols-2 items-center justify-between  h-auto ml-auto mr-auto rounded-lg py-4 px-4 bg-white/0 w-[100%]">
-        {nfts && nfts?.length > 0 ? (
+        {nfts !== undefined && nfts?.length > 0 ? (
           nfts.map((coll, i) => (
             <div
               key={i}
