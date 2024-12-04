@@ -1,5 +1,5 @@
 "use client";
-import { Compass, Search } from "lucide-react";
+import { ArrowLeft, Compass, Search } from "lucide-react";
 import { useUtils } from "@telegram-apps/sdk-react";
 import { useRouter } from "next/navigation";
 import { useNetwork } from "@/context/NetworkContext";
@@ -18,6 +18,17 @@ export const BrowserView = () => {
   const router = useRouter();
   return (
     <div className=" w-[100%] h-[100%]">
+      <div className=" bg-slate-50/0 mb-[10px] w-[100%] flex py-3 px-2 ">
+        <div
+          onClick={() => router.back()}
+          className="bg-white/5 flex items-center justify-center w-11 rounded-full ml-1 mr-auto h-10"
+        >
+          <ArrowLeft className="font-bold text-xl" />
+        </div>
+        <div className="ml-auto mt-1 mr-[30%]">
+          <p className="font-light text-xl">Apps</p>
+        </div>
+      </div>
       <div className=" bg-slate-50/0  w-[100%] flex py-3 px-2 ">
         <div className="border flex items-center px-2 justify-center ml-auto mr-auto h-12 w-[98%] border-white/45 rounded-lg">
           <Search className="w-[8%] mr-4" />
