@@ -61,6 +61,7 @@ export const BrowserView = () => {
                         alt={app.name}
                       />
                     </div>
+                    <div className="mt-8 text-sm ml-2">{app.name}</div>
                     <div className="ml-auto mr-0 py-5 px-3">
                       <button
                         onClick={() => utils.openLink(app.url)}

@@ -41,7 +41,7 @@ export const NFTView = () => {
     commitment: "confirmed",
   });
 
-  const [nfts, setNfts] = useState<TokenList | undefined>(undefined);
+  const [nfts, setNfts] = useState<TokenList | null>(null);
 
   async function umiSwitchToSoonDevnet(umi: Umi) {
     umi.programs.add(
@@ -224,7 +224,7 @@ export const NFTView = () => {
         </div>
       </div>
       <div className="mt-1 grid grid-cols-2 items-center justify-between  h-auto ml-auto mr-auto rounded-lg py-4 px-4 bg-white/0 w-[100%]">
-        {nfts !== undefined && nfts?.length > 0 ? (
+        {nfts !== null && nfts?.length > 0 ? (
           nfts.map((coll, i) => (
             <div
               key={i}
