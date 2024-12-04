@@ -67,7 +67,7 @@ export const BrowserView = () => {
                         onClick={() => utils.openLink(app.url)}
                         className="w-[110px] rounded-lg h-10 text-black/75 text-sm bg-white/85"
                       >
-                        Open App
+                        Open
                       </button>
                     </div>
                   </div>
