@@ -82,7 +82,7 @@ export const BrowserView = () => {
           <div className="w-full flex items-center justify-center h-[300px]">
             <Compass className="w-[200px] h-[200px]" />
           </div>
-          <p className="text-xl mb-20 font-light">Coming Soon</p>
+          <p className="text-xl mb-2 font-light">Coming Soon</p>
           <p className="text-xl mb-20 font-light">{`on ${network.name}`}</p>
           <div
             onClick={() => router.back()}

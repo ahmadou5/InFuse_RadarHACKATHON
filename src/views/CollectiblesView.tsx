@@ -241,7 +241,7 @@ export const NFTView = () => {
             </div>
           ))
         ) : (
-          <div className="w-[46%] h-[160px] ml-auto mb-1 mt-1 mr-auto bg-white/10 animate-pulse rounded-xl">
+          <div className="w-full h-[260px] ml-auto mb-1 mt-1 mr-auto bg-white/0 rounded-xl">
             You dont Have any Collectible
           </div>
         )}
