@@ -47,6 +47,7 @@ export default function AuthContextProvider({ children }: ReactChildrenProps) {
       if (savedUser) {
         setTimeout(() => {
           // handleSetUser(savedUser);
+          setUser(savedUser);
           console.log(savedUser, "user saved");
           router.replace("/wallet");
           //console.log("Function triggered after  25 seconds!");

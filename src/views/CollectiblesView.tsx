@@ -13,7 +13,7 @@ import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import { Connection, PublicKey } from "@solana/web3.js";
 //import { url } from "inspector";
 //import { toBigInt } from "ethers";
-import { ArrowLeft } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -212,15 +212,10 @@ export const NFTView = () => {
 
   return (
     <div className=" w-[100%] h-[100%]">
-      <div className=" bg-slate-50/0 mb-[10px] w-[100%] flex py-3 px-2 ">
-        <div
-          onClick={() => router.back()}
-          className="bg-white/5 flex items-center justify-center w-11 rounded-full ml-1 mr-auto h-10"
-        >
-          <ArrowLeft className="font-bold text-xl" />
-        </div>
-        <div className="ml-auto mt-1 mr-[39%]">
-          <p className="font-light text-xl">My NFTs</p>
+      <div className="flex items-center justify-between px-2 py-1">
+        <div onClick={() => router.back()} className="flex items-center">
+          <ChevronLeft className="w-6 h-6 mr-4" />
+          <h1 className="text-xl font-medium">Collectibles</h1>
         </div>
       </div>
       <div className="mt-1 grid grid-cols-2 items-center justify-between  h-auto ml-auto mr-auto rounded-lg py-4 px-4 bg-white/0 w-[100%]">
