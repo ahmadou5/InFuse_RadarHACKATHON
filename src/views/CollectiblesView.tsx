@@ -211,8 +211,8 @@ export const NFTView = () => {
   }, []);
 
   return (
-    <div className=" w-[100%] h-[100%]">
-      <div className="flex items-center justify-between px-2 py-1">
+    <div className=" w-[100%] h-[100%] ">
+      <div className="flex items-center justify-between px-4 py-3">
         <div onClick={() => router.back()} className="flex items-center">
           <ChevronLeft className="w-6 h-6 mr-4" />
           <h1 className="text-xl font-medium">Collectibles</h1>
@@ -236,7 +236,7 @@ export const NFTView = () => {
             </div>
           ))
         ) : (
-          <div className="w-full h-[260px] ml-auto mb-1 mt-1 mr-auto bg-white/0 rounded-xl">
+          <div className="w-full h-[260px] grid-cols-1 ml-auto mb-1 mt-1 mr-auto bg-white/0 rounded-xl">
             You dont Have any Collectible
           </div>
         )}
