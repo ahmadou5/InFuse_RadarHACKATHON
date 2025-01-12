@@ -8,7 +8,7 @@ export const BrowserView = () => {
     {
       name: "SOON Bridge",
       url: "https://t.me/InterSOON_bot",
-      imageUrl: "/assets/soon.jpeg",
+      imageUrl: "/assets/red.svg",
       about: "Efficiently transfer assets between SOON and TON.",
     },
   ];
