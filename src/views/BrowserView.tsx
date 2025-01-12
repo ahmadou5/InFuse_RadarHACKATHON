@@ -1,15 +1,16 @@
-"use client";
-import { ChevronLeft, Compass, Search } from "lucide-react";
-import { useUtils } from "@telegram-apps/sdk-react";
-import { useRouter } from "next/navigation";
-import { useNetwork } from "@/context/NetworkContext";
+'use client';
+import { useNetwork } from '@/context/NetworkContext';
+import { useUtils } from '@telegram-apps/sdk-react';
+import { ChevronLeft, Compass, Search } from 'lucide-react';
+import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 export const BrowserView = () => {
   const apps = [
     {
-      name: "SOON Bridge",
-      url: "https://t.me/InterSOON_bot",
-      imageUrl: "/assets/red.svg",
-      about: "Efficiently transfer assets between SOON and TON.",
+      name: 'SOON Bridge',
+      url: 'https://t.me/InterSOON_bot',
+      imageUrl: '/assets/red.svg',
+      about: 'Efficiently transfer assets between SOON and TON.',
     },
   ];
   const { network } = useNetwork();
@@ -18,10 +19,10 @@ export const BrowserView = () => {
   return (
     <div className=" w-[100%] h-[100%]">
       <div className="flex items-center justify-between px-4 py-3">
-        <div onClick={() => router.back()} className="flex items-center">
+        <button onClick={() => router.back()} className="flex items-center">
           <ChevronLeft className="w-6 h-6 mr-4" />
           <h1 className="text-xl font-medium">Apps</h1>
-        </div>
+        </button>
       </div>
       <div className=" bg-slate-50/0  w-[100%] flex py-2 px-2 ">
         <div className="border flex items-center px-2 mt-0.5 justify-center ml-auto mr-auto h-12 w-[95%] border-white/45 rounded-lg">
@@ -32,7 +33,7 @@ export const BrowserView = () => {
           />
         </div>
       </div>
-      {network.name === "SOON" ? (
+      {network.name === 'SOON' ? (
         <>
           <div className="flex items-center justify-between px-6 h-20">
             <div className="h-12 w-20 animate-pulse rounded-lg bg-white/10 "></div>
@@ -49,10 +50,12 @@ export const BrowserView = () => {
                 >
                   <div className="h-[60%] flex">
                     <div className="h-20 bg-black/20 rounded-xl w-20">
-                      <img
+                      <Image
                         className="h-[98%] w-[98%]"
                         src={app.imageUrl}
                         alt={app.name}
+                        height={100}
+                        width={100}
                       />
                     </div>
                     <div className="mt-8 text-sm ml-2">{app.name}</div>
@@ -79,12 +82,12 @@ export const BrowserView = () => {
           </div>
           <p className="text-xl mb-2 font-light">Coming Soon</p>
           <p className="text-xl mb-20 font-light">{`on ${network.name}`}</p>
-          <div
+          <button
             onClick={() => router.back()}
-            className="w-[60%] ml-auto mr-auto py-1 border border-[#448cff]/0 rounded-xl bg-white/90 h-12 flex justify-center items-center"
+            className="w-[60%] ml-auto mr-auto py-1 border border-[#448cff]/0 rounded-xl bg-white/90 h-12 flex justify-center items-center text-center text-black"
           >
-            <p className="text-center text-black">Back Home</p>
-          </div>
+            Back Home
+          </button>
         </div>
       )}
     </div>

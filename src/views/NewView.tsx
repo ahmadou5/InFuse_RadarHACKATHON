@@ -1,10 +1,11 @@
-"use client";
-import { useInitData } from "@telegram-apps/sdk-react";
+'use client';
+import { useInitData } from '@telegram-apps/sdk-react';
 //import { createSolanaWallet } from "@/lib/solana.lib";
 //import { UserService } from "@/lib/services/user.service";
-import React, { useState, ChangeEvent } from "react";
-import { ArrowLeft } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { ArrowLeft } from 'lucide-react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { ChangeEvent, useState } from 'react';
 //import Image from "next/image";
 
 // Define
@@ -19,8 +20,8 @@ interface FormErrors {
 }
 export const NewView = () => {
   const [formData, setFormData] = useState<FormData>({
-    email: "",
-    pin: "",
+    email: '',
+    pin: '',
   });
   const [errors, setErrors] = useState<FormErrors>({});
   const router = useRouter();
@@ -31,39 +32,40 @@ export const NewView = () => {
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>): void => {
     const { name, value } = e.target;
-    if (name === "pin") {
+    if (name === 'pin') {
       setFormData((prev) => ({ ...prev, [name]: value.slice(0, 4) }));
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }));
     }
-    setErrors((prev) => ({ ...prev, [name]: "" }));
+    setErrors((prev) => ({ ...prev, [name]: '' }));
   };
 
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
 
     if (!formData.email) {
-      newErrors.email = "Email is required";
+      newErrors.email = 'Email is required';
     } else if (!validateEmail(formData.email)) {
-      newErrors.email = "Please enter a valid Gmail address";
+      newErrors.email = 'Please enter a valid Gmail address';
     }
 
     if (!formData.pin) {
-      newErrors.pin = "PIN is required";
+      newErrors.pin = 'PIN is required';
     } else if (formData.pin.length !== 4) {
-      newErrors.pin = "PIN must be exactly 4 digits";
+      newErrors.pin = 'PIN must be exactly 4 digits';
     }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
     if (validateForm()) {
-      if (formData.email === "") {
+      if (formData.email === '') {
         setIsNew(true);
       } else {
-        console.log("Form submitted:", formData);
         // Proceed with user creation
         setIsNew(true);
       }
@@ -75,9 +77,8 @@ export const NewView = () => {
   const [created, setIsCreated] = useState<boolean>(false);
   const tgData = useInitData();
 
-  const handleSubmit2 = async () => {
+  const handleCreateNew = async () => {
     if (tgData?.user?.id === undefined) {
-      console.log("User ID is undefined");
       return;
     }
     setIsLoading(true);
@@ -102,40 +103,41 @@ export const NewView = () => {
 
           <div className="w-[100%] flex items-center justify-center h-[210px]">
             <div className="flex bg-black15 rounded-lg bg-opacity-30">
-              <img src={"./assets/show.png"} alt="Omo" />
+              <img src={'./assets/show.png'} alt="Omo" />
             </div>
           </div>
           <div className="mt-24 w-[90%] ml-auto mr-auto flex items-center justify-center">
             {created ? (
-              <div
-                onClick={() => router.push("/wallet")}
-                className="w-[99%] ml-auto mr-auto flex items-center justify-center h-12 rounded-2xl bg-white/80"
+              <Link
+                href="/wallet"
+                className="w-[99%] ml-auto mr-auto flex items-center justify-center h-12 rounded-2xl  bg-white/80 text-black"
               >
-                <p className="ml-auto mr-auto text-black"> Continue</p>
-              </div>
+                Continue
+              </Link>
             ) : (
-              <div
-                onClick={() => handleSubmit2()}
+              <button
+                onClick={() => handleCreateNew()}
                 className="w-[99%] ml-auto mr-auto flex items-center justify-center h-12 rounded-2xl bg-blue-800/80"
               >
-                <p className="ml-auto mr-auto"> Create New</p>
-              </div>
+                Create New
+              </button>
             )}
           </div>
         </div>
       ) : (
         <div className="w-[100%] max-h-screen py-2">
           <div className=" bg-slate-50/0 mb-[50px] w-[100%] flex flex-col ">
-            <div
+            <button
+              title="Go back"
               onClick={() => router.back()}
               className="bg-white/5 flex items-center justify-center w-14 rounded-xl ml-2 h-8"
             >
               <ArrowLeft className="font-bold text-xl" />
-            </div>
+            </button>
           </div>
-          <div></div>
+
           <div className="max-w-md mx-auto w-[93%] mt-[200px] py-3 px-4 bg-white/5 bg-opacity-20 rounded-lg shadow-md">
-            <form className="space-y-6">
+            <form className="space-y-6" onSubmit={handleSubmit}>
               <div>
                 <label
                   htmlFor="email"
@@ -180,18 +182,13 @@ export const NewView = () => {
                   <p className="mt-2 text-sm text-red-600">{errors.pin}</p>
                 )}
               </div>
-              {
-                <button
-                  onClick={(e) => {
-                    e.preventDefault();
-                    handleSubmit();
-                  }}
-                  type="submit"
-                  className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                >
-                  Continue
-                </button>
-              }
+
+              <button
+                type="submit"
+                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              >
+                Continue
+              </button>
             </form>
           </div>
         </div>

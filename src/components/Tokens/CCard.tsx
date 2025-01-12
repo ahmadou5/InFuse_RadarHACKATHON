@@ -1,112 +1,92 @@
-import { useMini } from "@/context/MiniContext";
-import { useEffect, useState } from "react";
-import { Tokens } from "@/interfaces/models.interface";
+import { useMini } from '@/context/MiniContext';
+import { useEffect, useState } from 'react';
+import { Tokens } from '@/interfaces/models.interface';
 //import { TokenService } from "@/lib/services/TokenServices";
 //import { getSplTokenBalance } from "@/lib/solana.lib";
-import { Connection, clusterApiUrl } from "@solana/web3.js";
-import { PublicKey } from "@solana/web3.js";
-import { SpinningCircles } from "react-loading-icons";
-import { useAuth } from "@/context/AuthContext";
-import { decompressToken, getCompressTokenBalance } from "@/lib/compressed.lib";
-import toast, { Toaster } from "react-hot-toast";
+import { Connection, clusterApiUrl } from '@solana/web3.js';
+import { PublicKey } from '@solana/web3.js';
+import { SpinningCircles } from 'react-loading-icons';
+import { useAuth } from '@/context/AuthContext';
+import { decompressToken, getCompressTokenBalance } from '@/lib/compressed.lib';
+import toast, { Toaster } from 'react-hot-toast';
 
 //import { createAndMintToken } from "@/lib/helper.lib";
-import { useNetwork } from "@/context/NetworkContext";
-import { Token } from "@/utils/tokens.utils";
-import { normalizeTokenAmount } from "helius-airship-core";
+import { useNetwork } from '@/context/NetworkContext';
+import { Token } from '@/utils/tokens.utils';
+import { normalizeTokenAmount } from 'helius-airship-core';
 
 export const CCard = ({ tokenId }: { tokenId: string }) => {
   const { user } = useAuth();
   const { network } = useNetwork();
   const { setIsCompressed } = useMini();
   const [amount, setAmount] = useState<number>(0);
-  //const [mintAu,setMintAu] = useState<string>('')
-  //const [mintAd,setMintAd] = useState<string>('')
   const [tokenBalance, setTokenBalance] = useState<number>(0);
   const [isFirst, setIsFirst] = useState<boolean>(true);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [tokenInfo, setTokenInfo] = useState<Tokens[]>([]);
 
   const connection = new Connection(
-    !network.isEVM ? network.rpcUrl || "" : clusterApiUrl("devnet"),
+    !network.isEVM ? network.rpcUrl || '' : clusterApiUrl('devnet'),
     {
-      commitment: "confirmed",
+      commitment: 'confirmed',
     }
   );
-  console.log(tokenId, "address");
-  console.log(tokenBalance);
+
   const getTokenInfo = async (slug: string) => {
     try {
-      console.log("gett");
-      // setIsLoading(true);
-      // console.log('Fetching token info for slug:', slug);
       const response = Token.filter((token) => token.compress_address === slug);
-      console.log("Token info response:", response);
 
       if (response && Array.isArray(response)) {
         setTokenInfo(response);
-        console.log("Token info set:", response);
         return response;
       } else {
-        console.error("Invalid token data received:", response);
+        console.error('Invalid token data received:', response);
         setTokenInfo([]);
       }
     } catch (error) {
-      console.error("Failed to fetch tokens:", error);
+      console.error('Failed to fetch tokens:', error);
       setTokenInfo([]);
-    } finally {
-      //    setIsLoading(false);
-      //alert('done')
     }
   };
 
   const fetchBalances = async () => {
     try {
-      //console.log('gettin bal')
-      console.log(tokenInfo[0], "shineee");
-      if (tokenId[0] === "solana") {
+      if (tokenId[0] === 'solana') {
         if (!user) return;
         let userPubKey: PublicKey;
         try {
           userPubKey = new PublicKey(user.solPublicKey);
         } catch (error) {
-          throw new Error("Invalid sender address");
+          throw new Error('Invalid sender address');
         }
 
         const balance = await connection.getBalance(userPubKey);
         setTokenBalance(balance);
-        //console.log(balance,'hhhhh');
       } else {
-        //console.log('spl ne waannan',address,)
         if (!user) return;
         const balance = await getCompressTokenBalance({
           address: user.solPublicKey,
           mint: tokenId[1],
-          rpc: network.rpcUrl || "",
+          rpc: network.rpcUrl || '',
         });
-        console.log(balance.items[0].balance, "balance");
 
         setTokenBalance(
           normalizeTokenAmount(balance.items[0].balance.toString(), 6)
         );
-        //setUserBalance(normalizeTokenAmount(balance.items[0].balance, 6));
       }
     } catch (error: unknown) {
-      if (error instanceof Error) console.log(error.message);
+      if (error instanceof Error) console.error(error.message);
+      else console.error(error);
     }
   };
 
   const fetch = async () => {
     try {
       const tokenDetails = await getTokenInfo(tokenId[1]);
-      console.log("fetched ohhh");
       if (!tokenDetails) return;
-      //setMintAu(tokenDetails[0]?.owner)
-      //setMintAd(tokenDetails[0]?.address)
-      const balance = fetchBalances();
-      console.log(balance);
+      await fetchBalances();
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   };
 
@@ -120,26 +100,25 @@ export const CCard = ({ tokenId }: { tokenId: string }) => {
       try {
         addressPubKey = new PublicKey(tokenDetails[0]?.compress_address);
       } catch (error) {
-        throw new Error("Invalid sender Receiverrr");
+        throw new Error('Invalid sender Receiverrr');
       }
       const result = await decompressToken({
         splAddress: addressPubKey,
         amount: amount,
-        userMnemonic: user.mnemonic || "",
-        rpc: network.rpcUrl || "",
+        userMnemonic: user.mnemonic || '',
+        rpc: network.rpcUrl || '',
       });
 
       if (result?.success)
         setTimeout(() => {
           setIsFirst(false);
-          toast.success("Compress Success");
+          toast.success('Compress Success');
         }, 5000);
       else {
         setIsFirst(true);
         setIsLoading(false);
         toast.error(`Error: ${result?.data?.toString()}`);
       }
-      console.log(result);
     } catch (error: unknown) {
       if (error instanceof Error) toast.error(error.message);
       setIsFirst(true);

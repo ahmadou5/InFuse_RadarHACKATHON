@@ -1,86 +1,52 @@
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from '@/context/AuthContext';
 
-import { Params } from "next/dist/shared/lib/router/utils/route-matcher";
-import toast, { Toaster } from "react-hot-toast";
+import { Params } from 'next/dist/shared/lib/router/utils/route-matcher';
+import toast, { Toaster } from 'react-hot-toast';
 
-import { useRouter } from "next/navigation";
-import { useMini } from "@/context/MiniContext";
-import { Token } from "@/utils/tokens.utils";
-import { useEffect, useState } from "react";
-import { Tokens } from "@/interfaces/models.interface";
-import { useNetwork } from "@/context/NetworkContext";
+import { useRouter } from 'next/navigation';
+import { useMini } from '@/context/MiniContext';
+import { Token } from '@/utils/tokens.utils';
+import { useEffect, useState } from 'react';
+import { Tokens } from '@/interfaces/models.interface';
+import { useNetwork } from '@/context/NetworkContext';
 export const Activities = ({ slug }: Params) => {
   const [tokenInfo, setTokenInfo] = useState<Tokens[]>([]);
   const { user } = useAuth();
   const { network } = useNetwork();
   const { setIsCompressed } = useMini();
-  console.log(slug[0]);
+
   const router = useRouter();
   const getTokenInfo = async (address: string) => {
     try {
-      // setIsLoading(true);
-      // console.log('Fetching token info for slug:', slug);
       const response = Token.filter((token) => token.address === address);
-      console.log("Token info Yappppp response:", response);
 
       if (response && Array.isArray(response)) {
-        console.log("doneeeee");
         setTokenInfo(response);
-        console.log("Token info set:", response);
         return response;
       } else {
-        console.error("Invalid token data received:", response);
+        console.error('Invalid token data received:', response);
         setTokenInfo([]);
       }
     } catch (error) {
-      console.error("Failed to fetch tokens:", error);
+      console.error('Failed to fetch tokens:', error);
       setTokenInfo([]);
-    } finally {
-      //    setIsLoading(false);
-      //alert('done')
     }
   };
   const hanleCopy = (value: string) => {
     navigator.clipboard.writeText(value).then(
       () => {
-        toast.success("Copied.Successfully");
+        toast.success('Copied.Successfully');
       },
       (err) => {
         // Failed to copy to clipboard
-        toast.error("Could not copy: ", err);
+        toast.error('Could not copy: ', err);
       }
     );
   };
-  console.log("tokenInfoGENZZZZZZZZZZZZZZZZZZZZZ", tokenInfo);
   useEffect(() => {
     getTokenInfo(slug[0]);
   }, []);
-  {
-    /**  const handleCompress = async () => {
-        try {
-          setIsLoading()
-        } catch (error) {
-          
-        }
-    }
-    const HandleMint = () => {
-      
-      try {
-        if(!user) {
-          return
-        }
-        let userPubKey: PublicKey;
-        try {
-          userPubKey = new PublicKey(user.publicKey);
-        } catch (error) {
-          throw new Error("Invalid sender address");
-        }
-        getCompressTokenBalance({address: userPubKey })
-      } catch (error) {
-        console.log(error)
-      }
-    }*/
-  }
+
   return (
     <>
       <div className="bg-gothic-300/0 w-[90%] ml-auto mr-auto mb-5 flex items-center justify-center rounded-3xl h-[100px]">
@@ -115,7 +81,7 @@ export const Activities = ({ slug }: Params) => {
             className="mt-1"
           />
         </div>
-        {slug[0] === "solana" ? (
+        {slug[0] === 'solana' ? (
           <></>
         ) : (
           <div

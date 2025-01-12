@@ -1,17 +1,16 @@
-"use client";
-import { useInitData } from "@telegram-apps/sdk-react";
-import { createSolanaWallet } from "@/lib/solana.lib";
-import { createEthAccount } from "@/lib/eth.lib";
-import { UserService } from "@/lib/services/user.service";
-import React, { useState, ChangeEvent } from "react";
-import { GenerateSeed, SeedGenerationResult } from "@/lib/helper.lib";
-import { ArrowRight, ArrowLeft, MailCheckIcon, LockOpen } from "lucide-react";
-//import { SpinningCircles } from "react-loading-icons";
-import { useRouter } from "next/navigation";
-import { useAuth } from "@/context/AuthContext";
-import { createSuiWallet } from "@/lib/sui.lib";
-import { createTonAccount } from "@/lib/ton.lib";
-import toast, { Toaster } from "react-hot-toast";
+'use client';
+import { useInitData } from '@telegram-apps/sdk-react';
+import { createSolanaWallet } from '@/lib/solana.lib';
+import { createEthAccount } from '@/lib/eth.lib';
+import { UserService } from '@/lib/services/user.service';
+import React, { useState, ChangeEvent } from 'react';
+import { GenerateSeed, SeedGenerationResult } from '@/lib/helper.lib';
+import { ArrowRight, ArrowLeft, MailCheckIcon, LockOpen } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
+import { createSuiWallet } from '@/lib/sui.lib';
+import { createTonAccount } from '@/lib/ton.lib';
+import toast, { Toaster } from 'react-hot-toast';
+import Link from 'next/link';
 
 interface FormData {
   email: string;
@@ -26,19 +25,16 @@ export const OnboardView = () => {
   const [isGetStart, setGetStart] = useState<boolean>(true);
   const [isSecond, setIsSecond] = useState<boolean>(false);
   const [isThird, setIsThird] = useState<boolean>(false);
-  ////const [isNew, setIsNew] = useState<boolean>(false);
-  //const [isLoading, setIsLoading] = useState<boolean>(false);
   const [created, setIsCreated] = useState<boolean>(false);
   const tgData = useInitData();
-  const router = useRouter();
   const { setUser } = useAuth();
 
   const [formData, setFormData] = useState<FormData>({
-    email: "",
-    pin: "",
+    email: '',
+    pin: '',
   });
   const [errors, setErrors] = useState<FormErrors>({});
-  //
+
   const validateEmail = (email: string): boolean => {
     const re = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
     return re.test(String(email).toLowerCase());
@@ -46,39 +42,39 @@ export const OnboardView = () => {
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>): void => {
     const { name, value } = e.target;
-    if (name === "pin") {
+    if (name === 'pin') {
       setFormData((prev) => ({ ...prev, [name]: value.slice(0, 4) }));
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }));
     }
-    setErrors((prev) => ({ ...prev, [name]: "" }));
+    setErrors((prev) => ({ ...prev, [name]: '' }));
   };
 
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
 
     if (!formData.email) {
-      newErrors.email = "Email is required";
+      newErrors.email = 'Email is required';
     } else if (!validateEmail(formData.email)) {
-      newErrors.email = "Please enter a valid Gmail address";
+      newErrors.email = 'Please enter a valid Gmail address';
     }
 
     if (!formData.pin) {
-      newErrors.pin = "PIN is required";
+      newErrors.pin = 'PIN is required';
     } else if (formData.pin.length !== 4) {
-      newErrors.pin = "PIN must be exactly 4 digits";
+      newErrors.pin = 'PIN must be exactly 4 digits';
     }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e?.preventDefault();
+
     if (validateForm()) {
-      if (formData.email === "") {
-        //setIsNew(true);
+      if (formData.email === '') {
       } else {
-        console.log("Form submitted:", formData);
         // Proceed with user creation
         setGetStart(false);
         setIsSecond(false);
@@ -87,9 +83,8 @@ export const OnboardView = () => {
     }
   };
 
-  const handleSubmit2 = async () => {
+  const handleCreateWallet = async () => {
     if (tgData?.user?.id === undefined) {
-      console.log("User ID is undefined");
       return;
     }
     const { mnemonic, seedArray }: SeedGenerationResult = await GenerateSeed();
@@ -113,17 +108,15 @@ export const OnboardView = () => {
       tonPublicKey: tonAccount.public1,
       mnemonic: mnemonic,
     });
-    console.log(upload, "created");
     if ((await upload).success) {
       setIsCreated(true);
-      toast.success("Wallet Creation Success!", {
+      toast.success('Wallet Creation Success!', {
         style: {
-          display: "ruby-base",
+          display: 'ruby-base',
         },
       });
       //setIsLoading(false);
       setUser((await upload).data);
-      console.log("user", (await upload).data);
     }
   };
   //const router = useRouter()
@@ -207,7 +200,7 @@ export const OnboardView = () => {
                 <p>Hey Lets Get Your Recovery Details</p>
               </div>
               <div className="max-w-md mx-auto w-[93%] mt-[24px] h-auto py-4 px-4 mb-10 bg-white/0 bg-opacity-20 rounded-lg ">
-                <form className="space-y-6">
+                <form className="space-y-6" onSubmit={handleSubmit}>
                   <div>
                     <label
                       htmlFor="email"
@@ -254,20 +247,15 @@ export const OnboardView = () => {
                       <p className="mt-2 text-sm text-red-600">{errors.pin}</p>
                     )}
                   </div>
-                  {
-                    <div className="w-[100%] flex items-center justify-center">
-                      <button
-                        onClick={(e) => {
-                          e.preventDefault();
-                          handleSubmit();
-                        }}
-                        type="submit"
-                        className="w-14 rounded-full ml-auto mr-auto py-0 text-black border border-[#448cff]/60 flex items-center justify-center bg-white/90 h-14 mt-1"
-                      >
-                        <ArrowRight className="" />
-                      </button>
-                    </div>
-                  }
+
+                  <div className="w-[100%] flex items-center justify-center">
+                    <button
+                      type="submit"
+                      className="w-14 rounded-full ml-auto mr-auto py-0 text-black border border-[#448cff]/60 flex items-center justify-center bg-white/90 h-14 mt-1"
+                    >
+                      <ArrowRight className="" />
+                    </button>
+                  </div>
                 </form>
               </div>
             </div>
@@ -277,26 +265,24 @@ export const OnboardView = () => {
       {isThird && (
         <>
           <div className="max-h-screen w-[100%] py-10">
-            <div className=" flex items-center justify-center h-[12] mb-[230px] w-[100%]  "></div>
+            <div className="flex items-center justify-center h-[12] mb-[230px] w-[100%]"></div>
 
             <div className="w-[100%] flex items-center justify-center mt-12 h-[210px]">
               <div className="flex bg-black15 rounded-lg bg-opacity-30">
-                <img src={"./assets/show.png"} alt="Omo" />
+                <img src={'./assets/show.png'} alt="Omo" />
               </div>
             </div>
             <div className="mt-24 w-[90%] ml-auto mr-auto flex items-center justify-center">
               {created ? (
-                <div
-                  onClick={() => {
-                    router.push("/wallet");
-                  }}
-                  className="w-[99%] ml-auto mr-auto flex items-center justify-center h-12 rounded-2xl bg-white/80"
+                <Link
+                  href="/wallet"
+                  className="w-[99%] ml-auto mr-auto flex items-center justify-center h-12 rounded-2xl bg-white/80 text-black"
                 >
-                  <p className="ml-auto mr-auto text-black"> Continue</p>
-                </div>
+                  Continue
+                </Link>
               ) : (
                 <div
-                  onClick={() => handleSubmit2()}
+                  onClick={() => handleCreateWallet()}
                   className="w-[98%] ml-auto mr-auto py-1 border border-[#448cff]/60 rounded-xl bg-black/50 h-14 flex items-center"
                 >
                   <p className="ml-auto mr-auto"> Create New Wallet</p>

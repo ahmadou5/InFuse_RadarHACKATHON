@@ -1,93 +1,78 @@
-import { useMini } from "@/context/MiniContext";
-import { useEffect, useState } from "react";
-import { Tokens } from "@/interfaces/models.interface";
+import { useMini } from '@/context/MiniContext';
+import { useEffect, useState } from 'react';
+import { Tokens } from '@/interfaces/models.interface';
 //import { TokenService } from "@/lib/services/TokenServices";
-import { getSplTokenBalance } from "@/lib/solana.lib";
-import { Connection, clusterApiUrl } from "@solana/web3.js";
-import { PublicKey } from "@solana/web3.js";
-import { SpinningCircles } from "react-loading-icons";
-import { useAuth } from "@/context/AuthContext";
-import { compressToken } from "@/lib/compressed.lib";
-import toast, { Toaster } from "react-hot-toast";
+import { getSplTokenBalance } from '@/lib/solana.lib';
+import { Connection, clusterApiUrl } from '@solana/web3.js';
+import { PublicKey } from '@solana/web3.js';
+import { SpinningCircles } from 'react-loading-icons';
+import { useAuth } from '@/context/AuthContext';
+import { compressToken } from '@/lib/compressed.lib';
+import toast, { Toaster } from 'react-hot-toast';
 
-//import { createAndMintToken } from "@/lib/helper.lib";
-import { useNetwork } from "@/context/NetworkContext";
-import { Token } from "@/utils/tokens.utils";
-//import { X } from "lucide-react";
+import { useNetwork } from '@/context/NetworkContext';
+import { Token } from '@/utils/tokens.utils';
 
 export const Card = ({ tokenId }: { tokenId: string }) => {
   const { user } = useAuth();
   const { network } = useNetwork();
   const { setIsCompressed } = useMini();
   const [amount, setAmount] = useState<number>(0);
-  //const [mintAu,setMintAu] = useState<string>('')
-  //const [mintAd,setMintAd] = useState<string>('')
   const [tokenBalance, setTokenBalance] = useState<number>(0);
   const [isFirst, setIsFirst] = useState<boolean>(true);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [tokenInfo, setTokenInfo] = useState<Tokens[]>([]);
 
   const connection = new Connection(
-    !network.isEVM ? network.rpcUrl || "" : clusterApiUrl("devnet"),
+    !network.isEVM ? network.rpcUrl || '' : clusterApiUrl('devnet'),
     {
-      commitment: "confirmed",
+      commitment: 'confirmed',
     }
   );
-  console.log(tokenBalance);
+
   const getTokenInfo = async (slug: string) => {
     try {
-      // setIsLoading(true);
-      // console.log('Fetching token info for slug:', slug);
       const response = Token.filter((token) => token.address === slug);
-      console.log("Token info response:", response);
 
       if (response && Array.isArray(response)) {
         setTokenInfo(response);
-        console.log("Token info set:", response);
         return response;
       } else {
-        console.error("Invalid token data received:", response);
+        console.error('Invalid token data received:', response);
         setTokenInfo([]);
       }
     } catch (error) {
-      console.error("Failed to fetch tokens:", error);
+      console.error('Failed to fetch tokens:', error);
       setTokenInfo([]);
-    } finally {
-      //    setIsLoading(false);
-      //alert('done')
     }
   };
 
   const fetchBalances = async (address: string) => {
     try {
-      //console.log('gettin bal')
-      console.log(tokenInfo[0], "shineee");
-      if (tokenId[0] === "solana") {
+      if (tokenId[0] === 'solana') {
         if (!user) return;
         let userPubKey: PublicKey;
         try {
           userPubKey = new PublicKey(user.solPublicKey);
         } catch (error) {
-          throw new Error("Invalid sender address");
+          throw new Error('Invalid sender address');
         }
 
         const balance = await connection.getBalance(userPubKey);
         setTokenBalance(balance);
-        //console.log(balance,'hhhhh');
       } else {
-        //console.log('spl ne waannan',address,)
         if (!user) return;
         const balance = await getSplTokenBalance(
           connection,
           address,
           user.solPublicKey
         );
-        console.log(balance);
 
         setTokenBalance(balance);
       }
     } catch (error: unknown) {
-      if (error instanceof Error) console.log(error.message);
+      if (error instanceof Error) console.error(error.message);
+      else console.error(error);
     }
   };
 
@@ -96,13 +81,10 @@ export const Card = ({ tokenId }: { tokenId: string }) => {
       const tokenDetails = await getTokenInfo(tokenId[0]);
 
       if (!tokenDetails) return;
-      //setMintAu(tokenDetails[0]?.owner)
-      //setMintAd(tokenDetails[0]?.address)
-      const balance = fetchBalances(tokenDetails[0]?.address);
-      //setTokenBalance(balance)
-      console.log(balance);
+
+      await fetchBalances(tokenDetails[0]?.address);
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   };
 
@@ -118,13 +100,13 @@ export const Card = ({ tokenId }: { tokenId: string }) => {
       try {
         ownerPubKey = new PublicKey(user.solPublicKey);
       } catch (error) {
-        throw new Error("Invalid sender address");
+        throw new Error('Invalid sender address');
       }
       let addressPubKey: PublicKey;
       try {
         addressPubKey = new PublicKey(tokenDetails[0]?.address);
       } catch (error) {
-        throw new Error("Invalid sender Receiverrr");
+        throw new Error('Invalid sender Receiverrr');
       }
 
       const result = await compressToken({
@@ -132,39 +114,25 @@ export const Card = ({ tokenId }: { tokenId: string }) => {
         splAddress: addressPubKey,
         owner: ownerPubKey,
         amount: amount,
-        rpc: network.rpcUrl || "",
+        rpc: network.rpcUrl || '',
       });
 
       if (result?.success)
         setTimeout(() => {
           setIsLoading(false);
           setIsFirst(false);
-          toast.success("Compress Success");
+          toast.success('Compress Success');
         }, 5000);
       else {
         setIsFirst(true);
         setIsLoading(false);
         toast.error(`Error: ${result?.data?.toString()}`);
       }
-      console.log(result);
     } catch (error: unknown) {
       if (error instanceof Error) toast.error(error.message);
       setIsFirst(true);
     }
   };
-  //const createDummy = async ({
-  //  mnemonic,
-  //}: {
-  //  mnemonic: string | undefined;
-  //}) => {
-  //  try {
-  //    const token = await createAndMintToken({ mnemonic: mnemonic });
-  //const token = await testMint(mnemonic)
-  //    console.log(token, "address");
-  //  } catch (error) {
-  //    console.log(error);
-  //  }
-  //};
 
   useEffect(() => {
     fetch();
