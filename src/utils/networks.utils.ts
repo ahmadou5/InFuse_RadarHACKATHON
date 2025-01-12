@@ -116,10 +116,10 @@ export const networkList: NetworkList = [
   {
     name: "SOON",
     native: {
-      name: "SOLANA",
+      name: "Ethereum",
       address: "",
-      ticker: "SOL",
-      token_id: "solana",
+      ticker: "ETH",
+      token_id: "ethereum",
       logoUrl: "/assets/soon.jpeg",
     },
     rpcUrl: ENV.SOON_MAINNET_RPC || "",
@@ -158,10 +158,10 @@ export const networkList: NetworkList = [
   {
     name: "SOON",
     native: {
-      name: "SOLANA",
+      name: "Ethereum",
       address: "",
-      ticker: "SOL",
-      token_id: "solana",
+      ticker: "ETH",
+      token_id: "ethereum",
       logoUrl: "/assets/soon.jpeg",
     },
     rpcUrl: ENV.SOON_DEVNET_RPC || "",
