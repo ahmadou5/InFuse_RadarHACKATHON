@@ -26,7 +26,7 @@ import { normalizeTokenAmount } from 'helius-airship-core';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 interface TokenPrices {
   [ticker: string]: number;
@@ -180,7 +180,7 @@ const TokenItem: React.FC<TokenItemProps> = ({
         {price ? (
           `$${price.toFixed(1)}`
         ) : (
-          <div className="bg-white/20 h-4 w-16 mb-2 animate-pulse rounded"></div>
+          <span className="block bg-white/20 h-4 w-16 mb-2 animate-pulse rounded"></span>
         )}
       </p>
       <div className="text-[15px]">
@@ -213,9 +213,13 @@ export const WalletView = () => {
   const { network } = useNetwork();
   const [activeTab, setActiveTab] = useState('assets');
   const router = useRouter();
-  const connection = new Connection(network.rpcUrl || clusterApiUrl('devnet'), {
-    commitment: 'confirmed',
-  });
+  const connection = useMemo(
+    () =>
+      new Connection(network.rpcUrl || clusterApiUrl('devnet'), {
+        commitment: 'confirmed',
+      }),
+    []
+  );
   const scanner = useQRScanner(false);
 
   const [walletTotals, setWalletTotals] = useState<WalletTotals>({
@@ -411,8 +415,8 @@ export const WalletView = () => {
               src="https://solana-wallet-orcin.vercel.app/assets/send.svg"
               className="mt-1"
               alt=""
-              width={80}
-              height={80}
+              width={32}
+              height={32}
             />
           </Link>
 
@@ -425,8 +429,8 @@ export const WalletView = () => {
               src="https://solana-wallet-orcin.vercel.app/assets/qr.svg"
               className="mt-1"
               alt=""
-              width={80}
-              height={80}
+              width={32}
+              height={32}
             />
           </Link>
 
@@ -439,8 +443,8 @@ export const WalletView = () => {
               src="https://solana-wallet-orcin.vercel.app/assets/dollar.svg"
               className="mt-1"
               alt=""
-              width={80}
-              height={80}
+              width={32}
+              height={32}
             />
           </Link>
         </div>
