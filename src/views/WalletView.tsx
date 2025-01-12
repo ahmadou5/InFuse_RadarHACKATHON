@@ -240,7 +240,7 @@ export const WalletView = () => {
           return;
         }
         const userAddress = new PublicKey(user?.solPublicKey);
-        const price = await getSolPrice("solana");
+        const price = await getSolPrice(network.native?.token_id || "");
         const balance = await connection.getBalance(userAddress);
         setSolPrice(price);
         setSolBalance(balance / LAMPORTS_PER_SOL);
