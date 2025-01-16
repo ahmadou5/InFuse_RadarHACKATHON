@@ -1,23 +1,22 @@
-"use client";
-import StyledQRCode from "@/components/QrGenerator";
+'use client';
+import StyledQRCode from '@/components/QrGenerator';
 
-import { Copy } from "lucide-react";
-import toast, { Toaster } from "react-hot-toast";
-import { useRouter } from "next/navigation";
-import { useAuth } from "@/context/AuthContext";
-import { formatAddress } from "@/lib/helper.lib";
+import { useAuth } from '@/context/AuthContext';
+import { formatAddress } from '@/lib/helper.lib';
+import { Copy } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import toast, { Toaster } from 'react-hot-toast';
 export const ReceiveModal = () => {
   const router = useRouter();
   const { user } = useAuth();
-  console.log(user);
   const hanleCopy = (value: string) => {
     navigator.clipboard.writeText(value).then(
       () => {
-        toast.success("address copied");
+        toast.success('address copied');
       },
       (err) => {
         // Failed to copy to clipboard
-        toast.error("Could not copy: ", err);
+        toast.error('Could not copy: ', err);
       }
     );
   };
@@ -39,7 +38,7 @@ export const ReceiveModal = () => {
             <div className="w-[100%] p-0 h-[100%] flex items-center justify-center">
               <StyledQRCode
                 logo="/assets/show.png"
-                data={user.solPublicKey ? user.solPublicKey : "empty"}
+                data={user.solPublicKey ? user.solPublicKey : 'empty'}
               />
             </div>
           </div>
@@ -48,13 +47,13 @@ export const ReceiveModal = () => {
               <div className="mt-2 mb-2">
                 <p className="text-white/80 text-center font-light ml-auto mr-auto ">
                   {formatAddress(
-                    user.solPublicKey ? user.solPublicKey : "empty"
+                    user.solPublicKey ? user.solPublicKey : 'empty'
                   )}
                 </p>
               </div>
               <div
                 onClick={() =>
-                  hanleCopy(user.solPublicKey ? user.solPublicKey : "empty")
+                  hanleCopy(user.solPublicKey ? user.solPublicKey : 'empty')
                 }
                 className="w-[50%] mb-5   ml-auto mr-auto py-1 mt-3 px-3 flex  items-center justify-center bg-black/80 rounded-full h-9"
               >
@@ -64,14 +63,12 @@ export const ReceiveModal = () => {
                 <Copy className="text-[17px] h-5 w-5 ml-1 mr-auto" />
               </div>
               <div className="mt-14">
-                <div
+                <button
                   onClick={() => router.back()}
-                  className="w-[95%] mb-5   ml-auto mr-auto py-1 mt-3 px-3 flex  items-center justify-center bg-white/80 rounded-2xl h-12"
+                  className="w-[95%] mb-5 ml-auto mr-auto py-1 mt-3 px-3 flex items-center justify-center text-black font-light text-[20px] bg-white/80 rounded-2xl h-12"
                 >
-                  <p className="text-black font-light text-[20px] ml-auto mr-auto ">
-                    Close
-                  </p>
-                </div>
+                  Close
+                </button>
               </div>
             </div>
           </div>

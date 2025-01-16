@@ -2,17 +2,17 @@ import {
   Rpc,
   SignatureWithMetadata,
   WithCursor,
-  createRpc,
   bn,
-} from "@lightprotocol/stateless.js";
+  createRpc,
+} from '@lightprotocol/stateless.js';
 
-import * as bip39 from "bip39";
 import {
+  CompressedTokenProgram,
   createMint,
   mintTo,
-  CompressedTokenProgram,
   selectMinCompressedTokenAccountsForTransfer,
-} from "@lightprotocol/compressed-token";
+} from '@lightprotocol/compressed-token';
+import * as bip39 from 'bip39';
 //import { createAssociatedTokenAccount } from "@solana/spl-token";
 import {
   ComputeBudgetProgram,
@@ -22,20 +22,19 @@ import {
   PublicKeyData,
   Transaction,
   sendAndConfirmTransaction,
-  //clusterApiUrl,
-} from "@solana/web3.js";
+} from '@solana/web3.js';
 //import { getKeypairFromPrivateKey } from "./helper.lib";
-import { ENV } from "./constant/env.constant";
-import { apiResponse } from "./api.helpers";
+import { BN } from '@coral-xyz/anchor';
 import {
-  TOKEN_PROGRAM_ID,
   ASSOCIATED_TOKEN_PROGRAM_ID,
+  TOKEN_PROGRAM_ID,
+  createAssociatedTokenAccountInstruction,
+  getAccount,
   getAssociatedTokenAddress,
   getMint,
-  getAccount,
-  createAssociatedTokenAccountInstruction,
-} from "@solana/spl-token";
-import { BN } from "@coral-xyz/anchor";
+} from '@solana/spl-token';
+import { apiResponse } from './api.helpers';
+import { ENV } from './constant/env.constant';
 /// Helius exposes Solana and compression RPC endpoints through a single URL
 const RPC_ENDPOINT = ENV.SOL_DEVNET_RPC;
 const COMPRESSION_RPC_ENDPOINT = RPC_ENDPOINT;
@@ -67,8 +66,8 @@ export const decompressToken = async ({
     const COMPRESSION_RPC_ENDPOINT = RPC_ENDPOINT;
     const connection: Rpc = createRpc(RPC_ENDPOINT, COMPRESSION_RPC_ENDPOINT);
     const seed = await bip39.mnemonicToSeed(userMnemonic);
-    const seedBytes = seed.slice(0, 32);
-    const account = await Keypair.fromSeed(seedBytes);
+    const seedBytes = seed.toString().substring(0, 32);
+    const account = Keypair.fromSeed(Uint8Array.from(seedBytes));
     const tokenAddress = new PublicKey(splAddress);
 
     const ata = await getAssociatedTokenAddress(
@@ -80,15 +79,8 @@ export const decompressToken = async ({
     );
     // Detailed Mint Info Logging
     const mintInfo = await getMint(connection, tokenAddress);
-    console.log("Token Mint Information:", {
-      decimals: mintInfo.decimals,
-      supply: mintInfo.supply.toString(),
-    });
 
     const adjustedAmount = amount * Math.pow(10, mintInfo.decimals);
-    console.log(`Adjusted Amount: ${adjustedAmount}`);
-    // 1. Fetch the latest compressed token account state
-    //console.log(tokenDecimal);
     const compressedTokenAccounts =
       await connection.getCompressedTokenAccountsByOwner(account.publicKey, {
         mint: tokenAddress,
@@ -106,17 +98,8 @@ export const decompressToken = async ({
     );
 
     const solBalance = await connection.getBalance(account.publicKey);
-    console.log("Account Balances:", {
-      solBalance,
-      publicKey: account.publicKey.toString(),
-    });
     try {
       const tokenAccount = await getAccount(connection, ata);
-      console.log("Token Account Details:", {
-        address: ata.toString(),
-        balance: tokenAccount.amount.toString(),
-        owner: tokenAccount.owner.toString(),
-      });
 
       if (BigInt(tokenAccount.amount) < BigInt(adjustedAmount)) {
         throw new Error(
@@ -124,7 +107,7 @@ export const decompressToken = async ({
         );
       }
     } catch (error: unknown) {
-      console.error("Token Account Retrieval Error:", error);
+      console.error('Token Account Retrieval Error:', error);
       if (error instanceof Error)
         throw new Error(`Token account error: ${error.message}`);
     }
@@ -137,7 +120,6 @@ export const decompressToken = async ({
     // ATA Existence and Creation Logic with Detailed Logging
     const ifexists = await connection.getAccountInfo(ata);
     if (!ifexists || !ifexists.data) {
-      console.log("ATA Does Not Exist - Attempting Creation");
       const rent = await connection.getMinimumBalanceForRentExemption(165);
 
       if (solBalance < rent) {
@@ -176,19 +158,14 @@ export const decompressToken = async ({
     const latestBlockhash = await connection.getLatestBlockhash();
     transaction.recentBlockhash = latestBlockhash.blockhash;
     transaction.lastValidBlockHeight = latestBlockhash.lastValidBlockHeight;
-    console.log("Latest Blockhash:", latestBlockhash.blockhash);
 
     const signers = [account];
 
     // Fee Estimation with Detailed Logging
     const fees = await transaction.getEstimatedFee(connection);
-    console.log("Transaction Fee Estimation:", {
-      estimatedFees: fees,
-      solBalance,
-    });
 
     if (fees === null) {
-      throw new Error("Unable to estimate transaction fees");
+      throw new Error('Unable to estimate transaction fees');
     }
 
     if (solBalance < fees) {
@@ -203,22 +180,20 @@ export const decompressToken = async ({
       transaction,
       signers,
       {
-        commitment: "confirmed",
-        preflightCommitment: "confirmed",
+        commitment: 'confirmed',
+        preflightCommitment: 'confirmed',
       }
     );
-    // console.log(decompressIx);
-    return apiResponse(true, "Decompressed", transactionSignature);
+    return apiResponse(true, 'Decompressed', transactionSignature);
   } catch (error) {
     if (error instanceof Error)
-      return apiResponse(false, "unable to compress", error.message);
+      return apiResponse(false, 'unable to compress', error.message);
   }
 };
 
 export const compressToken = async ({
   userMnemonic,
   splAddress,
-  owner,
   amount,
   rpc,
 }: {
@@ -229,30 +204,17 @@ export const compressToken = async ({
   rpc: string;
 }) => {
   try {
-    console.log("Compression Start - Input Parameters:", {
-      splAddress,
-      amount,
-      rpc,
-      owner,
-    });
-
     const RPC_ENDPOINT = rpc;
     const connection: Rpc = createRpc(RPC_ENDPOINT, RPC_ENDPOINT);
     const seed = await bip39.mnemonicToSeed(userMnemonic);
-    const seedBytes = seed.slice(0, 32);
-    const account = await Keypair.fromSeed(seedBytes);
+    const seedBytes = seed.toString().substring(0, 32);
+    const account = Keypair.fromSeed(Uint8Array.from(seedBytes));
 
     const tokenAddress = new PublicKey(splAddress);
 
     // Detailed Mint Info Logging
     const mintInfo = await getMint(connection, tokenAddress);
-    console.log("Token Mint Information:", {
-      decimals: mintInfo.decimals,
-      supply: mintInfo.supply.toString(),
-    });
-
     const adjustedAmount = amount * Math.pow(10, mintInfo.decimals);
-    console.log(`Adjusted Amount: ${adjustedAmount}`);
 
     // Comprehensive ATA Creation and Balance Checks
     const ata = await getAssociatedTokenAddress(
@@ -264,19 +226,10 @@ export const compressToken = async ({
     );
 
     const solBalance = await connection.getBalance(account.publicKey);
-    console.log("Account Balances:", {
-      solBalance,
-      publicKey: account.publicKey.toString(),
-    });
 
     // Detailed Token Account Verification
     try {
       const tokenAccount = await getAccount(connection, ata);
-      console.log("Token Account Details:", {
-        address: ata.toString(),
-        balance: tokenAccount.amount.toString(),
-        owner: tokenAccount.owner.toString(),
-      });
 
       if (BigInt(tokenAccount.amount) < BigInt(adjustedAmount)) {
         throw new Error(
@@ -284,7 +237,7 @@ export const compressToken = async ({
         );
       }
     } catch (error: unknown) {
-      console.error("Token Account Retrieval Error:", error);
+      console.error('Token Account Retrieval Error:', error);
       if (error instanceof Error)
         throw new Error(`Token account error: ${error.message}`);
     }
@@ -294,7 +247,6 @@ export const compressToken = async ({
     // ATA Existence and Creation Logic with Detailed Logging
     const ifexists = await connection.getAccountInfo(ata);
     if (!ifexists || !ifexists.data) {
-      console.log("ATA Does Not Exist - Attempting Creation");
       const rent = await connection.getMinimumBalanceForRentExemption(165);
 
       if (solBalance < rent) {
@@ -322,7 +274,6 @@ export const compressToken = async ({
 
     if (!TokenPool.programId) {
       instructions.push(TokenPool);
-      console.log("Token Pool Instruction Added");
     }
 
     const compressTx = await CompressedTokenProgram.compress({
@@ -333,8 +284,6 @@ export const compressToken = async ({
       amount: adjustedAmount,
       mint: tokenAddress,
     });
-
-    console.log("Compression Transaction Details:", compressTx);
     instructions.push(compressTx);
 
     // Transaction Preparation with Enhanced Logging
@@ -345,19 +294,14 @@ export const compressToken = async ({
     const latestBlockhash = await connection.getLatestBlockhash();
     transaction.recentBlockhash = latestBlockhash.blockhash;
     transaction.lastValidBlockHeight = latestBlockhash.lastValidBlockHeight;
-    console.log("Latest Blockhash:", latestBlockhash.blockhash);
 
     const signers = [account];
 
     // Fee Estimation with Detailed Logging
     const fees = await transaction.getEstimatedFee(connection);
-    console.log("Transaction Fee Estimation:", {
-      estimatedFees: fees,
-      solBalance,
-    });
 
     if (fees === null) {
-      throw new Error("Unable to estimate transaction fees");
+      throw new Error('Unable to estimate transaction fees');
     }
 
     if (solBalance < fees) {
@@ -372,23 +316,22 @@ export const compressToken = async ({
       transaction,
       signers,
       {
-        commitment: "confirmed",
-        preflightCommitment: "confirmed",
+        commitment: 'confirmed',
+        preflightCommitment: 'confirmed',
       }
     );
 
-    console.log("Transaction Successfully Submitted:", transactionSignature);
-    return apiResponse(true, "compressed", transactionSignature);
+    return apiResponse(true, 'compressed', transactionSignature);
   } catch (error: unknown) {
     if (error instanceof Error)
-      console.error("Compression Process Error:", {
+      console.error('Compression Process Error:', {
         errorName: error.constructor.name,
         errorMessage: error.message,
         errorStack: error.stack,
       });
 
     if (error instanceof Error)
-      return apiResponse(false, "failed to compress", error.message);
+      return apiResponse(false, 'failed to compress', error.message);
   }
 };
 
@@ -414,13 +357,13 @@ export const getCompressTokenBalance = async ({
   try {
     userPubKey = new PublicKey(address);
   } catch (error) {
-    throw new Error("Invalid sender address");
+    throw new Error('Invalid sender address');
   }
   let mintPubKey: PublicKey;
   try {
     mintPubKey = new PublicKey(mint);
   } catch (error) {
-    throw new Error("Invalid sender address");
+    throw new Error('Invalid sender address');
   }
   const balance = await connection.getCompressedTokenBalancesByOwner(
     userPubKey,
@@ -428,7 +371,7 @@ export const getCompressTokenBalance = async ({
       mint: mintPubKey,
     }
   );
-  console.log("done");
+
   return balance;
 };
 
@@ -455,9 +398,8 @@ export const transferCompressedTokens = async ({
     const senderKey = new PublicKey(sender);
     const mint = new PublicKey(tokenMint);
     const seed = await bip39.mnemonicToSeed(userMnemonic);
-    //console.log(owner, "seed");
-    const seedBytes = seed.slice(0, 32);
-    const account = await Keypair.fromSeed(seedBytes);
+    const seedBytes = seed.toString().substring(0, 32);
+    const account = Keypair.fromSeed(Uint8Array.from(seedBytes));
     // get the token account state
     // 2. Get token mint info for decimal adjustment
     const mintInfo = await getMint(connection, mint);
@@ -474,10 +416,6 @@ export const transferCompressedTokens = async ({
     );
 
     const solBalance = await connection.getBalance(account.publicKey);
-    console.log("Account Balances:", {
-      solBalance,
-      publicKey: account.publicKey.toString(),
-    });
 
     const compressedTokenAccounts =
       await connection.getCompressedTokenAccountsByOwner(senderKey, {
@@ -498,7 +436,7 @@ export const transferCompressedTokens = async ({
     if (!ifexists || !ifexists.data) {
       const rent = await connection.getMinimumBalanceForRentExemption(165); // Size of ATA account
       if (solBalance < rent) {
-        throw new Error("Insufficient SOL for ATA creation");
+        throw new Error('Insufficient SOL for ATA creation');
       }
 
       const createATAiX = createAssociatedTokenAccountInstruction(
@@ -531,19 +469,14 @@ export const transferCompressedTokens = async ({
     const latestBlockhash = await connection.getLatestBlockhash();
     transaction.recentBlockhash = latestBlockhash.blockhash;
     transaction.lastValidBlockHeight = latestBlockhash.lastValidBlockHeight;
-    console.log("Latest Blockhash:", latestBlockhash.blockhash);
 
     const signers = [account];
 
     // Fee Estimation with Detailed Logging
     const fees = await transaction.getEstimatedFee(connection);
-    console.log("Transaction Fee Estimation:", {
-      estimatedFees: fees,
-      solBalance,
-    });
 
     if (fees === null) {
-      throw new Error("Unable to estimate transaction fees");
+      throw new Error('Unable to estimate transaction fees');
     }
 
     if (solBalance < fees) {
@@ -558,16 +491,14 @@ export const transferCompressedTokens = async ({
       transaction,
       signers,
       {
-        commitment: "confirmed",
-        preflightCommitment: "confirmed",
+        commitment: 'confirmed',
+        preflightCommitment: 'confirmed',
       }
     );
-
-    console.log("Transaction Successfully Submitted:", transactionSignature);
-    return apiResponse(true, "Compress token sent", transactionSignature);
+    return apiResponse(true, 'Compress token sent', transactionSignature);
   } catch (error) {
     if (error instanceof Error)
-      return apiResponse(false, "transfer failed", error.message);
+      return apiResponse(false, 'transfer failed', error.message);
   }
 };
 
@@ -583,12 +514,10 @@ export const getCompressTokenHistory = async ({
   const key = new PublicKey(Owner);
   const signatures: WithCursor<SignatureWithMetadata[]> =
     await connection.getCompressionSignaturesForOwner(key);
-  console.log(signatures);
 
   const parsedTransaction = await connection.getTransactionWithCompressionInfo(
     signatures.items[0].signature
   );
-  console.log(parsedTransaction);
   return { signatures, parsedTransaction };
 };
 
@@ -612,44 +541,31 @@ export async function fetchCompressedTokens({
     const tokenAccounts =
       connection.getCompressedTokenAccountsByOwner(publicKey);
 
-    // Log the results
-    console.log("Compressed Tokens:", tokenAccounts);
     return tokenAccounts;
   } catch (error: unknown) {
     if (error instanceof Error)
-      console.error("Error fetching compressed tokens:", error.message);
+      console.error('Error fetching compressed tokens:', error.message);
     throw error;
   }
 }
 
 // test minnt functions
 export const testMint = async (mnemonic: string | undefined) => {
-  //console.log('started',mnemonic)
   if (mnemonic === undefined) return;
   const seed = await bip39.mnemonicToSeed(mnemonic);
-  const seedBytes = seed.slice(0, 32);
-  const account = Keypair.fromSeed(seedBytes);
+  const seedBytes = seed.toString().substring(0, 32);
+  const account = Keypair.fromSeed(Uint8Array.from(seedBytes));
   try {
-    console.log("passed");
-    const { mint, transactionSignature } = await createMint(
+    const { mint } = await createMint(
       connection,
       account,
       account.publicKey,
       9
     );
-    console.log(`create-mint success! txId: ${transactionSignature}`);
 
-    const mintToTxId = await mintTo(
-      connection,
-      account,
-      mint,
-      account.publicKey,
-      account,
-      500e9
-    );
-
-    console.log(`mint-to success! txId: ${mintToTxId}`);
+    await mintTo(connection, account, mint, account.publicKey, account, 500e9);
   } catch (error) {
-    if (error instanceof Error) console.log("error", error.message, "message");
+    if (error instanceof Error)
+      console.error('error', error.message, 'message');
   }
 };

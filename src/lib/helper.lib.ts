@@ -1,12 +1,12 @@
-import { Keypair, LAMPORTS_PER_SOL } from "@solana/web3.js";
+import { Keypair, LAMPORTS_PER_SOL } from '@solana/web3.js';
 
-import axios from "axios";
+import axios from 'axios';
 //import { apiResponse } from "./api.helpers";
-import { Tokens } from "@/interfaces/models.interface";
-import * as bip39 from "bip39";
-import bs58 from "bs58";
-import { ethers } from "ethers";
-import { Ed25519Keypair } from "@mysten/sui/keypairs/ed25519";
+import { Tokens } from '@/interfaces/models.interface';
+import * as bip39 from 'bip39';
+import bs58 from 'bs58';
+import { ethers } from 'ethers';
+import { Ed25519Keypair } from '@mysten/sui/keypairs/ed25519';
 
 export interface SeedGenerationResult {
   seedArray: Uint8Array;
@@ -25,12 +25,8 @@ export const CreateAllAccounts = async ({
   mnemonic: string;
   seedArray: Uint8Array;
 }) => {
-  console.log(mnemonic, "mn");
-  console.log(seedArray, "array");
   //solana
-
-  const solanaAccount = await Keypair.fromSeed(seedArray);
-  //console.log(account)
+  const solanaAccount = Keypair.fromSeed(seedArray);
   const solPublicKey = solanaAccount.publicKey.toString();
   const solPrivateKey = solanaAccount.secretKey;
   const SolConvertedsecret = bs58.encode(solPrivateKey);
@@ -62,15 +58,15 @@ export const CreateAllAccounts = async ({
 };
 
 export const formatAddress = (value: string) => {
-  return value.substring(0, 7) + "......" + value.substring(value.length - 2);
+  return value.substring(0, 7) + '......' + value.substring(value.length - 2);
 };
 
 export const formatNFT = (value: string) => {
-  return value.substring(0, 4) + "......" + value.substring(value.length - 2);
+  return value.substring(0, 4) + '......' + value.substring(value.length - 2);
 };
 
 export const formatEmail = (value: string) => {
-  return value.substring(0, 4) + "...." + value.substring(value.length - 10);
+  return value.substring(0, 4) + '....' + value.substring(value.length - 10);
 };
 
 export const getKeypairFromPrivateKey = (privateKeyString: string): Keypair => {
@@ -81,19 +77,16 @@ export const getKeypairFromPrivateKey = (privateKeyString: string): Keypair => {
 export const GenerateSeed = async (): Promise<SeedGenerationResult> => {
   try {
     const mnemonic = bip39.generateMnemonic();
-    console.log("Mnemonic:", mnemonic);
 
     const seed = await bip39.mnemonicToSeed(mnemonic);
     const seedBytes = seed.slice(0, 32);
 
     // Convert Buffer to Uint8Array
     const seedArray = new Uint8Array(seedBytes);
-
-    console.log("Seed (Uint8Array):", seedArray);
     return { seedArray, mnemonic };
   } catch (error) {
     if (error instanceof Error) {
-      console.error("Error generating seed:", error.message);
+      console.error('Error generating seed:', error.message);
     }
     throw error;
   }
@@ -136,15 +129,15 @@ export const calculateWalletTotals = (
 // The improved getTokenPrice function
 export const getTokenPrice = async (tokenId: string): Promise<number> => {
   try {
-    const baseUrl = "https://api.coingecko.com/api/v3/simple/price";
+    const baseUrl = 'https://api.coingecko.com/api/v3/simple/price';
     const response = await axios.get(
       `${baseUrl}?ids=${tokenId}&vs_currencies=usd`
     );
 
     const price = response.data[tokenId]?.usd;
 
-    if (typeof price !== "number") {
-      throw new Error("Invalid price data received");
+    if (typeof price !== 'number') {
+      throw new Error('Invalid price data received');
     }
 
     return price;
@@ -156,15 +149,15 @@ export const getTokenPrice = async (tokenId: string): Promise<number> => {
 // https://api.coingecko.com/api/v3/simple/price?ids=bonk&vs_currencies=usd
 export const getSolPrice = async (tokenId: string): Promise<number> => {
   try {
-    const baseUrl = "https://api.coingecko.com/api/v3/simple/price";
+    const baseUrl = 'https://api.coingecko.com/api/v3/simple/price';
     const response = await axios.get(
       `${baseUrl}?ids=${tokenId}&vs_currencies=usd`
     );
 
     const price = response.data[tokenId]?.usd;
 
-    if (typeof price !== "number") {
-      throw new Error("Invalid sol price data received");
+    if (typeof price !== 'number') {
+      throw new Error('Invalid sol price data received');
     }
 
     return price;

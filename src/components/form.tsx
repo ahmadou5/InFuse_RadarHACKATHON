@@ -13,7 +13,7 @@ interface FormErrors {
 const WalletForm: React.FC = () => {
   const [formData, setFormData] = useState<FormData>({
     email: '',
-    pin: ''
+    pin: '',
   });
   const [errors, setErrors] = useState<FormErrors>({});
 
@@ -25,11 +25,11 @@ const WalletForm: React.FC = () => {
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>): void => {
     const { name, value } = e.target;
     if (name === 'pin') {
-      setFormData(prev => ({ ...prev, [name]: value.slice(0, 4) }));
+      setFormData((prev) => ({ ...prev, [name]: value.slice(0, 4) }));
     } else {
-      setFormData(prev => ({ ...prev, [name]: value }));
+      setFormData((prev) => ({ ...prev, [name]: value }));
     }
-    setErrors(prev => ({ ...prev, [name]: '' }));
+    setErrors((prev) => ({ ...prev, [name]: '' }));
   };
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>): void => {
@@ -51,7 +51,6 @@ const WalletForm: React.FC = () => {
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
     } else {
-      console.log('Form submitted:', formData);
       // Here you would typically send the data to your backend
     }
   };
@@ -60,7 +59,10 @@ const WalletForm: React.FC = () => {
     <div className="max-w-md mx-auto mt-10 p-6 bg-white/5 bg-opacity-20 rounded-lg shadow-md">
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>
-          <label htmlFor="email" className="block text-sm ml-3 font-medium text-white/75">
+          <label
+            htmlFor="email"
+            className="block text-sm ml-3 font-medium text-white/75"
+          >
             Gmail
           </label>
           <input
@@ -77,7 +79,10 @@ const WalletForm: React.FC = () => {
           )}
         </div>
         <div>
-          <label htmlFor="pin" className="block ml-3 text-sm font-medium text-white/75">
+          <label
+            htmlFor="pin"
+            className="block ml-3 text-sm font-medium text-white/75"
+          >
             PIN
           </label>
           <input

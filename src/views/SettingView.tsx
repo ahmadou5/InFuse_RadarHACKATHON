@@ -1,15 +1,15 @@
-"use client";
-import { ChevronRight, Circle, CheckCircle2 } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useAuth } from "@/context/AuthContext";
-import { formatAddress, formatEmail } from "@/lib/helper.lib";
-import { Toaster, toast } from "react-hot-toast";
-import { useState } from "react";
-import { networkList } from "@/utils/networks.utils";
-import { useNetwork } from "@/context/NetworkContext";
+'use client';
+import { useAuth } from '@/context/AuthContext';
+import { useNetwork } from '@/context/NetworkContext';
+import { formatAddress, formatEmail } from '@/lib/helper.lib';
+import { networkList } from '@/utils/networks.utils';
+import { CheckCircle2, ChevronRight, Circle } from 'lucide-react';
+import { useState } from 'react';
+import { Toaster, toast } from 'react-hot-toast';
 //import { Network } from "@/interfaces/models.interface";
-import React from "react";
-import { ChevronLeft, MoreVertical } from "lucide-react";
+import { ChevronLeft, MoreVertical } from 'lucide-react';
+import Link from 'next/link';
+import React from 'react';
 
 const ConnectedApps = ({
   setView,
@@ -67,7 +67,7 @@ const PrivateKey = ({
 
   const handleCopyToClipboard = () => {
     navigator.clipboard.writeText(phrase);
-    toast.success("copied!");
+    toast.success('copied!');
   };
 
   return (
@@ -75,7 +75,7 @@ const PrivateKey = ({
       {/* Warning Message */}
       <div className="bg-red-950/30 rounded-lg p-4 mb-6">
         <h2 className="text-red-500/40 font-bold text-center text-lg mb-2">
-          Do <span className="underline">not</span> share your{" "}
+          Do <span className="underline">not</span> share your{' '}
           <span className="text-white/75">Private Key!</span>
         </h2>
         <p className="text-red-500/40 text-center">
@@ -149,17 +149,17 @@ const RecoveryPhrase = ({
   // Sample phrase as a single string
   const handleCopyToClipboard = () => {
     navigator.clipboard.writeText(phrase);
-    toast.success("Copied!");
+    toast.success('Copied!');
   };
   // Split the phrase into an array of words
-  const words = phrase.split(" ");
+  const words = phrase.split(' ');
 
   return (
     <div className="mt-0 p-4 max-h-screen rounded-lg max-w-md mx-auto">
       {/* Warning Message */}
       <div className="bg-red-950/25 rounded-lg p-4 mb-4">
         <h2 className="text-red-500/40 font-bold text-center text-lg mb-2">
-          Do <span className="underline">not</span> share your{" "}
+          Do <span className="underline">not</span> share your{' '}
           <span className="text-white/75">Secret Phrases!</span>
         </h2>
         <p className="text-red-500/40 text-center">
@@ -241,7 +241,6 @@ export const SettingView = () => {
   const [privateView, setPrivateView] = useState<boolean>(false);
   const { setActiveChain, network } = useNetwork();
   const { user } = useAuth();
-  const router = useRouter();
 
   const handleSwitchTestnet = () => {
     try {
@@ -250,23 +249,23 @@ export const SettingView = () => {
           .filter((network) => network.isTestNet === true)
           .find((item) => item.name === network.name);
         setActiveChain(testnet || network);
-        toast.success("Switched to Devnet");
+        toast.success('Switched to Devnet');
       } else {
         const mainnet = networkList
           .filter((network) => network.isTestNet === false)
           .find((item) => item.name === network.name);
         setActiveChain(mainnet || network);
-        toast.success("Switched to Mainnet");
+        toast.success('Switched to Mainnet');
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   };
   return (
     <>
       {privateView && (
         <PrivateKey
-          phrase={user?.solPrivateKey || ""}
+          phrase={user?.solPrivateKey || ''}
           setOld={setAccount}
           setView={setPrivateView}
         />
@@ -275,7 +274,7 @@ export const SettingView = () => {
         <RecoveryPhrase
           setView={setPhraseView}
           setOld={setAccount}
-          phrase={user?.mnemonic || ""}
+          phrase={user?.mnemonic || ''}
         />
       )}
       {about && (
@@ -351,27 +350,27 @@ export const SettingView = () => {
                           <div
                             className={`flex items-center justify-center w-full relative h-8 ${
                               network.name === item.name
-                                ? ""
-                                : "flex-row-reverse"
+                                ? ''
+                                : 'flex-row-reverse'
                             }`}
                           >
                             {/* Background slider */}
                             <div
                               className={`absolute w-1/2 h-full bg-white/30 rounded-full shadow-md transition-transform duration-200 ease-in-out
-            ${network.name === item.name ? "left-0" : "left-1/2"}`}
+            ${network.name === item.name ? 'left-0' : 'left-1/2'}`}
                             />
 
                             {/* Icons */}
                             <div className="relative flex w-full">
                               <div
                                 className={`flex-1 flex justify-center z-10 transition-colors duration-200 
-            ${network.name === item.name ? "text-green-500" : "text-gray-400"}`}
+            ${network.name === item.name ? 'text-green-500' : 'text-gray-400'}`}
                               >
                                 <CheckCircle2 className="w-5 h-5" />
                               </div>
                               <div
                                 className={`flex-1 flex justify-center z-10 transition-colors duration-200 
-            ${network.name === item.name ? "text-gray-500" : "text-gray-400"}`}
+            ${network.name === item.name ? 'text-gray-500' : 'text-gray-400'}`}
                               >
                                 <Circle className="w-5 text-red-600/15 h-5" />
                               </div>
@@ -447,26 +446,26 @@ export const SettingView = () => {
                   >
                     <div
                       className={`flex items-center justify-center w-full relative h-8 ${
-                        network.isTestNet ? "" : "flex-row-reverse"
+                        network.isTestNet ? '' : 'flex-row-reverse'
                       }`}
                     >
                       {/* Background slider */}
                       <div
                         className={`absolute w-1/2 h-full bg-white/30 rounded-full shadow-md transition-transform duration-200 ease-in-out
-            ${network.isTestNet ? "left-0" : "left-1/2"}`}
+            ${network.isTestNet ? 'left-0' : 'left-1/2'}`}
                       />
 
                       {/* Icons */}
                       <div className="relative flex w-full">
                         <div
                           className={`flex-1 flex justify-center z-10 transition-colors duration-200 
-            ${network.isTestNet ? "text-green-500" : "text-gray-400"}`}
+            ${network.isTestNet ? 'text-green-500' : 'text-gray-400'}`}
                         >
                           <CheckCircle2 className="w-5 h-5" />
                         </div>
                         <div
                           className={`flex-1 flex justify-center z-10 transition-colors duration-200 
-            ${network.isTestNet ? "text-gray-500" : "text-gray-400"}`}
+            ${network.isTestNet ? 'text-gray-500' : 'text-gray-400'}`}
                         >
                           <Circle className="w-5 text-red-600/15 h-5" />
                         </div>
@@ -484,13 +483,10 @@ export const SettingView = () => {
         <>
           <div className="bg-gothic-950/0 mt-0 max-h-screen flex bg-slate-600/0 py-1 text-white/70 mb-2 flex-col w-[100%] h-auto">
             <div className="flex items-center justify-between px-4 py-2">
-              <div
-                onClick={() => router.push("/wallet")}
-                className="flex items-center"
-              >
+              <Link href="/wallet" className="flex items-center">
                 <ChevronLeft className="w-6 h-6 mr-4" />
                 <h1 className="text-xl font-medium">Settings</h1>
-              </div>
+              </Link>
             </div>
 
             <div className="w-[98%] ml-auto mr-auto mt-2 py-2 px-2 h-auto mb-20 rounded-md bg-black/0">
@@ -600,7 +596,7 @@ export const SettingView = () => {
                 >
                   <p className="text-[18px] ">Account</p>
                   <p className="flex text-white/30 text-[17px] ml-auto mr-2 items-center justify-center">
-                    {user?.username?.toLowerCase() || ""}
+                    {user?.username?.toLowerCase() || ''}
                   </p>
                 </div>
               </div>
@@ -608,14 +604,14 @@ export const SettingView = () => {
                 <div className="w-[100%] py-4  px-5 flex">
                   <p className="text-[18px] ">Email</p>
                   <p className="flex text-white/30 text-[17px] ml-auto mr-2 items-center justify-center">
-                    {formatEmail(user?.email?.toLowerCase() || "") || ""}
+                    {formatEmail(user?.email?.toLowerCase() || '') || ''}
                   </p>
                 </div>
                 <div className="h-0.5 w-[91%] mt-0.5 mb-0.5 ml-auto mr-auto bg-white/20"></div>
                 <div className="w-[100%] py-4 px-5 flex">
                   <p className="text-[18px] ">Address</p>
                   <p className="flex text-white/30 text-[17px] ml-auto mr-2 items-center justify-center">
-                    {formatAddress(user?.solPublicKey || "") || ""}
+                    {formatAddress(user?.solPublicKey || '') || ''}
                   </p>
                 </div>
               </div>

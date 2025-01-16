@@ -1,12 +1,11 @@
-import { Connection, PublicKey as solPublicKey } from "@solana/web3.js";
-//import { Metaplex, Nft, Sft } from "@metaplex-foundation/js";
-import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
-import { createUmi } from "@metaplex-foundation/umi-bundle-defaults";
 import {
   fetchDigitalAsset,
   mplTokenMetadata,
-} from "@metaplex-foundation/mpl-token-metadata";
-import { publicKey, Umi } from "@metaplex-foundation/umi";
+} from '@metaplex-foundation/mpl-token-metadata';
+import { publicKey, Umi } from '@metaplex-foundation/umi';
+import { createUmi } from '@metaplex-foundation/umi-bundle-defaults';
+import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
+import { Connection, PublicKey as solPublicKey } from '@solana/web3.js';
 
 interface TokenInfo {
   address: string;
@@ -23,8 +22,8 @@ interface TokenInfo {
 async function umiSwitchToSoonDevnet(umi: Umi) {
   umi.programs.add(
     {
-      name: "mplTokenMetadata",
-      publicKey: publicKey("6C4GR9AtMGF25sjXKtdB7A6NVQUudEQWw97kG61pGuA1"),
+      name: 'mplTokenMetadata',
+      publicKey: publicKey('6C4GR9AtMGF25sjXKtdB7A6NVQUudEQWw97kG61pGuA1'),
       getErrorFromCode: () => null,
       getErrorFromName: () => null,
       isOnCluster: () => true,
@@ -35,21 +34,20 @@ async function umiSwitchToSoonDevnet(umi: Umi) {
 
 export async function fetchNftHoldings(
   address: string,
-  rpcUrl: string = "https://rpc.devnet.soo.network/rpc"
+  rpcUrl: string = 'https://rpc.devnet.soo.network/rpc'
 ): Promise<TokenInfo[]> {
   try {
     const connection = new Connection(
-      rpcUrl || "https://api.mainnet-beta.solana.com",
-      "confirmed"
+      rpcUrl || 'https://api.mainnet-beta.solana.com',
+      'confirmed'
     );
     const userPublicKey = new solPublicKey(address);
-    console.log("started fetchinggggg");
+
     // Fetch token accounts
     const tokenAccounts = await connection.getParsedTokenAccountsByOwner(
       userPublicKey,
       { programId: TOKEN_PROGRAM_ID }
     );
-    console.log("fdfdffd", tokenAccounts);
     // Process token accounts
     const nftInfos = await Promise.all(
       tokenAccounts.value
@@ -70,25 +68,25 @@ export async function fetchNftHoldings(
 
             // Fetch digital asset
             const asset = await fetchDigitalAsset(umi, publicKey(mintAddress));
-            let imageUrl = "";
+            let imageUrl = '';
             const isNft =
               Number(asset.mint.supply) === 1 && asset.mint.decimals === 0;
 
-            let collection = "uncategorized";
+            let collection = 'uncategorized';
             let isCollectionNft = false;
             let isCollectionMaster = false;
 
             // Determine collection details
             if (
               asset.metadata.collectionDetails &&
-              "some" in asset.metadata.tokenStandard &&
-              asset.metadata.tokenStandard.some === "NonFungible"
+              'some' in asset.metadata.tokenStandard &&
+              asset.metadata.tokenStandard.some === 'NonFungible'
             ) {
               isCollectionMaster = true;
               collection = mintAddress;
             } else if (asset.metadata.collection) {
               type CollectionOption = {
-                __option: "Some";
+                __option: 'Some';
                 value: {
                   key: { toString: () => string };
                   verified: boolean;
@@ -99,7 +97,7 @@ export async function fetchNftHoldings(
                 .collection as unknown as CollectionOption;
 
               if (
-                collectionData.__option === "Some" &&
+                collectionData.__option === 'Some' &&
                 collectionData.value &&
                 collectionData.value.verified
               ) {
@@ -112,7 +110,7 @@ export async function fetchNftHoldings(
             if (asset.metadata.uri) {
               const response = await fetch(asset.metadata.uri);
               const jsonMetadata = await response.json();
-              imageUrl = jsonMetadata.image || "";
+              imageUrl = jsonMetadata.image || '';
             }
 
             return {
@@ -127,26 +125,25 @@ export async function fetchNftHoldings(
               isCollectionMaster,
             };
           } catch (err) {
-            console.error("Error fetching token info:", err);
+            console.error('Error fetching token info:', err);
             return {
               address: mintAddress,
-              symbol: "Unknown",
-              name: "Unknown Token",
-              image: "",
+              symbol: 'Unknown',
+              name: 'Unknown Token',
+              image: '',
               amount: amount,
               isNft: false,
-              collection: "uncategorized",
+              collection: 'uncategorized',
               isCollectionNft: false,
               isCollectionMaster: false,
             };
           }
         })
     );
-    console.log(nftInfos);
     // Filter and return only NFTs
     return nftInfos.filter((token) => token.isNft);
   } catch (err) {
-    console.error("Error fetching NFT holdings:", err);
+    console.error('Error fetching NFT holdings:', err);
     return [];
   }
 }

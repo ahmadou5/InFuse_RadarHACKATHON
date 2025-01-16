@@ -1,5 +1,5 @@
-import axios, { AxiosError } from "axios";
-import { ENV } from "./constant/env.constant";
+import axios, { AxiosError } from 'axios';
+import { ENV } from './constant/env.constant';
 // Token metadata and response interfaces
 interface TokenImages {
   large?: string;
@@ -92,7 +92,7 @@ interface TokenDataResponse {
 const heliusApi = axios.create({
   timeout: 10000, // 10 seconds timeout
   headers: {
-    "Content-Type": "application/json",
+    'Content-Type': 'application/json',
   },
 });
 
@@ -106,19 +106,19 @@ export async function getUserTokensWithMetadata(
   userAddress: string
 ): Promise<TokenDataResponse> {
   if (!userAddress) {
-    throw new Error("User address and Helius API key are required");
+    throw new Error('User address and Helius API key are required');
   }
   const heliusApiKey = ENV.HELIUS_API_KEY;
-  const baseUrl = "https://api.helius.xyz/v0";
+  const baseUrl = 'https://api.helius.xyz/v0';
 
   try {
     // Fetch token balances
     const balanceResponse = await heliusApi.post<TokenBalanceResponse>(
       `${baseUrl}/token-balances?api-key=${heliusApiKey}`,
       {
-        jsonrpc: "2.0",
-        id: "my-id",
-        method: "getTokenBalances",
+        jsonrpc: '2.0',
+        id: 'my-id',
+        method: 'getTokenBalances',
         params: { ownerAddress: userAddress },
       }
     );
@@ -151,8 +151,8 @@ export async function getUserTokensWithMetadata(
         actualBalance: token.amount / Math.pow(10, token.decimals),
 
         // Metadata information
-        name: metadata.name || "Unknown",
-        symbol: metadata.symbol || "Unknown",
+        name: metadata.name || 'Unknown',
+        symbol: metadata.symbol || 'Unknown',
         image: metadata.images?.large || metadata.images?.small || null,
         description: metadata.description || null,
 
@@ -196,7 +196,7 @@ export async function getUserTokensWithMetadata(
     return {
       success: false,
       error:
-        error instanceof Error ? error.message : "An unknown error occurred",
+        error instanceof Error ? error.message : 'An unknown error occurred',
       tokens: [],
     };
   }
@@ -206,40 +206,6 @@ export async function getUserTokensWithMetadata(
 export function isValidSolanaAddress(address: string): boolean {
   return /^[0-9a-zA-Z]{32,44}$/.test(address);
 }
-
-// Example usage with error handling
-/*
-const fetchTokens = async () => {
-  try {
-    const tokens = await getUserTokensWithMetadata(
-      "Your_Solana_Address",
-      "Your_Helius_API_Key"
-    );
-    
-    if (tokens.success) {
-      const { tokens: userTokens } = tokens;
-      console.log('Tokens:', userTokens);
-      
-      // Access specific token data
-      userTokens.forEach(token => {
-        console.log(`
-          Token: ${token.name}
-          Balance: ${token.actualBalance}
-          Symbol: ${token.symbol}
-        `);
-      });
-    } else {
-      console.error('Error:', tokens.error);
-    }
-  } catch (error) {
-    if (axios.isAxiosError(error)) {
-      console.error('API Error:', error.response?.data);
-    } else {
-      console.error('Error fetching tokens:', error);
-    }
-  }
-};
-*/
 
 // Types for API Configuration
 interface HeliusApiConfig {
@@ -269,7 +235,7 @@ interface HeliusTransaction {
   signature: string;
   timestamp: number;
   slot: number;
-  status: "success" | "failed";
+  status: 'success' | 'failed';
   fee: number;
   feePayer: string;
   tokenTransfers?: HeliusTokenTransfer[];
@@ -281,14 +247,14 @@ interface TransferBase {
   signature: string;
   timestamp: number;
   slot: number;
-  status: "success" | "failed";
+  status: 'success' | 'failed';
   fee: number;
   feePayer: string;
 }
 
 // SPL Transfer Types
 interface SplTransfer extends TransferBase {
-  type: "SPL_TRANSFER";
+  type: 'SPL_TRANSFER';
   mint: string;
   tokenName?: string;
   tokenSymbol?: string;
@@ -301,7 +267,7 @@ interface SplTransfer extends TransferBase {
 
 // Native SOL Transfer Types
 interface NativeTransfer extends TransferBase {
-  type: "NATIVE_TRANSFER";
+  type: 'NATIVE_TRANSFER';
   fromAddress: string;
   toAddress: string;
   amount: number; // in SOL
@@ -328,12 +294,12 @@ interface TransferOptions {
 
 // Create Helius API client
 const createHeliusClient = (config: HeliusApiConfig) => {
-  const baseURL = config.baseUrl || "https://api.helius.xyz/v0";
+  const baseURL = config.baseUrl || 'https://api.helius.xyz/v0';
 
   return axios.create({
     baseURL,
     timeout: config.timeout || 30000,
-    headers: { "Content-Type": "application/json" },
+    headers: { 'Content-Type': 'application/json' },
   });
 };
 
@@ -351,18 +317,18 @@ export async function getSplTransferHistory(
 ): Promise<TransferHistoryResponse<SplTransfer>> {
   try {
     const client = createHeliusClient({
-      baseUrl: "https://api.helius.xyz/v0",
+      baseUrl: 'https://api.helius.xyz/v0',
       timeout: 3000,
-      apiKey: ENV.HELIUS_API_KEY || "",
+      apiKey: ENV.HELIUS_API_KEY || '',
     });
 
     const response = await client.post<HeliusTransaction[]>(
       `/addresses/${address}/transactions`,
       {
         query: {
-          types: ["TOKEN_TRANSFER"],
+          types: ['TOKEN_TRANSFER'],
           sourceAddress: address,
-          "api-key": ENV.HELIUS_API_KEY,
+          'api-key': ENV.HELIUS_API_KEY,
         },
         options: {
           limit: options.limit || 100,
@@ -384,7 +350,7 @@ export async function getSplTransferHistory(
       .flatMap((tx) =>
         tx.tokenTransfers.map(
           (transfer): SplTransfer => ({
-            type: "SPL_TRANSFER",
+            type: 'SPL_TRANSFER',
             signature: tx.signature,
             timestamp: tx.timestamp * 1000,
             slot: tx.slot,
@@ -432,18 +398,18 @@ export async function getNativeTransferHistory(
 ): Promise<TransferHistoryResponse<NativeTransfer>> {
   try {
     const client = createHeliusClient({
-      baseUrl: "https://api.helius.xyz/v0",
+      baseUrl: 'https://api.helius.xyz/v0',
       timeout: 3000,
-      apiKey: ENV.HELIUS_API_KEY || "",
+      apiKey: ENV.HELIUS_API_KEY || '',
     });
 
     const response = await client.post<HeliusTransaction[]>(
       `/addresses/${address}/transactions`,
       {
         query: {
-          types: ["SOL_TRANSFER"],
+          types: ['SOL_TRANSFER'],
           sourceAddress: address,
-          "api-key": ENV.HELIUS_API_KEY,
+          'api-key': ENV.HELIUS_API_KEY,
         },
         options: {
           limit: options.limit || 100,
@@ -465,7 +431,7 @@ export async function getNativeTransferHistory(
       .flatMap((tx) =>
         tx.nativeTransfers.map(
           (transfer): NativeTransfer => ({
-            type: "NATIVE_TRANSFER",
+            type: 'NATIVE_TRANSFER',
             signature: tx.signature,
             timestamp: tx.timestamp * 1000,
             slot: tx.slot,
@@ -508,7 +474,7 @@ function handleApiError<T>(error: unknown): TransferHistoryResponse<T> {
   return {
     success: false,
     transfers: [],
-    error: error instanceof Error ? error.message : "Unknown error occurred",
+    error: error instanceof Error ? error.message : 'Unknown error occurred',
   };
 }
 

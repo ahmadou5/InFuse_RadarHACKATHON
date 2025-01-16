@@ -1,8 +1,8 @@
-import { useState, useEffect } from "react";
-import { Tokens } from "@/interfaces/models.interface";
+import { useState, useEffect } from 'react';
+import { Tokens } from '@/interfaces/models.interface';
 //import { TokenService } from "@/lib/services/TokenServices";
-import { useNetwork } from "@/context/NetworkContext";
-import { Token } from "@/utils/tokens.utils";
+import { useNetwork } from '@/context/NetworkContext';
+import { Token } from '@/utils/tokens.utils';
 
 interface TokenProps {
   tokenId: string;
@@ -21,23 +21,21 @@ export const TokenDetails = ({ tokenId }: TokenProps) => {
 
   const getTokenInfo = async (slug: string) => {
     try {
-      //console.log("token etails");
       const response = Token.filter((token) => token.address === slug);
 
       if (response && Array.isArray(response)) {
         setToken1Info(response);
-        //console.log(response, "anan ne");
       } else {
-        console.error("Invalid token data received:", response);
+        console.error('Invalid token data received:', response);
         setToken1Info([]); // Set to empty array if data is invalid
       }
     } catch (error) {
-      console.error("Failed to fetch tokens:", error);
+      console.error('Failed to fetch tokens:', error);
       setToken1Info([]); // Set to empty array on error
     }
   };
   const formatNumber = (num: number) => {
-    return new Intl.NumberFormat("en-US", { notation: "compact" }).format(num);
+    return new Intl.NumberFormat('en-US', { notation: 'compact' }).format(num);
   };
   useEffect(() => {
     const fetchTokenInfo = async () => {
@@ -55,7 +53,7 @@ export const TokenDetails = ({ tokenId }: TokenProps) => {
             circulatingSupply: data.market_data.circulating_supply,
           });
         } catch (error) {
-          console.error("Error fetching token info:", error);
+          console.error('Error fetching token info:', error);
         }
       } else {
         const url = `https://api.coingecko.com/api/v3/coins/${token[0].token_id}`;
@@ -70,7 +68,7 @@ export const TokenDetails = ({ tokenId }: TokenProps) => {
             circulatingSupply: data.market_data.circulating_supply,
           });
         } catch (error) {
-          console.error("Error fetching token info:", error);
+          console.error('Error fetching token info:', error);
         }
       }
     };
@@ -107,7 +105,7 @@ export const TokenDetails = ({ tokenId }: TokenProps) => {
                 <div className="bg-white/20 h-4 w-16 mb-2 animate-pulse rounded"></div>
               ) : (
                 <span>
-                  {`${formatNumber(tokenInfo.circulatingSupply)}`}{" "}
+                  {`${formatNumber(tokenInfo.circulatingSupply)}`}{' '}
                   {tokenId[0] === network.native?.name.toLowerCase()
                     ? network.native?.ticker
                     : token1Info[0]?.ticker}

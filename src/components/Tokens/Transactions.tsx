@@ -1,17 +1,17 @@
-import { getSolanaTransactions } from "@/lib/solana.lib";
+import { getSolanaTransactions } from '@/lib/solana.lib';
 //import { Connection, clusterApiUrl, PublicKey } from "@solana/web3.js";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from '@/context/AuthContext';
 //import { TransactionDetails } from "@/interfaces/models.interface";
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react';
 //import { ENV } from "@/lib/constant/env.constant";
-import { ArrowUp01, ArrowDown01 } from "lucide-react";
-import { formatAddress } from "@/lib/helper.lib";
-import { getSPLTokenTransactions } from "@/lib/spl.lib";
+import { formatAddress } from '@/lib/helper.lib';
+import { getSPLTokenTransactions } from '@/lib/spl.lib';
+import { ArrowDown01, ArrowUp01 } from 'lucide-react';
 
 //yimport { Tokens } from "@/interfaces/models.interface";
 //import { TokenService } from "@/lib/services/TokenServices";
-import { useNetwork } from "@/context/NetworkContext";
-import { Token } from "@/utils/tokens.utils";
+import { useNetwork } from '@/context/NetworkContext';
+import { Token } from '@/utils/tokens.utils';
 //import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 
 export interface TransactionData {
@@ -24,10 +24,10 @@ export interface TransactionData {
     sol: number;
     formatted: string;
   };
-  type: "receive" | "send";
+  type: 'receive' | 'send';
   fromAddress: string;
   toAddress: string;
-  status: "success" | "failed";
+  status: 'success' | 'failed';
 }
 
 type TransactionDataArray = Array<TransactionData>;
@@ -37,14 +37,13 @@ export const Transactions = ({ tokenId }: { tokenId: string }) => {
   );
   const [userSentTxn, setUserSentTxn] = useState<TransactionDataArray>([]);
   //const [tokenInfo, setTokenInfo] = useState<Tokens[]>([]);
-  const [activeTab, setActiveTab] = useState("Received");
+  const [activeTab, setActiveTab] = useState('Received');
   const { user } = useAuth();
   const { network } = useNetwork();
   const getUserTx = async () => {
     try {
       if (tokenId[0] === network.name.toLowerCase()) {
         if (!user) return;
-        console.log("what the f");
 
         const trx = await getSolanaTransactions(user.solPublicKey, {
           limit: 100 | 0,
@@ -52,22 +51,19 @@ export const Transactions = ({ tokenId }: { tokenId: string }) => {
         });
         setUserSentTxn(trx.filters.sent());
         setUserReceiveTxn(trx.filters.received());
-        console.log(trx.transactions);
       } else {
         if (!user) return;
         const response = Token.find((token) => token.token_id === tokenId);
         if (response && Array.isArray(response)) {
-          //console.log(response.data[0].address);
-          const trx = await getSPLTokenTransactions(user.solPublicKey, {
+          await getSPLTokenTransactions(user.solPublicKey, {
             limit: 100 | 0,
             cluster: network.rpcUrl,
             mintAddress: response[0]?.address,
           });
-          console.log("spl data", trx);
         }
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   };
 
@@ -88,13 +84,13 @@ export const Transactions = ({ tokenId }: { tokenId: string }) => {
           <h3 className="text-lg font-semibold mb-4">Recent Transaction</h3>
           <div className="space-y-2">
             <div>
-              {["Received", "Sent"].map((tab) => (
+              {['Received', 'Sent'].map((tab) => (
                 <button
                   key={tab}
                   className={`flex-1 py-2 px-6 rounded-lg ml-0 mr-2 text-sm mb-4 font-medium ${
                     activeTab.toLowerCase() === tab.toLowerCase()
-                      ? "bg-white/10 bg-opacity-20 text-white"
-                      : "text-gray-400 hover:text-white"
+                      ? 'bg-white/10 bg-opacity-20 text-white'
+                      : 'text-gray-400 hover:text-white'
                   }`}
                   onClick={() => setActiveTab(tab)}
                 >
@@ -102,7 +98,7 @@ export const Transactions = ({ tokenId }: { tokenId: string }) => {
                 </button>
               ))}
 
-              {activeTab === "Received" ? (
+              {activeTab === 'Received' ? (
                 <>
                   {!userReceiveTxn ? (
                     <>

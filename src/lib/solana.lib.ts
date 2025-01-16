@@ -1,23 +1,26 @@
+import { TransactionDetails } from '@/interfaces/models.interface';
+import {
+  createTransferInstruction,
+  getAssociatedTokenAddress,
+} from '@solana/spl-token';
 import {
   clusterApiUrl,
+  ConfirmedSignatureInfo,
   Connection,
-  LAMPORTS_PER_SOL,
   Keypair,
-  TransactionMessage,
-  VersionedTransaction,
+  LAMPORTS_PER_SOL,
   PublicKey,
   PublicKeyData,
   sendAndConfirmTransaction,
   SystemProgram,
   Transaction,
-  ConfirmedSignatureInfo,
-} from "@solana/web3.js";
-import { createTransferInstruction } from "@solana/spl-token";
-import { getAssociatedTokenAddress } from "@solana/spl-token";
-import * as bip39 from "bip39";
-import { getSolPrice } from "./helper.lib";
-import { TransactionDetails } from "@/interfaces/models.interface";
-import bs58 from "bs58";
+  TransactionMessage,
+  TransactionSignature,
+  VersionedTransaction,
+} from '@solana/web3.js';
+import * as bip39 from 'bip39';
+import bs58 from 'bs58';
+import { getSolPrice } from './helper.lib';
 //import { useNetwork } from "@/context/NetworkContext";
 
 // Constants
@@ -37,10 +40,10 @@ export interface TransactionData {
     sol: number;
     formatted: string;
   };
-  type: "receive" | "send";
+  type: 'receive' | 'send';
   fromAddress: string;
   toAddress: string;
-  status: "success" | "failed";
+  status: 'success' | 'failed';
 }
 
 export type TransactionDataArray = TransactionData[];
@@ -63,14 +66,14 @@ export interface TransactionResult {
 export class TransactionError extends Error {
   constructor(message: string) {
     super(message);
-    this.name = "TransactionError";
+    this.name = 'TransactionError';
   }
 }
 
 function formatSolAmount(lamports: number): string {
   const sol = Math.abs(lamports) / LAMPORTS_PER_SOL;
   if (sol >= 1) {
-    return sol.toFixed(9).replace(/\.?0+$/, "");
+    return sol.toFixed(9).replace(/\.?0+$/, '');
   } else {
     return sol.toFixed(9);
   }
@@ -82,8 +85,8 @@ export async function getSolanaTransactions(
 ): Promise<TransactionResult> {
   try {
     const connection = new Connection(
-      options.cluster || "https://api.mainnet-beta.solana.com",
-      "confirmed"
+      options.cluster || 'https://api.mainnet-beta.solana.com',
+      'confirmed'
     );
 
     let pubKey: PublicKey;
@@ -92,7 +95,7 @@ export async function getSolanaTransactions(
     } catch (error) {
       throw new TransactionError(
         `Invalid Solana address: ${
-          error instanceof Error ? error.message : "Unknown error"
+          error instanceof Error ? error.message : 'Unknown error'
         }`
       );
     }
@@ -112,8 +115,8 @@ export async function getSolanaTransactions(
           if (!tx || !tx.meta) return null;
 
           const accountKeys = tx.transaction.message.staticAccountKeys;
-          const fromAddress = accountKeys[0]?.toBase58() || "";
-          const toAddress = accountKeys[1]?.toBase58() || "";
+          const fromAddress = accountKeys[0]?.toBase58() || '';
+          const toAddress = accountKeys[1]?.toBase58() || '';
 
           const isReceiver = fromAddress !== address;
 
@@ -157,10 +160,10 @@ export async function getSolanaTransactions(
               sol: finalLamportAmount / LAMPORTS_PER_SOL,
               formatted: formatSolAmount(finalLamportAmount),
             },
-            type: isReceiver ? "receive" : "send",
+            type: isReceiver ? 'receive' : 'send',
             fromAddress,
             toAddress,
-            status: tx.meta.err ? "failed" : "success",
+            status: tx.meta.err ? 'failed' : 'success',
           };
         } catch (error) {
           console.error(
@@ -177,9 +180,9 @@ export async function getSolanaTransactions(
     );
 
     const filterFunctions: FilterFunctions = {
-      received: () => validTransactions.filter((tx) => tx.type === "receive"),
+      received: () => validTransactions.filter((tx) => tx.type === 'receive'),
 
-      sent: () => validTransactions.filter((tx) => tx.type === "send"),
+      sent: () => validTransactions.filter((tx) => tx.type === 'send'),
 
       dateRange: (startDate: string | Date, endDate: string | Date) => {
         const start = new Date(startDate).getTime() / 1000;
@@ -210,7 +213,7 @@ export async function getSolanaTransactions(
     }
     throw new TransactionError(
       `Error fetching transactions: ${
-        error instanceof Error ? error.message : "Unknown error"
+        error instanceof Error ? error.message : 'Unknown error'
       }`
     );
   }
@@ -232,16 +235,16 @@ export const handleSendSol = async ({
   try {
     // Convert amount to number if it's a string
     const numericAmount =
-      typeof amount === "string" ? parseFloat(amount) : amount;
+      typeof amount === 'string' ? parseFloat(amount) : amount;
 
     // Validate amount
     if (isNaN(numericAmount) || numericAmount <= 0) {
-      throw new Error("Invalid amount");
+      throw new Error('Invalid amount');
     }
 
     const seed = await bip39.mnemonicToSeed(userMnemonic);
-    const seedBytes = seed.slice(0, 32);
-    const account = Keypair.fromSeed(seedBytes);
+    const seedBytes = seed.toString().substring(0, 32);
+    const account = Keypair.fromSeed(Uint8Array.from(seedBytes));
 
     const { blockhash } = await connection.getLatestBlockhash();
 
@@ -250,7 +253,7 @@ export const handleSendSol = async ({
     try {
       receivePubKey = new PublicKey(receiveAddress);
     } catch (error) {
-      throw new Error("Invalid receive address");
+      throw new Error('Invalid receive address');
     }
 
     const instruction = SystemProgram.transfer({
@@ -267,7 +270,7 @@ export const handleSendSol = async ({
 
     const transaction = new VersionedTransaction(messageV0);
     // Get the fee for the transaction
-    const fee = await connection.getFeeForMessage(messageV0, "confirmed");
+    const fee = await connection.getFeeForMessage(messageV0, 'confirmed');
 
     // Convert fee from lamports to SOL
     if (fee === undefined) return;
@@ -276,12 +279,13 @@ export const handleSendSol = async ({
     transaction.sign([account]);
 
     const txid = await connection.sendTransaction(transaction);
-    console.log(`Transaction ID: ${txid}`);
-
-    await connection.confirmTransaction(txid, "confirmed");
+    await connection.confirmTransaction(
+      txid as TransactionSignature,
+      'confirmed'
+    );
     return { txid, feeInSol };
   } catch (error) {
-    console.error("Error sending SOL:", error);
+    console.error('Error sending SOL:', error);
     return undefined;
   }
 };
@@ -348,7 +352,7 @@ export const sendNativeSol = async (
     return transaction;
   } catch (error: unknown) {
     if (error instanceof Error)
-      throw new Error(error.message || "Unknown error occurred");
+      throw new Error(error.message || 'Unknown error occurred');
   }
 };
 
@@ -365,13 +369,11 @@ export const transferSpl = async ({
 }) => {
   try {
     const seed = await bip39.mnemonicToSeed(mnemonicString);
-    // console.log(seed,'seed')
-    const seedBytes = seed.slice(0, 32);
-    const account = await Keypair.fromSeed(seedBytes);
-    const connection = new Connection(clusterApiUrl("devnet"));
+    const seedBytes = seed.toString().substring(0, 32);
+    const account = Keypair.fromSeed(Uint8Array.from(seedBytes));
+    const connection = new Connection(clusterApiUrl('devnet'));
     const tokenAddress = new PublicKey(splTokenAddress);
     const receiverKey = new PublicKey(receiver);
-    //const account = getKeypairFromPrivateKey(sender.toString());
 
     // Create instruction to transfer tokens
     const instruction = createTransferInstruction(
@@ -393,10 +395,6 @@ export const transferSpl = async ({
         account, // payer, owner
       ]
     );
-    console.log(
-      "\nTransaction Signature:",
-      `https://explorer.solana.com/tx/${transactionSignature}?cluster=devnet`
-    );
 
     return transactionSignature;
   } catch (error: unknown) {
@@ -404,7 +402,7 @@ export const transferSpl = async ({
       throw new Error(`Failed to create transaction: ${error.message}`);
     } else {
       throw new Error(
-        "An unknown error occurred while creating the transaction"
+        'An unknown error occurred while creating the transaction'
       );
     }
   }
@@ -420,13 +418,13 @@ export async function getSplTokenBalance(
     try {
       tokenPublicKey = new PublicKey(tokenAddress);
     } catch (error) {
-      throw new Error("Invalid  address");
+      throw new Error('Invalid  address');
     }
     let userPublicKey: PublicKey;
     try {
       userPublicKey = new PublicKey(userAddress);
     } catch (error) {
-      throw new Error("Invalid sender address");
+      throw new Error('Invalid sender address');
     }
 
     // Get the associated token account address
@@ -434,7 +432,6 @@ export async function getSplTokenBalance(
       tokenPublicKey,
       userPublicKey
     );
-    console.log(associatedTokenAddress, "addewss");
     // Check if the account exists
     const accountInfo = await connection.getAccountInfo(associatedTokenAddress);
 
@@ -442,16 +439,14 @@ export async function getSplTokenBalance(
       // Account doesn't exist, which means the balance is 0
       return 0;
     }
-    console.log(accountInfo, "info");
     // Fetch the token account info
     const tokenAccountInfo = await connection.getTokenAccountBalance(
       associatedTokenAddress
     );
-    console.log(tokenAccountInfo.value.amount);
     // Return the balance as a number
     return Number(tokenAccountInfo.value.uiAmount);
   } catch (error) {
-    console.error("Error fetching SPL token balance:", error);
+    console.error('Error fetching SPL token balance:', error);
     // If there's an error, return 0
     return 0;
   }
@@ -459,16 +454,15 @@ export async function getSplTokenBalance(
 
 export const createSolanaWallet = async (seedArray: Uint8Array) => {
   try {
-    //const { seedArray } = await GenerateSeed();
-    const account = await Keypair.fromSeed(seedArray);
-    //console.log(account)
+    const account = Keypair.fromSeed(seedArray);
     const publicKey = account.publicKey.toString();
     const privateKey = account.secretKey;
     const secret = bs58.encode(privateKey);
     return { publicKey, secret };
   } catch (error) {
     if (error instanceof Error)
-      console.log("Account Creation Error", error.message);
+      console.error('Account Creation Error', error.message);
+    else console.error(error);
   }
 };
 
@@ -512,7 +506,7 @@ export const GetUserReceiveTransaction = async (
         if (!tx)
           throw new Error(`Failed to fetch transaction ${sig.signature}`);
 
-        let direction: "received" | "sent" = "received";
+        let direction: 'received' | 'sent' = 'received';
         let amount = 0;
 
         // Determine if the transaction is sent or received
@@ -520,7 +514,7 @@ export const GetUserReceiveTransaction = async (
           if (account.pubkey === address) {
             if (tx.meta && tx.meta.postBalances && tx.meta.preBalances) {
               if (tx.meta.postBalances[index] < tx.meta.preBalances[index]) {
-                direction = "received";
+                direction = 'received';
                 amount =
                   (tx.meta.preBalances[index] - tx.meta.postBalances[index]) /
                   1e9;
@@ -539,7 +533,7 @@ export const GetUserReceiveTransaction = async (
           signature: sig.signature,
           blockTime: tx.blockTime
             ? new Date(tx.blockTime * 1000).toLocaleString()
-            : "Unknown",
+            : 'Unknown',
           fee: tx.meta?.fee ? tx.meta.fee / 1e9 : 0,
           direction,
           amount,
@@ -571,7 +565,7 @@ export const GetUserSentTransaction = async (
         if (!tx)
           throw new Error(`Failed to fetch transaction ${sig.signature}`);
 
-        let direction: "sent" | "received" = "sent";
+        let direction: 'sent' | 'received' = 'sent';
         let amount = 0;
 
         // Determine if the transaction is sent or received
@@ -579,7 +573,7 @@ export const GetUserSentTransaction = async (
           if (account.pubkey === address) {
             if (tx.meta && tx.meta.postBalances && tx.meta.preBalances) {
               if (tx.meta.postBalances[index] < tx.meta.preBalances[index]) {
-                direction = "sent";
+                direction = 'sent';
                 amount =
                   (tx.meta.preBalances[index] - tx.meta.postBalances[index]) /
                   1e9;
@@ -598,7 +592,7 @@ export const GetUserSentTransaction = async (
           signature: sig.signature,
           blockTime: tx.blockTime
             ? new Date(tx.blockTime * 1000).toLocaleString()
-            : "Unknown",
+            : 'Unknown',
           fee: tx.meta?.fee ? tx.meta.fee / 1e9 : 0,
           direction,
           amount,
@@ -621,9 +615,9 @@ export const fetchSolPriceB = async ({
     if (!user) {
       return;
     }
-    const connection = new Connection(clusterApiUrl("devnet"));
+    const connection = new Connection(clusterApiUrl('devnet'));
     const userAddress = new PublicKey(user);
-    const price = await getSolPrice("solana");
+    const price = await getSolPrice('solana');
     const balance = await connection.getBalance(userAddress);
     return { price, balance };
   } catch (error) {

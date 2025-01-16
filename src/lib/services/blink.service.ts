@@ -1,7 +1,7 @@
-import { BlinkInterface } from '@/interfaces/models.interface'
-import { nanoid } from 'nanoid'
-import { apiResponse } from '../api.helpers'
-import { supabaseClient } from '../supabase_client.utils'
+import { BlinkInterface } from '@/interfaces/models.interface';
+import { nanoid } from 'nanoid';
+import { apiResponse } from '../api.helpers';
+import { supabaseClient } from '../supabase_client.utils';
 
 export class BlinkService {
   /**
@@ -20,28 +20,28 @@ export class BlinkService {
       const { data: blink, error } = await supabaseClient
         .from('blink')
         .select('*')
-        .eq('id', id)
+        .eq('id', id);
 
       if (error)
         return apiResponse(
           false,
           error?.message || 'failed to get blink information',
           error
-        )
+        );
 
       return apiResponse<BlinkInterface | undefined>(
         true,
         'user details',
         blink![0]
-      )
+      );
     } catch (error: unknown) {
-        if(error instanceof Error) {
-      console.log(`getUser: `, error?.message)
-      return apiResponse(
-        false,
-        'failed to get blink information',
-        error?.message
-      )}
+      if (error instanceof Error) {
+        return apiResponse(
+          false,
+          'failed to get blink information',
+          error?.message
+        );
+      }
     }
   }
 
@@ -58,25 +58,28 @@ export class BlinkService {
    * encountered during the operation.
    */
   static async fetchBlinks(page: number = 0) {
-    const ITEMS_PER_PAGE = 20
-    const from = page * ITEMS_PER_PAGE
-    const to = from + ITEMS_PER_PAGE
+    const ITEMS_PER_PAGE = 20;
+    const from = page * ITEMS_PER_PAGE;
+    const to = from + ITEMS_PER_PAGE;
 
     try {
       const { data: users, error } = await supabaseClient
         .from('blink')
         .select('*')
-        .range(from, to)
+        .range(from, to);
 
       if (error)
-        return apiResponse(false, error?.message || 'failed to get user', error)
+        return apiResponse(
+          false,
+          error?.message || 'failed to get user',
+          error
+        );
 
-      return apiResponse(true, 'user details', users)
+      return apiResponse(true, 'user details', users);
     } catch (error: unknown) {
-        if(error instanceof Error) {
-      console.log(`getUser: `, error?.message)
-      return apiResponse(false, 'failed fetching user', error?.message)
-        }
+      if (error instanceof Error) {
+        return apiResponse(false, 'failed fetching user', error?.message);
+      }
     }
   }
 
@@ -90,13 +93,13 @@ export class BlinkService {
    * and additional data if applicable.
    */
   static async createBlink(payload: {
-    user_id: string
-    category_id: string
-    title: string
-    image_url?: string
-    description?: string
-    label?: string
-    pub_key: string
+    user_id: string;
+    category_id: string;
+    title: string;
+    image_url?: string;
+    description?: string;
+    label?: string;
+    pub_key: string;
   }) {
     try {
       const getBlink = await supabaseClient
@@ -108,31 +111,30 @@ export class BlinkService {
         .eq('image_url', payload.image_url)
         .eq('description', payload.description)
         .eq('label', payload.label)
-        .eq('pub_key', payload.pub_key)
+        .eq('pub_key', payload.pub_key);
 
       if (getBlink.error)
         return apiResponse(
           false,
           'user details',
           getBlink?.error?.message || 'something went wrong'
-        )
+        );
       if (getBlink.data[0])
-        return apiResponse(false, 'You already blink that', undefined)
+        return apiResponse(false, 'You already blink that', undefined);
 
       const { data: blink, error } = await supabaseClient
         .from('blink')
         .insert({ id: nanoid(20), ...payload })
-        .select()
+        .select();
 
       if (error)
-        return apiResponse(false, 'failed to save blink', error.message)
+        return apiResponse(false, 'failed to save blink', error.message);
 
-      return apiResponse(true, 'blink information', blink![0])
+      return apiResponse(true, 'blink information', blink![0]);
     } catch (error: unknown) {
-        if(error instanceof Error) {
-      console.log(`loginOrSignUp :`, error?.message)
-      return apiResponse(false, 'failed saving user', error?.message)
-        }
+      if (error instanceof Error) {
+        return apiResponse(false, 'failed saving user', error?.message);
+      }
     }
   }
 
@@ -150,41 +152,40 @@ export class BlinkService {
   static async updateBlink(
     id: string,
     payload: {
-      user_id: string
-      title: string
-      image_url?: string
-      description?: string
-      label?: string
-      pub_key: string
+      user_id: string;
+      title: string;
+      image_url?: string;
+      description?: string;
+      label?: string;
+      pub_key: string;
     }
   ) {
     try {
-      const getBlink = await BlinkService.getOneBlink(id)
+      const getBlink = await BlinkService.getOneBlink(id);
 
       if (!getBlink?.success)
         return apiResponse(
           false,
           'user details',
           getBlink?.message || 'something went wrong'
-        )
+        );
       if (!getBlink?.data)
-        return apiResponse(false, 'Blink does not exist', undefined)
+        return apiResponse(false, 'Blink does not exist', undefined);
 
       const { data: user, error } = await supabaseClient
         .from('blink')
         .update({ ...payload })
         .eq('some_column', 'someValue')
-        .select()
+        .select();
 
       if (error)
-        return apiResponse(false, 'failed to update blink', error.message)
+        return apiResponse(false, 'failed to update blink', error.message);
 
-      return apiResponse(true, 'blink information', user)
+      return apiResponse(true, 'blink information', user);
     } catch (error: unknown) {
-        if(error instanceof Error) {
-      console.log(`updateBlink :`, error?.message)
-      return apiResponse(false, 'failed updating blink', error?.message)
-        }
+      if (error instanceof Error) {
+        return apiResponse(false, 'failed updating blink', error?.message);
+      }
     }
   }
 
@@ -193,24 +194,24 @@ export class BlinkService {
       const { data: blink, error } = await supabaseClient
         .from('blink')
         .delete()
-        .eq('id', id)
+        .eq('id', id);
 
       if (error)
         return apiResponse(
           false,
           error?.message || 'failed to delete blink',
           error
-        )
+        );
 
-      return apiResponse(true, 'user details', blink![0])
+      return apiResponse(true, 'user details', blink![0]);
     } catch (error: unknown) {
-      if(error instanceof Error) {
-      console.log(`getUser: `, error?.message)
-      return apiResponse(
-        false,
-        'failed to delete blink information',
-        error?.message
-      )}
+      if (error instanceof Error) {
+        return apiResponse(
+          false,
+          'failed to delete blink information',
+          error?.message
+        );
+      }
     }
   }
 }
