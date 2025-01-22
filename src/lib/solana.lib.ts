@@ -15,7 +15,7 @@ import {
 import { createTransferInstruction } from "@solana/spl-token";
 import { getAssociatedTokenAddress } from "@solana/spl-token";
 import * as bip39 from "bip39";
-import { getSolPrice } from "./helper.lib";
+import { getNativePrice } from "./helper.lib";
 import { TransactionDetails } from "@/interfaces/models.interface";
 import bs58 from "bs58";
 //import { useNetwork } from "@/context/NetworkContext";
@@ -241,7 +241,7 @@ export const handleSendSol = async ({
 
     const seed = await bip39.mnemonicToSeed(userMnemonic);
     const seedBytes = seed.slice(0, 32);
-    const account = Keypair.fromSeed(seedBytes);
+    const account = Keypair.fromSeed(new Uint8Array(seedBytes));
 
     const { blockhash } = await connection.getLatestBlockhash();
 
@@ -623,7 +623,7 @@ export const fetchSolPriceB = async ({
     }
     const connection = new Connection(clusterApiUrl("devnet"));
     const userAddress = new PublicKey(user);
-    const price = await getSolPrice("solana");
+    const price = await getNativePrice("solana");
     const balance = await connection.getBalance(userAddress);
     return { price, balance };
   } catch (error) {

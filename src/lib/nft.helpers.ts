@@ -33,9 +33,9 @@ async function umiSwitchToSoonDevnet(umi: Umi) {
   );
 }
 
-export async function fetchNftHoldings(
+export async function fetchUserAssets(
   address: string,
-  rpcUrl: string = "https://rpc.devnet.soo.network/rpc"
+  rpcUrl: string
 ): Promise<TokenInfo[]> {
   try {
     const connection = new Connection(
@@ -144,7 +144,7 @@ export async function fetchNftHoldings(
     );
     console.log(nftInfos);
     // Filter and return only NFTs
-    return nftInfos.filter((token) => token.isNft);
+    return nftInfos;
   } catch (err) {
     console.error("Error fetching NFT holdings:", err);
     return [];

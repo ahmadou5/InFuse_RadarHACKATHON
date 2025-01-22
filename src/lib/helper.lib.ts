@@ -1,6 +1,6 @@
 import { Keypair, LAMPORTS_PER_SOL } from "@solana/web3.js";
 
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 //import { apiResponse } from "./api.helpers";
 import { Tokens } from "@/interfaces/models.interface";
 import * as bip39 from "bip39";
@@ -78,6 +78,7 @@ export const getKeypairFromPrivateKey = (privateKeyString: string): Keypair => {
   const privateKeyBytes = bs58.decode(privateKeyString);
   return Keypair.fromSecretKey(privateKeyBytes);
 };
+
 export const GenerateSeed = async (): Promise<SeedGenerationResult> => {
   try {
     const mnemonic = bip39.generateMnemonic();
@@ -154,44 +155,104 @@ export const getTokenPrice = async (tokenId: string): Promise<number> => {
   }
 };
 // https://api.coingecko.com/api/v3/simple/price?ids=bonk&vs_currencies=usd
-export const getSolPrice = async (tokenId: string): Promise<number> => {
-  try {
-    const baseUrl = "https://api.coingecko.com/api/v3/simple/price";
-    const response = await axios.get(
-      `${baseUrl}?ids=${tokenId}&vs_currencies=usd`
-    );
+// New function to get prices for multiple tokens
 
-    const price = response.data[tokenId]?.usd;
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-    if (typeof price !== "number") {
-      throw new Error("Invalid sol price data received");
+async function retryOperation<T>(
+  operation: () => Promise<T>,
+  maxRetries: number = 4,
+  delayMs: number = 1000
+): Promise<T> {
+  let lastError: Error | unknown;
+
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      return await operation();
+    } catch (error) {
+      lastError = error;
+
+      if (attempt === maxRetries) {
+        break;
+      }
+
+      // Exponential backoff: 1s, 2s, 4s, 8s
+      await delay(delayMs * Math.pow(2, attempt - 1));
     }
+  }
+
+  throw new Error(
+    `Operation failed after ${maxRetries} attempts. Last error: ${
+      lastError instanceof Error ? lastError.message : "Unknown error"
+    }`
+  );
+}
+
+export const getNativePrice = async (tokenId: string): Promise<number> => {
+  const baseUrl = "https://api.coingecko.com/api/v3/simple/price";
+
+  try {
+    const price = await retryOperation(async () => {
+      const response = await axios.get(
+        `${baseUrl}?ids=${tokenId}&vs_currencies=usd`
+      );
+
+      const price = response.data[tokenId]?.usd;
+
+      if (typeof price !== "number") {
+        throw new Error(`Invalid price data received for token ${tokenId}`);
+      }
+
+      return price;
+    });
 
     return price;
   } catch (error) {
-    //console.error('Error fetching token price:', error instanceof Error ? error.message : 'Unknown error');
+    if (error instanceof AxiosError) {
+      // Handle specific API errors
+      if (error.response?.status === 404) {
+        throw new Error(`Token ${tokenId} not found on CoinGecko`);
+      }
+      if (error.response?.status === 429) {
+        throw new Error(
+          "CoinGecko API rate limit exceeded. Please try again later."
+        );
+      }
+      throw new Error(`CoinGecko API error: ${error.message}`);
+    }
+
     throw error;
   }
 };
 
-// New function to get prices for multiple tokens
-export const getTokenPrices = async (
+export const getTokenPricesV2 = async (
   tokenIds: string[]
 ): Promise<Map<string, number>> => {
   const tokenPrices = new Map<string, number>();
 
   try {
-    // Use Promise.all to fetch all prices concurrently
-    const prices = await Promise.all(tokenIds.map(getTokenPrice));
+    // Create an array of promises that will retry individually
+    const pricePromises = tokenIds.map((tokenId) =>
+      retryOperation(async () => {
+        const price = await getTokenPrice(tokenId);
+        return { tokenId, price };
+      })
+    );
+
+    // Wait for all prices to be fetched with retries
+    const results = await Promise.all(pricePromises);
 
     // Populate the map with the results
-    tokenIds.forEach((tokenId, index) => {
-      tokenPrices.set(tokenId, prices[index]);
+    results.forEach(({ tokenId, price }) => {
+      tokenPrices.set(tokenId, price);
     });
 
     return tokenPrices;
   } catch (error) {
-    //console.error('Error fetching token prices:', error instanceof Error ? error.message : 'Unknown error');
-    throw error;
+    throw new Error(
+      `Failed to fetch token prices: ${
+        error instanceof Error ? error.message : "Unknown error"
+      }`
+    );
   }
 };

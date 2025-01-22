@@ -5,7 +5,11 @@ import { useAuth } from "@/context/AuthContext";
 import { normalizeTokenAmount } from "helius-airship-core";
 import { useNetwork } from "@/context/NetworkContext";
 import { useRouter } from "next/navigation";
-import { getSolPrice, getTokenPrice, getTokenPrices } from "@/lib/helper.lib";
+import {
+  getNativePrice,
+  getTokenPrice,
+  getTokenPricesV2,
+} from "@/lib/helper.lib";
 import {
   Connection,
   LAMPORTS_PER_SOL,
@@ -21,7 +25,8 @@ import { Tokens } from "@/interfaces/models.interface";
 import { calculateWalletTotals } from "@/lib/helper.lib";
 import { useTelegramBackButton } from "@/lib/telegram.lib";
 import { Token } from "@/utils/tokens.utils";
-//import { getUserTokensWithMetadata, TokenDataResponse } from "@/lib/helius.lib";
+import Image from "next/image";
+import { fetchUserAssets } from "@/lib/nft.helpers";
 
 interface TokenPrices {
   [ticker: string]: number;
@@ -63,11 +68,10 @@ const CompressTokenItem: React.FC<CompressTokenItemProps> = ({
         // Fetch price only if we have valid token info
         const ticker = response[0].token_id;
         const price = await getTokenPrice(ticker);
-        console.log(price, "asdfghjklwertyui");
         setTokenPrice(price);
       }
     } catch (error) {
-      console.error("Failed to fetch token info:", error);
+      //console.error("Failed to fetch token info:", error);
     } finally {
       setIsLoading(false);
     }
@@ -116,7 +120,7 @@ const CompressTokenItem: React.FC<CompressTokenItemProps> = ({
     >
       <div className="bg-gothic-600/85 w-12 flex items-center justify-center h-12 ml-[23px] mr-[10px] rounded-full">
         {tokenInfo.logoUrl && (
-          <img
+          <Image
             src={tokenInfo.logoUrl}
             alt={tokenInfo.name}
             className="text-white/90 w-full h-full rounded-full"
@@ -146,20 +150,25 @@ const TokenItem: React.FC<TokenItemProps> = ({
   price,
   onClick,
 }) => (
-  <div
+  <button
     onClick={onClick}
     className="bg-white/10 w-[90%] mb-1.5 flex items-center justify-center rounded-xl h-[70px] cursor-pointer"
   >
-    <div className="bg-gothic-600/85 w-12 flex items-center justify-center h-12 ml-[23px] mr-[10px] rounded-full">
-      <img
-        src={token.logoUrl}
+    <div className="bg-gothic-600/85 w-12 flex items-center justify-center h-12 ml-[20px] mr-[10px] rounded-full">
+      <Image
+        src={
+          token?.logoUrl ||
+          "https://statics.solscan.io/cdn/imgs/s60?ref=68747470733a2f2f7261772e67697468756275736572636f6e74656e742e636f6d2f736f6c616e612d6c6162732f746f6b656e2d6c6973742f6d61696e2f6173736574732f6d61696e6e65742f45506a465764643541756671535371654d32714e31787a7962617043384734774547476b5a777954447431762f6c6f676f2e706e67"
+        }
         alt={token.name}
         className="text-white/90 w-full h-full rounded-full"
+        width={30}
+        height={30}
       />
     </div>
-    <div className="ml-[5px] text-white/85 mr-auto px-3">
-      <p className="text-sm font-bold mb-1">{token.name}</p>
-      <p className="text-sm">
+    <div className="ml-[5px] mt-0.5 text-white/85 mr-auto px-3">
+      <p className="text-sm text-start font-bold mb-1">{token.name}</p>
+      <p className="text-sm text-start">
         {balance === undefined ? (
           <div className="bg-white/20 h-4 w-16 mb-2 animate-pulse rounded"></div>
         ) : (
@@ -171,15 +180,15 @@ const TokenItem: React.FC<TokenItemProps> = ({
         )}
       </p>
     </div>
-    <div className="ml-[10px] mt-1 text-white/85 mr-4 px-3">
-      <p className="text-[15px] mb-1">
+    <div className="ml-[10px] mt-0.5 text-white/85 mr-4 px-3">
+      <p className="text-[15px] mb-1 text-end">
         {price ? (
           `$${price.toFixed(1)}`
         ) : (
           <div className="bg-white/20 h-4 w-16 mb-2 animate-pulse rounded"></div>
         )}
       </p>
-      <div className="text-[15px]">
+      <div className="text-[15px] text-end">
         {balance !== undefined && price !== undefined ? (
           `$${(balance * price).toFixed(1)}`
         ) : (
@@ -187,8 +196,20 @@ const TokenItem: React.FC<TokenItemProps> = ({
         )}
       </div>
     </div>
-  </div>
+  </button>
 );
+
+interface TokenInfo {
+  address: string;
+  symbol: string;
+  name: string;
+  image: string;
+  amount: number;
+  isNft: boolean;
+  collection: string;
+  isCollectionNft: boolean;
+  isCollectionMaster: boolean;
+}
 
 interface WalletTotals {
   totalValue: number;
@@ -201,11 +222,11 @@ export const WalletView = () => {
     [address: string]: number;
   }>({});
   const [tokenPrices, setTokenPrices] = useState<TokenPrices>({});
+  const [otherTokenPrices, setOtherTokenPrices] = useState<TokenInfo[]>([]);
   const [solBalance, setSolBalance] = useState<number | undefined>();
   const [solPrice, setSolPrice] = useState<number | undefined>();
   const [compTokens, setCompTokens] = useState<ParsedTokenAccount[]>();
   const [tokens, setTokens] = useState<Tokens[]>([]);
-  //const [otherTokens, setOtherTokens] = useState<TokenDataResponse>();
   const { user } = useAuth();
   const { network } = useNetwork();
   const [activeTab, setActiveTab] = useState("assets");
@@ -214,7 +235,7 @@ export const WalletView = () => {
     commitment: "confirmed",
   });
   const scanner = useQRScanner(false);
-  console.log(user);
+
   const [walletTotals, setWalletTotals] = useState<WalletTotals>({
     totalValue: 0,
     solValue: 0,
@@ -233,27 +254,40 @@ export const WalletView = () => {
     setWalletTotals(totals);
   }, [solBalance, solPrice, tokenBalances, tokenPrices, tokens]);
   useTelegramBackButton();
+
   useEffect(() => {
-    const fetchSolPrice = async () => {
+    const getAssets = async () => {
+      try {
+        const tokens = await fetchUserAssets(
+          user?.solPublicKey || "",
+          network?.rpcUrl || ""
+        );
+        console.log("tokens", tokens);
+        setOtherTokenPrices(tokens);
+      } catch (error) {
+        console.error("Failed to fetch user assets:", error);
+      }
+    };
+    getAssets();
+  }, [user]);
+  useEffect(() => {
+    const fetchSolBalance = async () => {
       try {
         if (!user) {
           return;
         }
         const userAddress = new PublicKey(user?.solPublicKey);
-        const price = await getSolPrice(network.native?.token_id || "");
         const balance = await connection.getBalance(userAddress);
-        setSolPrice(price);
         setSolBalance(balance / LAMPORTS_PER_SOL);
       } catch (error) {
         throw error;
       }
     };
-    fetchSolPrice();
+    fetchSolBalance();
   }, []);
-  console.log(network.name, "wertyusfghjk");
+
   useEffect(() => {
     const fetchCompress = async () => {
-      console.log("fetching compress");
       if (!user) return;
 
       const CompresstokenList = await fetchCompressedTokens({
@@ -277,7 +311,6 @@ export const WalletView = () => {
         [] as typeof CompresstokenList.items
       );
       setCompTokens(deduplicatedAccounts);
-      console.log("compress", CompresstokenList);
     };
     fetchCompress();
   }, []);
@@ -286,7 +319,6 @@ export const WalletView = () => {
     const fetchTokens = async () => {
       try {
         const response = await TokenService.getTokens();
-        console.log(response);
         if (response.data && Array.isArray(response.data)) {
           setTokens(response.data);
         } else {
@@ -301,17 +333,8 @@ export const WalletView = () => {
     fetchTokens();
   }, []);
   //to be done
-  {
-    /** useEffect(() => {
-    const getTokens = async () => {
-      if (!user) return;
-      const tokens = await getUserTokensWithMetadata(user.publicKey);
-      setOtherTokens(tokens);
-    };
-    getTokens();
-    console.log(otherTokens, "others");
-  }, [user]);  */
-  }
+  //Display Only User Tokens.
+
   useEffect(() => {
     const fetchBalances = async () => {
       if (!user) return;
@@ -347,7 +370,7 @@ export const WalletView = () => {
       if (tokens.length > 0) {
         try {
           const tickers = tokens.map((token) => token.token_id);
-          const prices = await getTokenPrices(tickers);
+          const prices = await getTokenPricesV2(tickers);
           setTokenPrices(Object.fromEntries(prices));
         } catch (error) {
           console.error("Failed to fetch token prices:", error);
@@ -355,29 +378,36 @@ export const WalletView = () => {
       }
     };
 
+    const fetctNativePrice = async () => {
+      try {
+        const nativePrice = await getNativePrice(
+          network.native?.token_id || ""
+        );
+        setSolPrice(nativePrice);
+      } catch (error) {
+        console.error("Failed to fetch native price:", error);
+      }
+    };
+    fetctNativePrice();
     fetchPrices();
   }, [tokens]);
   const navigate = (link: string) => {
     try {
-      console.log(link);
       router.push(link);
-    } catch (error) {}
+    } catch (error) {
+      console.error("Error Navigating", error);
+    }
   };
   const scan = () => {
     try {
-      //alert('startes')
       scanner.open("Scan QR code").then((content) => {
         if (!content) {
           return;
         }
-        //alert('in d middle')
-        //alert(` the address ${content}`);
         navigate(`/send/${network.native?.name.toLowerCase()}/${content}`);
-        console.log("passedsdsdsddsdds");
       });
-      console.log(scanner.isOpened); // true
     } catch (error) {
-      console.log(error);
+      console.error("Error Getting QR Details", error);
     }
   };
 
@@ -385,18 +415,30 @@ export const WalletView = () => {
     <div className="w-[100%] flex items-center justify-center flex-col">
       <div className="bg-gothic-950/0 mt-0.5 flex  mb-2 flex-col items-center justify-center w-[100%] h-auto">
         <div className="p-2 mb-4 w-full flex">
-          <div
+          <button
             onClick={() => router.replace("/settings")}
             className="mr-auto ml-1.5 flex items-center justify-center rounded-full"
           >
-            <img src="./assets/setting.svg" className="text-white" />
-          </div>
-          <div
+            <Image
+              alt="hh"
+              height={40}
+              width={40}
+              src="./assets/setting.svg"
+              className="text-white"
+            />
+          </button>
+          <button
             onClick={() => scan()}
             className=" mr-1.5  ml-auto flex items-center justify-center rounded-full"
           >
-            <img src="./assets/scanner.svg" className="text-white" />
-          </div>
+            <Image
+              width={40}
+              height={40}
+              alt="hh"
+              src="./assets/scanner.svg"
+              className="text-white"
+            />
+          </button>
         </div>
         <div className="bg-s-gray-300/0 w-[90%] flex flex-col items-center justify-center rounded-3xl h-[120px]">
           <p className="text-[22px] font-light text-[#666666] mb-2.5">
@@ -409,35 +451,44 @@ export const WalletView = () => {
       </div>
       <div className="bg-gothic-950/0 mt-3 flex items-center justify-center w-[100%] h-auto">
         <div className="bg-gothic-300/0 w-[90%] flex items-center justify-center rounded-3xl h-[100px]">
-          <div
+          <button
             onClick={() =>
               router.push(`/send/${network.native?.name.toLowerCase()}`)
             }
             className="text-xl bg-white/10  border-[#448cff]/25 flex flex-col items-center justify-center rounded-3xl h-20 w-20 ml-auto mr-auto  text-white/60"
           >
-            <img
+            <Image
+              alt="hh"
+              width={40}
+              height={40}
               src="https://solana-wallet-orcin.vercel.app/assets/send.svg"
               className="mt-1"
             />
-          </div>
-          <div
+          </button>
+          <button
             onClick={() => router.push(`/receive`)}
             className="text-3xl  bg-white/10 flex flex-col items-center justify-center rounded-3xl h-20 w-20 ml-auto mr-auto  text-white/60"
           >
-            <img
+            <Image
+              alt="hh"
+              width={40}
+              height={40}
               src="https://solana-wallet-orcin.vercel.app/assets/qr.svg"
               className="mt-1"
             />
-          </div>
-          <div
+          </button>
+          <button
             onClick={() => router.push(`/ramp/${network?.name?.toLowerCase()}`)}
             className="text-3xl  bg-white/10 flex flex-col items-center justify-center rounded-3xl h-20 w-20 ml-auto mr-auto  text-white/60"
           >
-            <img
+            <Image
+              alt="hh"
+              width={40}
+              height={40}
               src="https://solana-wallet-orcin.vercel.app/assets/dollar.svg"
               className="mt-1"
             />
-          </div>
+          </button>
         </div>
       </div>
 
@@ -482,9 +533,7 @@ export const WalletView = () => {
                 address: "",
                 owner: "",
                 compress_address: "",
-                logoUrl:
-                  network.native?.logoUrl ||
-                  "https://solana-wallet-orcin.vercel.app/assets/5426.png",
+                logoUrl: network.native?.logoUrl || "",
               }}
               balance={solBalance}
               price={solPrice}
@@ -543,7 +592,6 @@ export const WalletView = () => {
                       address={token.parsed.mint.toString()}
                       balance={token.parsed.amount}
                       onClick={() => {
-                        //alert(token.parsed.mint.toBase58());
                         router.push(
                           `/token/compress/${token.parsed.mint.toBase58()}`
                         );
