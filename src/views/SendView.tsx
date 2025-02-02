@@ -1,25 +1,25 @@
-'use client';
-import { useAuth } from '@/context/AuthContext';
-import { useNetwork } from '@/context/NetworkContext';
-import { Tokens } from '@/interfaces/models.interface';
-import { isValidSolanaAddress } from '@/lib/helius.lib';
+"use client";
+import { useAuth } from "@/context/AuthContext";
+import { useNetwork } from "@/context/NetworkContext";
+import { Tokens } from "@/interfaces/models.interface";
+import { isValidSolanaAddress } from "@/lib/helius.lib";
 import {
   SolConverter,
   formatAddress,
-  getSolPrice,
+  getNativePrice,
   getTokenPrice,
-} from '@/lib/helper.lib';
-import { getSplTokenBalance, handleSendSol } from '@/lib/solana.lib';
-import { SendSplToken } from '@/lib/spl.lib';
-import { Token } from '@/utils/tokens.utils';
-import { Connection, PublicKey, clusterApiUrl } from '@solana/web3.js';
-import { useQRScanner } from '@telegram-apps/sdk-react';
-import { ChevronLeft } from 'lucide-react';
-import Image from 'next/image';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { SpinningCircles } from 'react-loading-icons';
+} from "@/lib/helper.lib";
+import { getSplTokenBalance, handleSendSol } from "@/lib/solana.lib";
+import { SendSplToken } from "@/lib/spl.lib";
+import { Token } from "@/utils/tokens.utils";
+import { Connection, PublicKey, clusterApiUrl } from "@solana/web3.js";
+import { useQRScanner } from "@telegram-apps/sdk-react";
+import { ChevronLeft } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { SpinningCircles } from "react-loading-icons";
 
 export const SendView = ({ slug }: { slug: string }) => {
   const [loading, setIsLoading] = useState<boolean>(false);
@@ -27,13 +27,13 @@ export const SendView = ({ slug }: { slug: string }) => {
   const [isTxFail, setIsTxFail] = useState<boolean>(false);
   const [preview, setPreview] = useState<boolean>(false);
   const [tokenInfo, setTokenInfo] = useState<Tokens[]>([]);
-  const [receiveAddress, setReceiveAddress] = useState<string>('');
+  const [receiveAddress, setReceiveAddress] = useState<string>("");
   const [isAddressChecked, setIsAddressChecked] = useState<boolean>(false);
   const [amount, setAmount] = useState<number>(0);
   const [userBalance, setUserBalance] = useState<number>(0);
   const [solFee, setSolFee] = useState<number | undefined>(0);
-  const [hash, setHash] = useState<string | undefined>('');
-  const [errorMessage, setErrorMessage] = useState<string | undefined>('');
+  const [hash, setHash] = useState<string | undefined>("");
+  const [errorMessage, setErrorMessage] = useState<string | undefined>("");
   const amountRef = useRef<HTMLInputElement>(null);
 
   const { network } = useNetwork();
@@ -45,8 +45,8 @@ export const SendView = ({ slug }: { slug: string }) => {
 
   const connection = useMemo(
     () =>
-      new Connection(network.rpcUrl || clusterApiUrl('devnet'), {
-        commitment: 'confirmed',
+      new Connection(network.rpcUrl || clusterApiUrl("devnet"), {
+        commitment: "confirmed",
       }),
     [network.rpcUrl]
   );
@@ -59,11 +59,11 @@ export const SendView = ({ slug }: { slug: string }) => {
         setTokenInfo(response);
         return response;
       } else {
-        console.error('Invalid token data received:', response);
+        console.error("Invalid token data received:", response);
         setTokenInfo([]);
       }
     } catch (error) {
-      console.error('Failed to fetch tokens:', error);
+      console.error("Failed to fetch tokens:", error);
       setTokenInfo([]);
     }
   };
@@ -72,7 +72,7 @@ export const SendView = ({ slug }: { slug: string }) => {
     async (token: string) => {
       try {
         if (token[0] === network.native?.name.toLowerCase()) {
-          await getSolPrice(token[0]);
+          await getNativePrice(token[0]);
         } else {
           await getTokenPrice(tokenInfo[0]?.token_id);
         }
@@ -92,7 +92,7 @@ export const SendView = ({ slug }: { slug: string }) => {
           try {
             userPubKey = new PublicKey(user.solPublicKey);
           } catch (error) {
-            throw new Error('Invalid sender address');
+            throw new Error("Invalid sender address");
           }
 
           const balance = await connection.getBalance(userPubKey);
@@ -119,7 +119,7 @@ export const SendView = ({ slug }: { slug: string }) => {
   const scan = () => {
     try {
       //alert('startes')
-      scanner.open('Scan QR code').then((content) => {
+      scanner.open("Scan QR code").then((content) => {
         if (!content) {
           return;
         }
@@ -170,19 +170,19 @@ export const SendView = ({ slug }: { slug: string }) => {
         try {
           mintPubKey = new PublicKey(tokenDetails[0]?.address);
         } catch (error) {
-          throw new Error('Invalid mint address');
+          throw new Error("Invalid mint address");
         }
         let senderPubKey: PublicKey;
         try {
           senderPubKey = new PublicKey(user?.solPublicKey);
         } catch (error) {
-          throw new Error('Invalid sender address');
+          throw new Error("Invalid sender address");
         }
         let receivePubKey: PublicKey;
         try {
           receivePubKey = new PublicKey(receiveAddress);
         } catch (error) {
-          throw new Error('Invalid receive address');
+          throw new Error("Invalid receive address");
         }
         setIsLoading(true);
         await SendSplToken(connection, {
@@ -202,12 +202,12 @@ export const SendView = ({ slug }: { slug: string }) => {
     }
   };
   const transactionErrorHandler = (ErrorString: string) => {
-    if (ErrorString.includes('insufficient funds')) {
-      return 'You do not have enought to spend balance too low';
-    } else if (ErrorString.includes('RPC')) {
-      return 'Network Error try again later';
-    } else if (ErrorString.includes('insufficient lamports')) {
-      return 'You do not have enought SOL for Gas ';
+    if (ErrorString.includes("insufficient funds")) {
+      return "You do not have enought to spend balance too low";
+    } else if (ErrorString.includes("RPC")) {
+      return "Network Error try again later";
+    } else if (ErrorString.includes("insufficient lamports")) {
+      return "You do not have enought SOL for Gas ";
     } else {
       return ErrorString;
     }
@@ -303,7 +303,7 @@ export const SendView = ({ slug }: { slug: string }) => {
                 </div>
                 <div className="text-s-gray-950">
                   <p>{`Available: ${
-                    slug[0] === 'solana'
+                    slug[0] === "solana"
                       ? SolConverter(userBalance)
                       : userBalance
                   } ${
@@ -317,14 +317,14 @@ export const SendView = ({ slug }: { slug: string }) => {
                 <div className="w-[98%] ml-auto mr-auto py-1 border border-[#448cff]/60 rounded-xl bg-black/90 h-14">
                   <button
                     onClick={() => {
-                      if (receiveAddress !== '') {
+                      if (receiveAddress !== "") {
                         setPreview(true);
                         //handleTransfer()
                       }
                     }}
                     className="outline-none bg-transparent w-[100%] h-[100%] text-white  py-2 px-4"
                   >
-                    {' '}
+                    {" "}
                     Confirm
                   </button>
                 </div>
@@ -336,7 +336,7 @@ export const SendView = ({ slug }: { slug: string }) => {
                       <div className="h-[436px] ml-auto mr-auto py-2 px-2 w-[352px] bg-white/15 rounded-xl">
                         <div className="mt-5 ml-auto mr-auto flex flex-col items-center justify-center text-center">
                           <p className="text-center text-[#DEEAFC]  font-light text-[18px] mb-3">
-                            {`Transaction Details`}{' '}
+                            {`Transaction Details`}{" "}
                           </p>
                           <div className="flex mb-2 items-center justify-center">
                             <img
@@ -394,17 +394,17 @@ export const SendView = ({ slug }: { slug: string }) => {
                             <div className="w-[105px] mt-1  ml-auto mr-auto py-1 px-3 flex  items-center border border-[#448cff]/60  justify-center text-white bg-black/90 rounded-full h-9">
                               <button
                                 onClick={async () => {
-                                  if (receiveAddress !== '') {
+                                  if (receiveAddress !== "") {
                                     await handleTransfer();
                                   }
                                 }}
                                 className="outline-none bg-transparent w-[100%] h-[100%] text-white  py-0 px-4"
                               >
-                                {' '}
+                                {" "}
                                 {loading ? (
                                   <SpinningCircles className="ml-auto mr-auto h-5 w-5" />
                                 ) : (
-                                  'Sign'
+                                  "Sign"
                                 )}
                               </button>
                             </div>
@@ -430,13 +430,13 @@ export const SendView = ({ slug }: { slug: string }) => {
                           <p className="text-white/85 font-light text-[24px] ml-auto mr-auto ">{`Transaction successfull`}</p>
                         </div>
                         <div className="w-[100%]  ml-auto mr-auto py-1 px-3 flex  mt-12 items-center justify-center bg-white/0 rounded-full h-9">
-                          {hash != '' ? (
+                          {hash != "" ? (
                             <div className="text-white/85 flex font-light ml-auto mr-auto ">
                               <Link
                                 href={`https://explorer.solana.com/tx/${hash}?cluster=${
                                   network.isTestNet === true
-                                    ? 'devnet'
-                                    : 'mainnet'
+                                    ? "devnet"
+                                    : "mainnet"
                                 }`}
                                 target="_blank"
                               >
@@ -478,10 +478,10 @@ export const SendView = ({ slug }: { slug: string }) => {
                           <p className="text-white/85 font-light text-[24px] ml-auto mr-auto ">{`Transaction failed`}</p>
                         </div>
                         <div className="w-[100%] mb-5 ml-auto mr-auto py-1 px-3 flex  mt-12 items-center justify-center bg-white/0 rounded-full h-9">
-                          {errorMessage !== '' ? (
+                          {errorMessage !== "" ? (
                             <div className="text-white/85 flex mt-2 rounded-2xl bg-white bg-opacity-25 mb-2 p-5 font-light ml-auto mr-auto ">
                               <p className="text-red-600 font-light ml-auto mr-auto ">{`${transactionErrorHandler(
-                                errorMessage || ''
+                                errorMessage || ""
                               )}`}</p>
                             </div>
                           ) : (
@@ -536,8 +536,8 @@ export const SendView = ({ slug }: { slug: string }) => {
                 className={`w-[100%] ml-auto mr-auto ${
                   receiveAddress.length > 0 &&
                   !isValidSolanaAddress(receiveAddress)
-                    ? ' border-red-500 border'
-                    : 'border-none'
+                    ? " border-red-500 border"
+                    : "border-none"
                 } h-16 py-2 px-1 flex rounded-2xl bg-[#1F1F1F]`}
               >
                 <div className="w-[99%] py-1.5 flex items-center justify-center bg-slate-50/0">

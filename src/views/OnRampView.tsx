@@ -1,15 +1,15 @@
-'use client';
-import { useAuth } from '@/context/AuthContext';
-import { Tokens } from '@/interfaces/models.interface';
-import { getSolPrice, getTokenPrice } from '@/lib/helper.lib';
-import { GeneratePayLink } from '@/lib/Mercuryo.lib';
-import { TokenService } from '@/lib/services/TokenServices';
-import { useUtils } from '@telegram-apps/sdk-react';
-import { ArrowLeft } from 'lucide-react';
-import Image from 'next/image';
-import { useRouter } from 'next/navigation';
-import { useEffect, useRef, useState } from 'react';
-import { SpinningCircles } from 'react-loading-icons';
+"use client";
+import { useAuth } from "@/context/AuthContext";
+import { Tokens } from "@/interfaces/models.interface";
+import { getNativePrice, getTokenPrice } from "@/lib/helper.lib";
+import { GeneratePayLink } from "@/lib/Mercuryo.lib";
+import { TokenService } from "@/lib/services/TokenServices";
+import { useUtils } from "@telegram-apps/sdk-react";
+import { ArrowLeft } from "lucide-react";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
+import { SpinningCircles } from "react-loading-icons";
 
 interface Provider {
   name: string;
@@ -53,15 +53,15 @@ const ProviderItem: React.FC<ProviderItemProps> = ({
 export const RampView = ({ slug }: { slug: string }) => {
   const provider: providerList = [
     {
-      name: 'Mercuryo',
-      about: 'Instant one-click purchase.',
-      imgUrl: '/assets/mb.svg',
+      name: "Mercuryo",
+      about: "Instant one-click purchase.",
+      imgUrl: "/assets/mb.svg",
     },
   ];
   const router = useRouter();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isFirst, setIsFirst] = useState<boolean>(true);
-  const [activeTab, setActiveTab] = useState<string>('Buy');
+  const [activeTab, setActiveTab] = useState<string>("Buy");
   const [isValid, setIsValid] = useState<boolean>(false);
   const [amount, setAmount] = useState<number>(0);
   const [price, setPrice] = useState<number>(0);
@@ -76,7 +76,7 @@ export const RampView = ({ slug }: { slug: string }) => {
 
   const handleInput = (e: React.FormEvent<HTMLParagraphElement>) => {
     const newText = parseFloat(
-      (e.target as HTMLParagraphElement).textContent || ''
+      (e.target as HTMLParagraphElement).textContent || ""
     );
     setAmount(newText);
   };
@@ -85,7 +85,7 @@ export const RampView = ({ slug }: { slug: string }) => {
     // Allow only numbers, backspace, delete, and arrow keys
     if (
       !/^[0-9]$/.test(e.key) &&
-      !['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight'].includes(e.key)
+      !["Backspace", "Delete", "ArrowLeft", "ArrowRight"].includes(e.key)
     ) {
       e.preventDefault();
     }
@@ -94,16 +94,16 @@ export const RampView = ({ slug }: { slug: string }) => {
   const utils = useUtils();
   const [priceLoading, setPriceLoading] = useState<boolean>(false);
   const [tokenInfo, setTokenInfo] = useState<Tokens[]>([]);
-  const [LinkStr, setLinkStr] = useState<string>('');
+  const [LinkStr, setLinkStr] = useState<string>("");
   const { user } = useAuth();
   const handleGenLink = async (slug: string) => {
     try {
-      if (slug === 'solana') {
+      if (slug === "solana") {
         if (!user) return;
         const Link = await GeneratePayLink({
-          tokenName: 'SOL',
+          tokenName: "SOL",
           amount: amount,
-          type: 'buy',
+          type: "buy",
           userAddress: user?.solPublicKey,
         });
         if (Link === undefined) return;
@@ -114,7 +114,7 @@ export const RampView = ({ slug }: { slug: string }) => {
         const Link = await GeneratePayLink({
           tokenName: tokenInfo[0].ticker,
           amount: amount,
-          type: 'buy',
+          type: "buy",
           userAddress: user?.solPublicKey,
         });
         if (Link === undefined) return;
@@ -131,19 +131,19 @@ export const RampView = ({ slug }: { slug: string }) => {
       if (response.data && Array.isArray(response.data)) {
         setTokenInfo(response.data);
       } else {
-        console.error('Invalid token data received:', response);
+        console.error("Invalid token data received:", response);
         setTokenInfo([]); // Set to empty array if data is invalid
       }
     } catch (error) {
-      console.error('Failed to fetch tokens:', error);
+      console.error("Failed to fetch tokens:", error);
       setTokenInfo([]); // Set to empty array on error
     }
   };
   const fetchPrice = async (token: string) => {
     try {
-      if (token === 'solana') {
+      if (token === "solana") {
         setPriceLoading(true);
-        const priceSol = await getSolPrice('solana');
+        const priceSol = await getNativePrice("solana");
         setPrice(priceSol);
         setPriceLoading(false);
       } else {
@@ -153,7 +153,7 @@ export const RampView = ({ slug }: { slug: string }) => {
         setPriceLoading(false);
       }
     } catch (error) {
-      console.error(error, 'fetch error');
+      console.error(error, "fetch error");
     }
   };
 
@@ -185,13 +185,13 @@ export const RampView = ({ slug }: { slug: string }) => {
           </div>
           <div className="mt-10 bg-white/0 w-[100%] h-auto">
             <div className="flex justify-around mb-6 bg-white/0 bg-opacity-10 rounded-xl p-1">
-              {['Buy', 'Sell'].map((tab) => (
+              {["Buy", "Sell"].map((tab) => (
                 <button
                   key={tab}
                   className={`flex-1 py-2 px-6 rounded-lg ml-2 mr-2 text-sm font-medium ${
                     activeTab.toLowerCase() === tab.toLowerCase()
-                      ? 'bg-white/10 bg-opacity-20 text-white'
-                      : 'text-gray-400 hover:text-white'
+                      ? "bg-white/10 bg-opacity-20 text-white"
+                      : "text-gray-400 hover:text-white"
                   }`}
                   onClick={() => setActiveTab(tab)}
                 >
@@ -199,7 +199,7 @@ export const RampView = ({ slug }: { slug: string }) => {
                 </button>
               ))}
             </div>
-            {activeTab === 'Buy' ? (
+            {activeTab === "Buy" ? (
               <>
                 {provider.map((item, i) => (
                   <ProviderItem
@@ -241,7 +241,7 @@ export const RampView = ({ slug }: { slug: string }) => {
             </div>
             <div className="ml-auto mt-0.5 mr-[38%]">
               <p className="font-light text-xl">
-                Buy {slug[0] === 'solana' ? 'SOL' : tokenInfo[0]?.name}
+                Buy {slug[0] === "solana" ? "SOL" : tokenInfo[0]?.name}
               </p>
             </div>
           </div>
@@ -250,12 +250,12 @@ export const RampView = ({ slug }: { slug: string }) => {
               <div className="text-white rounded-xl flex items-center justify-center h-16">
                 <Image
                   src={
-                    slug[0] === 'solana'
-                      ? '/assets/sol.png'
+                    slug[0] === "solana"
+                      ? "/assets/sol.png"
                       : tokenInfo[0]?.logoUrl
                   }
                   className="h-10 rounded-full mr-2 w-10"
-                  alt={slug[0] === 'solana' ? 'solana' : tokenInfo[0]?.name}
+                  alt={slug[0] === "solana" ? "solana" : tokenInfo[0]?.name}
                   width={48}
                   height={48}
                 />
@@ -351,7 +351,7 @@ export const RampView = ({ slug }: { slug: string }) => {
                       {isLoading ? (
                         <SpinningCircles className="h-5 w-5" />
                       ) : (
-                        'Continue'
+                        "Continue"
                       )}
                     </div>
                   </div>
