@@ -6,8 +6,8 @@ import {
   TOKEN_PROGRAM_ID,
   getMint,
   getAccount,
-} from '@solana/spl-token';
-import * as bip39 from 'bip39';
+} from "@solana/spl-token";
+import * as bip39 from "bip39";
 import {
   Connection,
   sendAndConfirmTransaction,
@@ -17,8 +17,8 @@ import {
   Transaction,
   Keypair,
   ComputeBudgetProgram,
-} from '@solana/web3.js';
-import { apiResponse } from './api.helpers';
+} from "@solana/web3.js";
+import { apiResponse } from "./api.helpers";
 
 // Interfaces
 export interface TokenTransactionOptions {
@@ -37,13 +37,13 @@ export interface TokenTransactionData {
   timestamp: number | null;
   slot: number;
   fee: number;
-  type: 'receive' | 'send' | 'mint' | 'burn';
+  type: "receive" | "send" | "mint" | "burn";
   amount: number;
   rawAmount: string;
   tokenInfo: TokenInfo;
   fromAddress: string;
   toAddress: string;
-  status: 'success' | 'failed';
+  status: "success" | "failed";
   instructionType: string;
 }
 
@@ -62,7 +62,7 @@ export type ParsedTokenInstruction = ParsedInstruction & {
 export class TokenTransactionError extends Error {
   constructor(message: string) {
     super(message);
-    this.name = 'TokenTransactionError';
+    this.name = "TokenTransactionError";
   }
 }
 
@@ -76,8 +76,8 @@ export async function getSPLTokenTransactions(
 ): Promise<TokenTransactionData[]> {
   try {
     const connection = new Connection(
-      options.cluster || 'https://api.mainnet-beta.solana.com',
-      'confirmed'
+      options.cluster || "https://api.mainnet-beta.solana.com",
+      "confirmed"
     );
 
     let pubKey: PublicKey;
@@ -86,7 +86,7 @@ export async function getSPLTokenTransactions(
     } catch (error) {
       throw new TokenTransactionError(
         `Invalid Solana address: ${
-          error instanceof Error ? error.message : 'Unknown error'
+          error instanceof Error ? error.message : "Unknown error"
         }`
       );
     }
@@ -114,9 +114,9 @@ export async function getSPLTokenTransactions(
           const tokenInstructions = tx.transaction.message.instructions.filter(
             (instruction): instruction is ParsedTokenInstruction => {
               const programId =
-                'programId' in instruction
+                "programId" in instruction
                   ? instruction.programId.toString()
-                  : '';
+                  : "";
               return programId === TOKEN_PROGRAM_ID.toString();
             }
           );
@@ -142,10 +142,10 @@ export async function getSPLTokenTransactions(
             const decimals = preBalance.uiTokenAmount.decimals;
 
             const isReceiver = parsed.info.destination === address;
-            let txType: TokenTransactionData['type'] = 'send';
-            if (parsed.type === 'mint') txType = 'mint';
-            else if (parsed.type === 'burn') txType = 'burn';
-            else if (isReceiver) txType = 'receive';
+            let txType: TokenTransactionData["type"] = "send";
+            if (parsed.type === "mint") txType = "mint";
+            else if (parsed.type === "burn") txType = "burn";
+            else if (isReceiver) txType = "receive";
 
             const rawAmount = (
               BigInt(postBalance.uiTokenAmount.amount) -
@@ -165,9 +165,9 @@ export async function getSPLTokenTransactions(
                 mint: mintAddress,
                 decimals: decimals,
               },
-              fromAddress: parsed.info.authority || parsed.info.source || '',
-              toAddress: parsed.info.destination || '',
-              status: tx.meta?.err ? 'failed' : 'success',
+              fromAddress: parsed.info.authority || parsed.info.source || "",
+              toAddress: parsed.info.destination || "",
+              status: tx.meta?.err ? "failed" : "success",
               instructionType: parsed.type,
             } satisfies TokenTransactionData;
           });
@@ -202,7 +202,7 @@ export async function getSPLTokenTransactions(
     }
     throw new TokenTransactionError(
       `Error fetching token transactions: ${
-        error instanceof Error ? error.message : 'Unknown error'
+        error instanceof Error ? error.message : "Unknown error"
       }`
     );
   }
@@ -210,8 +210,8 @@ export async function getSPLTokenTransactions(
 
 export const getSplTokenAddress = (token: string) =>
   ({
-    send: 'SENDdRQtYMWaQrBroBrJ2Q53fgVuq95CV9UPGEvpCxa',
-    usdc: 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',
+    send: "SENDdRQtYMWaQrBroBrJ2Q53fgVuq95CV9UPGEvpCxa",
+    usdc: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
   }[token]);
 
 export const SendSplToken = async (
@@ -235,8 +235,8 @@ export const SendSplToken = async (
   try {
     // 1. Generate keypair from mnemonic
     const seed = await bip39.mnemonicToSeed(mnemonic);
-    const seedBytes = seed.toString().substring(0, 32);
-    const account = Keypair.fromSeed(Uint8Array.from(seedBytes));
+    const seedBytes = new Uint8Array(seed).subarray(0, 32);
+    const account = Keypair.fromSeed(seedBytes);
 
     // 2. Get token mint info for decimal adjustment
     const mintInfo = await getMint(connection, mintAddress);
@@ -265,10 +265,10 @@ export const SendSplToken = async (
     try {
       const tokenAccount = await getAccount(connection, fromTokenAccount);
       if (BigInt(tokenAccount.amount) < BigInt(adjustedAmount)) {
-        throw new Error('Insufficient token balance');
+        throw new Error("Insufficient token balance");
       }
     } catch (e) {
-      throw new Error('Token account not found or insufficient balance');
+      throw new Error("Token account not found or insufficient balance");
     }
 
     // 5. Prepare instructions array
@@ -282,7 +282,7 @@ export const SendSplToken = async (
     if (!ifexists || !ifexists.data) {
       const rent = await connection.getMinimumBalanceForRentExemption(165); // Size of ATA account
       if (solBalance < rent) {
-        throw new Error('Insufficient SOL for ATA creation');
+        throw new Error("Insufficient SOL for ATA creation");
       }
 
       const createATAiX = createAssociatedTokenAccountInstruction(
@@ -332,15 +332,15 @@ export const SendSplToken = async (
       transaction,
       signers,
       {
-        commitment: 'confirmed',
-        preflightCommitment: 'confirmed',
+        commitment: "confirmed",
+        preflightCommitment: "confirmed",
       }
     );
 
-    return apiResponse(true, 'sent', transactionSignature);
+    return apiResponse(true, "sent", transactionSignature);
   } catch (error: unknown) {
     if (error instanceof Error)
-      return apiResponse(false, 'Transaction failed:', error.message);
+      return apiResponse(false, "Transaction failed:", error.message);
     throw error; // Re-throw to allow proper error handling by caller
   }
 };
