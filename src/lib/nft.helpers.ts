@@ -2,7 +2,7 @@ import {
   fetchDigitalAsset,
   mplTokenMetadata,
 } from "@metaplex-foundation/mpl-token-metadata";
-import { publicKey, Umi } from "@metaplex-foundation/umi";
+import { publicKey } from "@metaplex-foundation/umi";
 import { createUmi } from "@metaplex-foundation/umi-bundle-defaults";
 import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import { Connection, PublicKey } from "@solana/web3.js";
@@ -14,19 +14,6 @@ interface TokenInfo {
   name: string;
   image: string;
   amount: number;
-}
-
-async function umiSwitchToSoonDevnet(umi: Umi) {
-  umi.programs.add(
-    {
-      name: "mplTokenMetadata",
-      publicKey: publicKey("6C4GR9AtMGF25sjXKtdB7A6NVQUudEQWw97kG61pGuA1"),
-      getErrorFromCode: () => null,
-      getErrorFromName: () => null,
-      isOnCluster: () => true,
-    },
-    true
-  );
 }
 
 export async function fetchUserAssets(

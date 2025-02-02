@@ -4,15 +4,15 @@ import {
   WithCursor,
   bn,
   createRpc,
-} from '@lightprotocol/stateless.js';
+} from "@lightprotocol/stateless.js";
 
 import {
   CompressedTokenProgram,
   createMint,
   mintTo,
   selectMinCompressedTokenAccountsForTransfer,
-} from '@lightprotocol/compressed-token';
-import * as bip39 from 'bip39';
+} from "@lightprotocol/compressed-token";
+import * as bip39 from "bip39";
 //import { createAssociatedTokenAccount } from "@solana/spl-token";
 import {
   ComputeBudgetProgram,
@@ -22,9 +22,9 @@ import {
   PublicKeyData,
   Transaction,
   sendAndConfirmTransaction,
-} from '@solana/web3.js';
+} from "@solana/web3.js";
 //import { getKeypairFromPrivateKey } from "./helper.lib";
-import { BN } from '@coral-xyz/anchor';
+import { BN } from "@coral-xyz/anchor";
 import {
   ASSOCIATED_TOKEN_PROGRAM_ID,
   TOKEN_PROGRAM_ID,
@@ -32,9 +32,9 @@ import {
   getAccount,
   getAssociatedTokenAddress,
   getMint,
-} from '@solana/spl-token';
-import { apiResponse } from './api.helpers';
-import { ENV } from './constant/env.constant';
+} from "@solana/spl-token";
+import { apiResponse } from "./api.helpers";
+import { ENV } from "./constant/env.constant";
 /// Helius exposes Solana and compression RPC endpoints through a single URL
 const RPC_ENDPOINT = ENV.SOL_DEVNET_RPC;
 const COMPRESSION_RPC_ENDPOINT = RPC_ENDPOINT;
@@ -66,8 +66,8 @@ export const decompressToken = async ({
     const COMPRESSION_RPC_ENDPOINT = RPC_ENDPOINT;
     const connection: Rpc = createRpc(RPC_ENDPOINT, COMPRESSION_RPC_ENDPOINT);
     const seed = await bip39.mnemonicToSeed(userMnemonic);
-    const seedBytes = seed.toString().substring(0, 32);
-    const account = Keypair.fromSeed(Uint8Array.from(seedBytes));
+    const seedBytes = new Uint8Array(seed).subarray(0, 32);
+    const account = Keypair.fromSeed(seedBytes);
     const tokenAddress = new PublicKey(splAddress);
 
     const ata = await getAssociatedTokenAddress(
@@ -107,7 +107,7 @@ export const decompressToken = async ({
         );
       }
     } catch (error: unknown) {
-      console.error('Token Account Retrieval Error:', error);
+      console.error("Token Account Retrieval Error:", error);
       if (error instanceof Error)
         throw new Error(`Token account error: ${error.message}`);
     }
@@ -165,7 +165,7 @@ export const decompressToken = async ({
     const fees = await transaction.getEstimatedFee(connection);
 
     if (fees === null) {
-      throw new Error('Unable to estimate transaction fees');
+      throw new Error("Unable to estimate transaction fees");
     }
 
     if (solBalance < fees) {
@@ -180,14 +180,14 @@ export const decompressToken = async ({
       transaction,
       signers,
       {
-        commitment: 'confirmed',
-        preflightCommitment: 'confirmed',
+        commitment: "confirmed",
+        preflightCommitment: "confirmed",
       }
     );
-    return apiResponse(true, 'Decompressed', transactionSignature);
+    return apiResponse(true, "Decompressed", transactionSignature);
   } catch (error) {
     if (error instanceof Error)
-      return apiResponse(false, 'unable to compress', error.message);
+      return apiResponse(false, "unable to compress", error.message);
   }
 };
 
@@ -207,8 +207,8 @@ export const compressToken = async ({
     const RPC_ENDPOINT = rpc;
     const connection: Rpc = createRpc(RPC_ENDPOINT, RPC_ENDPOINT);
     const seed = await bip39.mnemonicToSeed(userMnemonic);
-    const seedBytes = seed.toString().substring(0, 32);
-    const account = Keypair.fromSeed(Uint8Array.from(seedBytes));
+    const seedBytes = new Uint8Array(seed).subarray(0, 32);
+    const account = Keypair.fromSeed(seedBytes);
 
     const tokenAddress = new PublicKey(splAddress);
 
@@ -237,7 +237,7 @@ export const compressToken = async ({
         );
       }
     } catch (error: unknown) {
-      console.error('Token Account Retrieval Error:', error);
+      console.error("Token Account Retrieval Error:", error);
       if (error instanceof Error)
         throw new Error(`Token account error: ${error.message}`);
     }
@@ -301,7 +301,7 @@ export const compressToken = async ({
     const fees = await transaction.getEstimatedFee(connection);
 
     if (fees === null) {
-      throw new Error('Unable to estimate transaction fees');
+      throw new Error("Unable to estimate transaction fees");
     }
 
     if (solBalance < fees) {
@@ -316,22 +316,22 @@ export const compressToken = async ({
       transaction,
       signers,
       {
-        commitment: 'confirmed',
-        preflightCommitment: 'confirmed',
+        commitment: "confirmed",
+        preflightCommitment: "confirmed",
       }
     );
 
-    return apiResponse(true, 'compressed', transactionSignature);
+    return apiResponse(true, "compressed", transactionSignature);
   } catch (error: unknown) {
     if (error instanceof Error)
-      console.error('Compression Process Error:', {
+      console.error("Compression Process Error:", {
         errorName: error.constructor.name,
         errorMessage: error.message,
         errorStack: error.stack,
       });
 
     if (error instanceof Error)
-      return apiResponse(false, 'failed to compress', error.message);
+      return apiResponse(false, "failed to compress", error.message);
   }
 };
 
@@ -357,13 +357,13 @@ export const getCompressTokenBalance = async ({
   try {
     userPubKey = new PublicKey(address);
   } catch (error) {
-    throw new Error('Invalid sender address');
+    throw new Error("Invalid sender address");
   }
   let mintPubKey: PublicKey;
   try {
     mintPubKey = new PublicKey(mint);
   } catch (error) {
-    throw new Error('Invalid sender address');
+    throw new Error("Invalid sender address");
   }
   const balance = await connection.getCompressedTokenBalancesByOwner(
     userPubKey,
@@ -398,8 +398,8 @@ export const transferCompressedTokens = async ({
     const senderKey = new PublicKey(sender);
     const mint = new PublicKey(tokenMint);
     const seed = await bip39.mnemonicToSeed(userMnemonic);
-    const seedBytes = seed.toString().substring(0, 32);
-    const account = Keypair.fromSeed(Uint8Array.from(seedBytes));
+    const seedBytes = new Uint8Array(seed).subarray(0, 32);
+    const account = Keypair.fromSeed(seedBytes);
     // get the token account state
     // 2. Get token mint info for decimal adjustment
     const mintInfo = await getMint(connection, mint);
@@ -436,7 +436,7 @@ export const transferCompressedTokens = async ({
     if (!ifexists || !ifexists.data) {
       const rent = await connection.getMinimumBalanceForRentExemption(165); // Size of ATA account
       if (solBalance < rent) {
-        throw new Error('Insufficient SOL for ATA creation');
+        throw new Error("Insufficient SOL for ATA creation");
       }
 
       const createATAiX = createAssociatedTokenAccountInstruction(
@@ -476,7 +476,7 @@ export const transferCompressedTokens = async ({
     const fees = await transaction.getEstimatedFee(connection);
 
     if (fees === null) {
-      throw new Error('Unable to estimate transaction fees');
+      throw new Error("Unable to estimate transaction fees");
     }
 
     if (solBalance < fees) {
@@ -491,14 +491,14 @@ export const transferCompressedTokens = async ({
       transaction,
       signers,
       {
-        commitment: 'confirmed',
-        preflightCommitment: 'confirmed',
+        commitment: "confirmed",
+        preflightCommitment: "confirmed",
       }
     );
-    return apiResponse(true, 'Compress token sent', transactionSignature);
+    return apiResponse(true, "Compress token sent", transactionSignature);
   } catch (error) {
     if (error instanceof Error)
-      return apiResponse(false, 'transfer failed', error.message);
+      return apiResponse(false, "transfer failed", error.message);
   }
 };
 
@@ -544,7 +544,7 @@ export async function fetchCompressedTokens({
     return tokenAccounts;
   } catch (error: unknown) {
     if (error instanceof Error)
-      console.error('Error fetching compressed tokens:', error.message);
+      console.error("Error fetching compressed tokens:", error.message);
     throw error;
   }
 }
@@ -553,8 +553,8 @@ export async function fetchCompressedTokens({
 export const testMint = async (mnemonic: string | undefined) => {
   if (mnemonic === undefined) return;
   const seed = await bip39.mnemonicToSeed(mnemonic);
-  const seedBytes = seed.toString().substring(0, 32);
-  const account = Keypair.fromSeed(Uint8Array.from(seedBytes));
+  const seedBytes = new Uint8Array(seed).subarray(0, 32);
+  const account = Keypair.fromSeed(seedBytes);
   try {
     const { mint } = await createMint(
       connection,
@@ -566,6 +566,6 @@ export const testMint = async (mnemonic: string | undefined) => {
     await mintTo(connection, account, mint, account.publicKey, account, 500e9);
   } catch (error) {
     if (error instanceof Error)
-      console.error('error', error.message, 'message');
+      console.error("error", error.message, "message");
   }
 };
