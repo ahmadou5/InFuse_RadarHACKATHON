@@ -48,6 +48,7 @@ export const CTokenDetails = ({ tokenId }: TokenProps) => {
         const response = await axios.get(url);
         const data = await response.data;
         setTokenInfo({
+          
           currentPrice: data.market_data.current_price.usd,
           priceChange24h: data.market_data.price_change_percentage_24h,
           marketCap: data.market_data.market_cap.usd,

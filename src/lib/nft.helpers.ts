@@ -1,11 +1,12 @@
 import {
   fetchDigitalAsset,
   mplTokenMetadata,
-} from '@metaplex-foundation/mpl-token-metadata';
-import { publicKey, Umi } from '@metaplex-foundation/umi';
-import { createUmi } from '@metaplex-foundation/umi-bundle-defaults';
-import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
-import { Connection, PublicKey as solPublicKey } from '@solana/web3.js';
+} from "@metaplex-foundation/mpl-token-metadata";
+import { publicKey, Umi } from "@metaplex-foundation/umi";
+import { createUmi } from "@metaplex-foundation/umi-bundle-defaults";
+import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
+import { Connection, PublicKey } from "@solana/web3.js";
+import { TokenTransactionError } from "./spl.lib";
 
 interface TokenInfo {
   address: string;
@@ -13,17 +14,13 @@ interface TokenInfo {
   name: string;
   image: string;
   amount: number;
-  isNft: boolean;
-  collection: string;
-  isCollectionNft: boolean;
-  isCollectionMaster: boolean;
 }
 
 async function umiSwitchToSoonDevnet(umi: Umi) {
   umi.programs.add(
     {
-      name: 'mplTokenMetadata',
-      publicKey: publicKey('6C4GR9AtMGF25sjXKtdB7A6NVQUudEQWw97kG61pGuA1'),
+      name: "mplTokenMetadata",
+      publicKey: publicKey("6C4GR9AtMGF25sjXKtdB7A6NVQUudEQWw97kG61pGuA1"),
       getErrorFromCode: () => null,
       getErrorFromName: () => null,
       isOnCluster: () => true,
@@ -32,20 +29,28 @@ async function umiSwitchToSoonDevnet(umi: Umi) {
   );
 }
 
-export async function fetchNftHoldings(
+export async function fetchUserAssets(
   address: string,
-  rpcUrl: string = 'https://rpc.devnet.soo.network/rpc'
+  rpcUrl: string
 ): Promise<TokenInfo[]> {
   try {
     const connection = new Connection(
-      rpcUrl || 'https://api.mainnet-beta.solana.com',
-      'confirmed'
+      rpcUrl || "https://api.mainnet-beta.solana.com",
+      "confirmed"
     );
-    const userPublicKey = new solPublicKey(address);
-
+    let pubKey: PublicKey;
+    try {
+      pubKey = new PublicKey("6RQtHXKpniz7g56iYi4nxGorwRGs7j2ASxTRgRC1rYqA");
+    } catch (error) {
+      throw new TokenTransactionError(
+        `Invalid Solana address: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`
+      );
+    }
     // Fetch token accounts
     const tokenAccounts = await connection.getParsedTokenAccountsByOwner(
-      userPublicKey,
+      pubKey,
       { programId: TOKEN_PROGRAM_ID }
     );
     // Process token accounts
@@ -64,53 +69,51 @@ export async function fetchNftHoldings(
           try {
             // Create Umi instance
             const umi = createUmi(rpcUrl).use(mplTokenMetadata());
-            await umiSwitchToSoonDevnet(umi);
+            //await umiSwitchToSoonDevnet(umi);
 
             // Fetch digital asset
-            const asset = await fetchDigitalAsset(umi, publicKey(mintAddress));
-            let imageUrl = '';
-            const isNft =
-              Number(asset.mint.supply) === 1 && asset.mint.decimals === 0;
-
-            let collection = 'uncategorized';
-            let isCollectionNft = false;
-            let isCollectionMaster = false;
-
-            // Determine collection details
-            if (
-              asset.metadata.collectionDetails &&
-              'some' in asset.metadata.tokenStandard &&
-              asset.metadata.tokenStandard.some === 'NonFungible'
-            ) {
-              isCollectionMaster = true;
-              collection = mintAddress;
-            } else if (asset.metadata.collection) {
-              type CollectionOption = {
-                __option: 'Some';
-                value: {
-                  key: { toString: () => string };
-                  verified: boolean;
-                };
-              };
-
-              const collectionData = asset.metadata
-                .collection as unknown as CollectionOption;
-
-              if (
-                collectionData.__option === 'Some' &&
-                collectionData.value &&
-                collectionData.value.verified
-              ) {
-                collection = collectionData.value.key.toString();
-                isCollectionNft = true;
+            let asset;
+            try {
+              asset = await fetchDigitalAsset(umi, publicKey(mintAddress));
+            } catch (error) {
+              if (error instanceof Error) {
+                if (error.message.includes("AccountNotFoundError")) {
+                  console.error(
+                    `Metadata account not found for mint address: ${mintAddress}`
+                  );
+                  return {
+                    address: mintAddress,
+                    symbol: "Unknown",
+                    name: "Unknown Token",
+                    image: "",
+                    amount: amount,
+                  };
+                }
+                throw error;
               }
             }
+            if (!asset) {
+              console.error(`Asset not found for mint address: ${mintAddress}`);
+              return {
+                address: mintAddress,
+                symbol: "Unknown",
+                name: "Unknown Token",
+                image: "",
+                amount: amount,
+              };
+            }
 
+            let imageUrl = "";
+
+            if (!asset) {
+              throw new Error("Asset not found");
+            }
+            console.log("asset", asset);
             // Fetch image URL
             if (asset.metadata.uri) {
               const response = await fetch(asset.metadata.uri);
               const jsonMetadata = await response.json();
-              imageUrl = jsonMetadata.image || '';
+              imageUrl = jsonMetadata.image || "";
             }
 
             return {
@@ -119,31 +122,23 @@ export async function fetchNftHoldings(
               name: asset.metadata.name,
               image: imageUrl,
               amount: amount,
-              isNft,
-              collection,
-              isCollectionNft,
-              isCollectionMaster,
             };
           } catch (err) {
-            console.error('Error fetching token info:', err);
+            console.error("Error fetching token info:", err);
             return {
               address: mintAddress,
-              symbol: 'Unknown',
-              name: 'Unknown Token',
-              image: '',
+              symbol: "Unknown",
+              name: "Unknown Token",
+              image: "",
               amount: amount,
-              isNft: false,
-              collection: 'uncategorized',
-              isCollectionNft: false,
-              isCollectionMaster: false,
             };
           }
         })
     );
     // Filter and return only NFTs
-    return nftInfos.filter((token) => token.isNft);
+    return nftInfos;
   } catch (err) {
-    console.error('Error fetching NFT holdings:', err);
+    console.error("Error fetching NFT holdings:", err);
     return [];
   }
 }

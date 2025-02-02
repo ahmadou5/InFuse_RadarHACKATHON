@@ -21,6 +21,7 @@ export interface Tokens {
   name: string;
   address: string;
   ticker: string;
+  balance: number;
   logoUrl: string;
   token_id: string;
   chain: string;
