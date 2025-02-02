@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   LineChart,
   Line,
@@ -7,13 +7,11 @@ import {
   ResponsiveContainer,
   Tooltip,
   TooltipProps,
-} from "recharts";
-import { Tokens } from "@/interfaces/models.interface";
-//import { TokenService } from "@/lib/services/TokenServices";
-import { ArrowUpRight, ArrowDownRight } from "lucide-react";
-import { useNetwork } from "@/context/NetworkContext";
-import { Token } from "@/utils/tokens.utils";
-//import { useRouter } from 'next/navigation';
+} from 'recharts';
+import { Tokens } from '@/interfaces/models.interface';
+import { ArrowUpRight, ArrowDownRight } from 'lucide-react';
+import { useNetwork } from '@/context/NetworkContext';
+import { Token } from '@/utils/tokens.utils';
 
 interface ChartProps {
   tokenId: string;
@@ -53,15 +51,15 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({
 };
 
 const fetchTokenData = async (tokenId: string, timeframe: string) => {
-  const baseUrl = "https://api.coingecko.com/api/v3";
+  const baseUrl = 'https://api.coingecko.com/api/v3';
   const days =
-    timeframe === "1H"
+    timeframe === '1H'
       ? 1
-      : timeframe === "1D"
+      : timeframe === '1D'
       ? 1
-      : timeframe === "1W"
+      : timeframe === '1W'
       ? 7
-      : timeframe === "1M"
+      : timeframe === '1M'
       ? 30
       : 365;
   const url = `${baseUrl}/coins/${tokenId}/market_chart?vs_currency=usd&days=${days}`;
@@ -80,7 +78,7 @@ const fetchTokenData = async (tokenId: string, timeframe: string) => {
 };
 
 const CChart = ({ tokenId }: ChartProps) => {
-  const [timeframe, setTimeframe] = useState("1D");
+  const [timeframe, setTimeframe] = useState('1D');
   const [chartData, setChartData] = useState<{ date: Date; price: number }[]>(
     []
   );
@@ -88,27 +86,18 @@ const CChart = ({ tokenId }: ChartProps) => {
   const { network } = useNetwork();
   const getTokenInfo = async (slug: string) => {
     try {
-      // setIsLoading(true);
-      // console.log('Fetching token info for slug:', slug);
       const response = Token.filter((token) => token.compress_address === slug);
-      //console.log('Token info response:', response);
 
       if (response && Array.isArray(response)) {
         setTokenInfo(response);
-        //  console.log("Token info set:", response);
         const data = await fetchTokenData(tokenInfo[0]?.token_id, timeframe);
         setChartData(data);
         return response;
       } else {
-        //   console.error("Invalid token data received:", response);
         setTokenInfo([]);
       }
     } catch (error) {
-      //console.error("Failed to fetch tokens:", error);
       setTokenInfo([]);
-    } finally {
-      //    setIsLoading(false);
-      //alert('done')
     }
   };
   useEffect(() => {
@@ -123,7 +112,6 @@ const CChart = ({ tokenId }: ChartProps) => {
     if (chartData.length < 2) return 0;
     return currentPrice - chartData[0].price;
   }, [chartData, currentPrice]);
-  //console.log(tokenInfo, "gggggggggggggggggggg");
   const priceChangePercentage = useMemo(() => {
     if (chartData.length < 2) return 0;
     return (priceChange / chartData[0].price) * 100;
@@ -137,7 +125,7 @@ const CChart = ({ tokenId }: ChartProps) => {
         )}`}</span>
         <span
           className={`flex items-center ${
-            priceChange >= 0 ? "text-green-500" : "text-red-500"
+            priceChange >= 0 ? 'text-green-500' : 'text-red-500'
           }`}
         >
           {priceChange >= 0 ? (
@@ -152,7 +140,7 @@ const CChart = ({ tokenId }: ChartProps) => {
       <ResponsiveContainer width="100%" height={120}>
         <LineChart data={chartData}>
           <XAxis dataKey="date" hide />
-          <YAxis hide domain={["auto", "auto"]} />
+          <YAxis hide domain={['auto', 'auto']} />
           <Tooltip
             content={
               <CustomTooltip
@@ -167,18 +155,18 @@ const CChart = ({ tokenId }: ChartProps) => {
           <Line
             type="monotone"
             dataKey="price"
-            stroke={priceChange >= 0 ? "#22c55e" : "#ef4444"}
+            stroke={priceChange >= 0 ? '#22c55e' : '#ef4444'}
             strokeWidth={2}
             dot={false}
           />
         </LineChart>
       </ResponsiveContainer>
       <div className="flex justify-between mt-2 text-sm text-gray-500">
-        {["1D", "1W", "1M", "1Y"].map((tf) => (
+        {['1D', '1W', '1M', '1Y'].map((tf) => (
           <button
             key={tf}
             onClick={() => setTimeframe(tf)}
-            className={`${timeframe === tf ? "font-bold" : ""}`}
+            className={`${timeframe === tf ? 'font-bold' : ''}`}
           >
             {tf}
           </button>

@@ -1,8 +1,14 @@
+import { Tokens, TransactionDetails } from "@/interfaces/models.interface";
+import {
+  createTransferInstruction,
+  getAssociatedTokenAddress,
+  TOKEN_PROGRAM_ID,
+} from "@solana/spl-token";
 import {
   clusterApiUrl,
   Connection,
-  LAMPORTS_PER_SOL,
   Keypair,
+  LAMPORTS_PER_SOL,
   TransactionMessage,
   VersionedTransaction,
   PublicKey,
@@ -12,13 +18,10 @@ import {
   Transaction,
   ConfirmedSignatureInfo,
 } from "@solana/web3.js";
-import { createTransferInstruction } from "@solana/spl-token";
-import { getAssociatedTokenAddress } from "@solana/spl-token";
+
 import * as bip39 from "bip39";
 import { getNativePrice } from "./helper.lib";
-import { TransactionDetails } from "@/interfaces/models.interface";
 import bs58 from "bs58";
-//import { useNetwork } from "@/context/NetworkContext";
 
 // Constants
 
@@ -367,7 +370,7 @@ export const transferSpl = async ({
     const seed = await bip39.mnemonicToSeed(mnemonicString);
     // console.log(seed,'seed')
     const seedBytes = seed.slice(0, 32);
-    const account = await Keypair.fromSeed(seedBytes);
+    const account = await Keypair.fromSeed(new Uint8Array(seedBytes));
     const connection = new Connection(clusterApiUrl("devnet"));
     const tokenAddress = new PublicKey(splTokenAddress);
     const receiverKey = new PublicKey(receiver);
@@ -630,3 +633,86 @@ export const fetchSolPriceB = async ({
     throw error;
   }
 };
+
+export async function fetchUserAssets(
+  address: string,
+  rpcUrl: string
+): Promise<Tokens[]> {
+  try {
+    const connection = new Connection(
+      rpcUrl || "https://api.mainnet-beta.solana.com",
+      "confirmed"
+    );
+    let pubKey: PublicKey;
+    try {
+      pubKey = new PublicKey(address);
+    } catch (error) {
+      throw new Error(
+        `Invalid Solana address: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`
+      );
+    }
+
+    // Fetch token accounts
+    const tokenAccounts = await connection.getParsedTokenAccountsByOwner(
+      pubKey,
+      { programId: TOKEN_PROGRAM_ID }
+    );
+
+    // Process token accounts
+    const tokens: Tokens[] = await Promise.all(
+      tokenAccounts.value
+        .filter(
+          (account) =>
+            Number(account.account.data.parsed.info.tokenAmount.amount) > 0
+        )
+        .map(async (account) => {
+          const mintAddress = account.account.data.parsed.info.mint;
+          const amount =
+            Number(account.account.data.parsed.info.tokenAmount.amount) /
+            Math.pow(10, account.account.data.parsed.info.tokenAmount.decimals);
+
+          try {
+            // Fetch token metadata
+
+            const metadata = account.account.data.parsed.info;
+
+            return {
+              name: metadata?.name || "Unknown Token",
+              address: mintAddress,
+              ticker: metadata?.symbol || "Unknown",
+              balance: amount,
+              logoUrl: "", // You can add logic to fetch the logo URL if available
+              token_id: mintAddress,
+              chain: "solana",
+              isEvm: false,
+              isMainnet: true,
+              owner: address,
+              compress_address: mintAddress,
+            };
+          } catch (err) {
+            console.error("Error fetching token info:", err);
+            return {
+              name: "Unknown Token",
+              address: mintAddress,
+              ticker: "Unknown",
+              balance: amount,
+              logoUrl: "",
+              token_id: mintAddress,
+              chain: "solana",
+              isEvm: false,
+              isMainnet: true,
+              owner: address,
+              compress_address: mintAddress,
+            };
+          }
+        })
+    );
+
+    return tokens;
+  } catch (err) {
+    console.error("Error fetching SPL tokens:", err);
+    return [];
+  }
+}

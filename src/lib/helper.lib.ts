@@ -25,12 +25,8 @@ export const CreateAllAccounts = async ({
   mnemonic: string;
   seedArray: Uint8Array;
 }) => {
-  console.log(mnemonic, "mn");
-  console.log(seedArray, "array");
   //solana
-
-  const solanaAccount = await Keypair.fromSeed(seedArray);
-  //console.log(account)
+  const solanaAccount = Keypair.fromSeed(seedArray);
   const solPublicKey = solanaAccount.publicKey.toString();
   const solPrivateKey = solanaAccount.secretKey;
   const SolConvertedsecret = bs58.encode(solPrivateKey);
@@ -82,15 +78,12 @@ export const getKeypairFromPrivateKey = (privateKeyString: string): Keypair => {
 export const GenerateSeed = async (): Promise<SeedGenerationResult> => {
   try {
     const mnemonic = bip39.generateMnemonic();
-    console.log("Mnemonic:", mnemonic);
 
     const seed = await bip39.mnemonicToSeed(mnemonic);
     const seedBytes = seed.slice(0, 32);
 
     // Convert Buffer to Uint8Array
     const seedArray = new Uint8Array(seedBytes);
-
-    console.log("Seed (Uint8Array):", seedArray);
     return { seedArray, mnemonic };
   } catch (error) {
     if (error instanceof Error) {

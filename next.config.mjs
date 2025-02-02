@@ -7,6 +7,16 @@ const nextConfig = {
         hostname: "statics.solscan.io",
         pathname: "/cdn/imgs/**",
       },
+      {
+        protocol: "https",
+        hostname: "coin-images.coingecko.com",
+        pathname: "/coins/images/**",
+      },
+      {
+        protocol: "http",
+        hostname: "localhost:3000",
+        pathname: "/assets/**",
+      },
     ],
   },
   webpack: (config, { isServer }) => {

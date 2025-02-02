@@ -1,5 +1,5 @@
 "use client";
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useMemo } from "react";
 import { BN254, ParsedTokenAccount } from "@lightprotocol/stateless.js";
 import { useAuth } from "@/context/AuthContext";
 import { normalizeTokenAmount } from "helius-airship-core";
@@ -26,7 +26,14 @@ import { calculateWalletTotals } from "@/lib/helper.lib";
 import { useTelegramBackButton } from "@/lib/telegram.lib";
 import { Token } from "@/utils/tokens.utils";
 import Image from "next/image";
-import { fetchUserAssets } from "@/lib/nft.helpers";
+//import { fetchUserAssets } from "@/lib/nft.helpers";
+import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
+import { createUmi } from "@metaplex-foundation/umi-bundle-defaults";
+import {
+  fetchDigitalAsset,
+  mplTokenMetadata,
+} from "@metaplex-foundation/mpl-token-metadata";
+import { publicKey } from "@metaplex-foundation/umi";
 
 interface TokenPrices {
   [ticker: string]: number;
@@ -185,7 +192,7 @@ const TokenItem: React.FC<TokenItemProps> = ({
         {price ? (
           `$${price.toFixed(1)}`
         ) : (
-          <div className="bg-white/20 h-4 w-16 mb-2 animate-pulse rounded"></div>
+          <span className="block bg-white/20 h-4 w-16 mb-2 animate-pulse rounded"></span>
         )}
       </p>
       <div className="text-[15px] text-end">
@@ -199,18 +206,6 @@ const TokenItem: React.FC<TokenItemProps> = ({
   </button>
 );
 
-interface TokenInfo {
-  address: string;
-  symbol: string;
-  name: string;
-  image: string;
-  amount: number;
-  isNft: boolean;
-  collection: string;
-  isCollectionNft: boolean;
-  isCollectionMaster: boolean;
-}
-
 interface WalletTotals {
   totalValue: number;
   solValue: number;
@@ -222,7 +217,7 @@ export const WalletView = () => {
     [address: string]: number;
   }>({});
   const [tokenPrices, setTokenPrices] = useState<TokenPrices>({});
-  const [otherTokenPrices, setOtherTokenPrices] = useState<TokenInfo[]>([]);
+  const [otherTokenPrices, setOtherTokenPrices] = useState<Tokens[]>([]);
   const [solBalance, setSolBalance] = useState<number | undefined>();
   const [solPrice, setSolPrice] = useState<number | undefined>();
   const [compTokens, setCompTokens] = useState<ParsedTokenAccount[]>();
@@ -231,9 +226,13 @@ export const WalletView = () => {
   const { network } = useNetwork();
   const [activeTab, setActiveTab] = useState("assets");
   const router = useRouter();
-  const connection = new Connection(network.rpcUrl || clusterApiUrl("devnet"), {
-    commitment: "confirmed",
-  });
+  const connection = useMemo(
+    () =>
+      new Connection(network.rpcUrl || clusterApiUrl("devnet"), {
+        commitment: "confirmed",
+      }),
+    []
+  );
   const scanner = useQRScanner(false);
 
   const [walletTotals, setWalletTotals] = useState<WalletTotals>({
@@ -258,18 +257,115 @@ export const WalletView = () => {
   useEffect(() => {
     const getAssets = async () => {
       try {
-        const tokens = await fetchUserAssets(
-          user?.solPublicKey || "",
-          network?.rpcUrl || ""
-        );
-        console.log("tokens", tokens);
-        setOtherTokenPrices(tokens);
+        //  const tokens = await fetchUserAssets(
+        //    user?.solPublicKey || "",
+        //    network?.rpcUrl || ""
+        //  );
+        //  console.log("tokens", tokens);
+        //  setOtherTokenPrices(tokens);
       } catch (error) {
         console.error("Failed to fetch user assets:", error);
       }
     };
     getAssets();
-  }, [user]);
+  }, [tokens, network]);
+  useEffect(() => {
+    async function fetchUserTokens() {
+      if (!user) return;
+
+      try {
+        let pubKey: PublicKey;
+        try {
+          pubKey = new PublicKey(user?.solPublicKey || "");
+        } catch (error) {
+          throw new Error(
+            `Invalid Solana address: ${
+              error instanceof Error ? error.message : "Unknown error"
+            }`
+          );
+        }
+
+        const tokenAccounts = await connection.getParsedTokenAccountsByOwner(
+          pubKey,
+          { programId: TOKEN_PROGRAM_ID }
+        );
+
+        console.log("tokenAccounts", tokenAccounts);
+
+        const tokenInfos = await Promise.all(
+          tokenAccounts.value
+            .filter(
+              (account) =>
+                Number(account.account.data.parsed.info.tokenAmount.amount) > 0
+            )
+            .map(async (account) => {
+              const mintAddress = account.account.data.parsed.info.mint;
+              const amount =
+                Number(account.account.data.parsed.info.tokenAmount.amount) /
+                Math.pow(
+                  10,
+                  account.account.data.parsed.info.tokenAmount.decimals
+                );
+
+              try {
+                const umi = createUmi(network?.rpcUrl || "").use(
+                  mplTokenMetadata()
+                );
+                // await umiSwitchToSoonDevnet(umi);
+
+                const asset = await fetchDigitalAsset(
+                  umi,
+                  publicKey(mintAddress)
+                );
+                let imageUrl = "";
+
+                if (asset.metadata.uri) {
+                  const response = await fetch(asset.metadata.uri);
+                  const jsonMetadata = await response.json();
+                  imageUrl = jsonMetadata.image || "";
+                }
+
+                return {
+                  name: asset.metadata.name,
+                  address: mintAddress,
+                  balance: amount,
+                  ticker: asset.metadata.symbol,
+                  logoUrl: imageUrl,
+                  token_id: mintAddress,
+                  chain: "solana",
+                  isEvm: false,
+                  isMainnet: true,
+                  owner: user?.solPublicKey || "",
+                  compress_address: mintAddress,
+                };
+              } catch (err) {
+                console.error("Error fetching token info:", err);
+                return {
+                  name: "Unknown Token",
+                  address: mintAddress,
+                  balance: amount,
+                  ticker: "Unknown",
+                  logoUrl: "",
+                  token_id: mintAddress,
+                  chain: "solana",
+                  isEvm: false,
+                  isMainnet: true,
+                  owner: user?.solPublicKey || "",
+                  compress_address: mintAddress,
+                };
+              }
+            })
+        );
+
+        console.log("tokenInfos", tokenInfos);
+        setOtherTokenPrices(tokenInfos);
+      } catch (err) {
+        console.error("Error fetching tokens:", err);
+      }
+    }
+
+    fetchUserTokens();
+  }, [network, user, connection]);
   useEffect(() => {
     const fetchSolBalance = async () => {
       try {
@@ -363,7 +459,7 @@ export const WalletView = () => {
     };
 
     fetchBalances();
-  }, [tokens]);
+  }, [connection, tokens, user]);
 
   useEffect(() => {
     const fetchPrices = async () => {
@@ -405,9 +501,11 @@ export const WalletView = () => {
           return;
         }
         navigate(`/send/${network.native?.name.toLowerCase()}/${content}`);
+        router.push(`/send/${network.native?.name.toLowerCase()}/${content}`);
       });
     } catch (error) {
       console.error("Error Getting QR Details", error);
+      console.error(error);
     }
   };
 
@@ -418,6 +516,7 @@ export const WalletView = () => {
           <button
             onClick={() => router.replace("/settings")}
             className="mr-auto ml-1.5 flex items-center justify-center rounded-full"
+            title="Settings"
           >
             <Image
               alt="hh"
@@ -429,7 +528,8 @@ export const WalletView = () => {
           </button>
           <button
             onClick={() => scan()}
-            className=" mr-1.5  ml-auto flex items-center justify-center rounded-full"
+            className="mr-1.5 ml-auto flex items-center justify-center rounded-full"
+            title="Scan QR Code"
           >
             <Image
               width={40}
@@ -530,6 +630,7 @@ export const WalletView = () => {
                 chain: network.name,
                 isEvm: network.isEVM,
                 isMainnet: network.isTestNet,
+                balance: solBalance || 0,
                 address: "",
                 owner: "",
                 compress_address: "",
@@ -558,6 +659,15 @@ export const WalletView = () => {
                       onClick={() => router.push(`/token/${token.address}`)}
                     />
                   ))}
+                {otherTokenPrices.map((token, i) => (
+                  <div
+                    key={i}
+                    className="bg-white/10 w-[90%] mb-1.5 flex items-center justify-center rounded-xl h-[70px] cursor-pointer"
+                  >
+                    {token.name}
+                    {token.balance}
+                  </div>
+                ))}
               </>
             ) : (
               <>
@@ -576,6 +686,15 @@ export const WalletView = () => {
                       onClick={() => router.push(`/token/${token.address}`)}
                     />
                   ))}
+
+                {otherTokenPrices.map((token, i) => (
+                  <div
+                    key={i}
+                    className="bg-white/10 w-[90%] mb-1.5 flex items-center justify-center rounded-xl h-[70px] cursor-pointer"
+                  >
+                    {token.name}
+                  </div>
+                ))}
               </>
             )}
           </>

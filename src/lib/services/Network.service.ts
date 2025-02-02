@@ -1,6 +1,4 @@
-import { networkList } from "@/utils/networks.utils";
-//import { apiResponse } from "../api.helpers";
-//import { supabaseClient } from "../supabase_client.utils";
+import { networkList } from '@/utils/networks.utils';
 
 export class NetworkServices {
   static async getAllNetworks() {
@@ -8,7 +6,7 @@ export class NetworkServices {
       const data = networkList;
       return data;
     } catch (error: unknown) {
-      console.log(error);
+      console.error(error);
     }
   }
   static async getSolana() {
@@ -18,7 +16,7 @@ export class NetworkServices {
         return data;
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   }
 }

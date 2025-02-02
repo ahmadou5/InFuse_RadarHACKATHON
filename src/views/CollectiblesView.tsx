@@ -178,7 +178,7 @@ export const NFTView = () => {
             })
         );
 
-        const grouped = tokenInfos.reduce((acc: GroupedNfts, token) => {
+        tokenInfos.reduce((acc: GroupedNfts, token) => {
           if (token.isNft) {
             let collectionKey;
 
@@ -198,9 +198,7 @@ export const NFTView = () => {
           return acc;
         }, {});
 
-        console.log(grouped);
         setNfts(tokenInfos);
-        //console.log(tokenInfos, "ertyu");
       } catch (err) {
         console.error("Error fetching tokens:", err);
       } finally {
@@ -213,10 +211,10 @@ export const NFTView = () => {
   return (
     <div className=" w-[100%] h-[100%] ">
       <div className="flex items-center justify-between px-4 py-3">
-        <div onClick={() => router.back()} className="flex items-center">
+        <button onClick={() => router.back()} className="flex items-center">
           <ChevronLeft className="w-6 h-6 mr-4" />
           <h1 className="text-xl font-medium">Collectibles</h1>
-        </div>
+        </button>
       </div>
       <div className="mt-1 grid grid-cols-2 items-center justify-between  h-auto ml-auto mr-auto rounded-lg py-4 px-4 bg-white/0 w-[100%]">
         {nfts !== null && nfts?.length > 0 ? (
