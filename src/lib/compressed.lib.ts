@@ -207,8 +207,8 @@ export const compressToken = async ({
     const RPC_ENDPOINT = rpc;
     const connection: Rpc = createRpc(RPC_ENDPOINT, RPC_ENDPOINT);
     const seed = await bip39.mnemonicToSeed(userMnemonic);
-    const seedBytes = seed.toString().substring(0, 32);
-    const account = Keypair.fromSeed(Uint8Array.from(seedBytes));
+    const seedBytes = new Uint8Array(seed).subarray(0, 32);
+    const account = Keypair.fromSeed(seedBytes);
 
     const tokenAddress = new PublicKey(splAddress);
 
@@ -398,8 +398,8 @@ export const transferCompressedTokens = async ({
     const senderKey = new PublicKey(sender);
     const mint = new PublicKey(tokenMint);
     const seed = await bip39.mnemonicToSeed(userMnemonic);
-    const seedBytes = seed.toString().substring(0, 32);
-    const account = Keypair.fromSeed(Uint8Array.from(seedBytes));
+    const seedBytes = new Uint8Array(seed).subarray(0, 32);
+    const account = Keypair.fromSeed(seedBytes);
     // get the token account state
     // 2. Get token mint info for decimal adjustment
     const mintInfo = await getMint(connection, mint);
@@ -553,8 +553,8 @@ export async function fetchCompressedTokens({
 export const testMint = async (mnemonic: string | undefined) => {
   if (mnemonic === undefined) return;
   const seed = await bip39.mnemonicToSeed(mnemonic);
-  const seedBytes = seed.toString().substring(0, 32);
-  const account = Keypair.fromSeed(Uint8Array.from(seedBytes));
+  const seedBytes = new Uint8Array(seed).subarray(0, 32);
+  const account = Keypair.fromSeed(seedBytes);
   try {
     const { mint } = await createMint(
       connection,
